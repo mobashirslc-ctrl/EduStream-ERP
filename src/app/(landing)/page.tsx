@@ -1,23 +1,28 @@
 import React from 'react';
 import { Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-[#0A192F]">
-      {/* Hero Section */}
+      {/* Navbar */}
       <nav className="flex justify-between items-center px-10 py-6 max-w-7xl mx-auto">
         <div className="text-2xl font-bold text-[#14B8A6] flex items-center gap-2">
           <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg">E</div>
           EduConsult AI
         </div>
         <div className="hidden md:flex gap-8 font-medium text-gray-600">
-          <a href="#features">Features</a>
-          <a href="/pricing">Pricing</a>
-          <a href="#demo">Demo</a>
+          <a href="#features" className="hover:text-[#14B8A6] transition-colors">Features</a>
+          {/* Pricing এর জন্য Link ব্যবহার করা হলো */}
+          <Link href="/pricing" className="hover:text-[#14B8A6] transition-colors">Pricing</Link>
+          <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
-        <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
-          Start Free Trial
-        </button>
+        {/* Login এ যাওয়ার জন্য Link */}
+        <Link href="/login">
+          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
+            Start Free Trial
+          </button>
+        </Link>
       </nav>
 
       <section className="pt-20 pb-32 px-6 text-center max-w-5xl mx-auto">
@@ -36,9 +41,13 @@ const LandingPage = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
-          <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg shadow-teal-200 hover:scale-105 transition-all">
-            Get Started Free <ArrowRight size={22} />
-          </button>
+          {/* Get Started Button এখন Login পেজে নিয়ে যাবে */}
+          <Link href="/login">
+            <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg shadow-teal-200 hover:scale-105 transition-all">
+              Get Started Free <ArrowRight size={22} />
+            </button>
+          </Link>
+          
           <button className="px-10 py-4 border-2 border-teal-100 text-[#14B8A6] rounded-xl font-bold text-lg hover:bg-teal-50 transition-all">
             Watch Demo
           </button>
