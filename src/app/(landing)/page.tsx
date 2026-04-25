@@ -1,6 +1,6 @@
 import React from 'react';
-import { Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
+import { Zap, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
@@ -13,12 +13,10 @@ const LandingPage = () => {
         </div>
         <div className="hidden md:flex gap-8 font-medium text-gray-600">
           <a href="#features" className="hover:text-[#14B8A6] transition-colors">Features</a>
-          {/* Pricing এর জন্য Link ব্যবহার করা হলো */}
-          <Link href="/pricing" className="hover:text-[#14B8A6] transition-colors">Pricing</Link>
+          <Link to="/pricing" className="hover:text-[#14B8A6] transition-colors">Pricing</Link>
           <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
-        {/* Login এ যাওয়ার জন্য Link */}
-        <Link href="/login">
+        <Link to="/login">
           <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
             Start Free Trial
           </button>
@@ -41,8 +39,8 @@ const LandingPage = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
-          {/* Get Started Button এখন Login পেজে নিয়ে যাবে */}
-          <Link href="/login">
+          {/* এখানে href বদলে to করা হয়েছে */}
+          <Link to="/login">
             <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg shadow-teal-200 hover:scale-105 transition-all">
               Get Started Free <ArrowRight size={22} />
             </button>
