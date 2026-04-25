@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 
-// ইমপোর্ট করার সময় './app/...' এর বদলে সরাসরি সঠিক পাথ দিচ্ছি
-import LandingPage from './app/(landing)/page'
-import LoginPage from './app/(auth)/login/page'
-import DashboardLayout from './app/(dashboard)/layout'
+// সরাসরি ইমপোর্ট - কোনো পাথ ভুল হওয়ার সুযোগ নেই
+import LandingPage from './app/(landing)/page.tsx'
+import LoginPage from './app/(auth)/login/page.tsx'
+import DashboardLayout from './app/(dashboard)/layout.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -17,8 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/dashboard" element={
           <DashboardLayout>
             <div className="p-10 text-center">
-              <h1 className="text-3xl font-bold text-teal-600">EduStream ERP Dashboard</h1>
-              <p className="text-gray-500 mt-4">ড্যাশবোর্ডের কাজ সফলভাবে শুরু হয়েছে!</p>
+              <h1 className="text-3xl font-bold">EduStream AI ERP Live!</h1>
             </div>
           </DashboardLayout>
         } />
