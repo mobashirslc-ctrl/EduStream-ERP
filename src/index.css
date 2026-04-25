@@ -1,7 +1,5 @@
 /* ১. Tailwind-এর ডিরেক্টিভগুলো যোগ করুন (এটিই ডিজাইন ঠিক করবে) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* আপনার আগের কোডগুলো নিচে দেওয়া হলো */
 :root {
