@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 
-// ইমপোর্ট করার সময় এক্সটেনশনসহ এবং সঠিক কেস (Case) ব্যবহার করুন
+// ব্যাকস্ল্যাশ (\) এর বদলে ফরওয়ার্ড স্ল্যাশ (/) ব্যবহার করুন
 import LandingPage from './app/(landing)/page.tsx'
 import LoginPage from './app/(auth)/login/page.tsx'
 import DashboardLayout from './app/(dashboard)/layout.tsx'
