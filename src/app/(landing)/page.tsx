@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
-import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Mail, Plane, Users, BarChart3, Palette, FileText, Globe, Bell } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedPlan, setSelectedPlan] = useState<string | null>("Professional"); // ডিফল্ট প্রোফেশনাল সিলেক্টেড
 
-  // আপনার সবকটি আকর্ষণীয় ফিচার এখানে লিস্ট করা হলো
   const allFeatures = [
-    { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports for students." },
-    { icon: <CloudUpload />, title: "Cloudinary Manager", desc: "Secure 5-slot PDF upload system directly synced with Cloudinary for every student file." },
-    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Start' to 'University Reached' with granular status updates." },
-    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Every compliance update triggers an automated email to the student and partner instantly." },
-    { icon: <FileText />, title: "Smart Invoicing", desc: "Generate file submission invoices and financial reports automatically within the portal." },
-    { icon: <Users />, title: "Staff & Compliance", desc: "Task management and real-time monitoring of your team's workflow and compliance." },
-    { icon: <Palette />, title: "Marketing Studio", desc: "Canva-style design tool, multi-platform campaign launcher, and AI content writer." },
-    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for every student to track their own file progress without login." },
-    { icon: <Plane />, title: "Integrated Ticketing", desc: "Real-time flight search and pricing API. Request and manage air tickets within the ERP." },
-    { icon: <Globe />, title: "Before Departure", desc: "Automated pre-departure checklists, orientation materials, and travel guides for students." },
-    { icon: <Users />, title: "After Arrival Support", desc: "Airport pickup coordination, accommodation booking, and local support tracking." }
+    { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
+    { icon: <CloudUpload />, title: "Cloudinary Manager", desc: "Secure 5-slot PDF upload system synced with Cloudinary for every student file." },
+    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Start' to 'University Reached' with updates." },
+    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Compliance updates trigger automated emails to student and partner instantly." },
+    { icon: <FileText />, title: "Smart Invoicing", desc: "Generate file submission invoices and financial reports automatically." },
+    { icon: <Users />, title: "Staff & Compliance", desc: "Task management and real-time monitoring of your team's workflow." },
+    { icon: <Palette />, title: "Marketing Studio", desc: "Canva-style tool, multi-platform campaign launcher, and AI writer." },
+    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for students to track progress without login." },
+    { icon: <Plane />, title: "Integrated Ticketing", desc: "Real-time flight search and pricing API managed within the ERP." }
+  ];
+
+  const pricingPlans = [
+    { 
+      plan: "Starter", 
+      price: billingCycle === 'monthly' ? "49" : "39", 
+      features: ["Up to 50 Student Files", "AI Assessment Hub", "Basic File Tracking", "Email Notifications"] 
+    },
+    { 
+      plan: "Professional", 
+      price: billingCycle === 'monthly' ? "99" : "79", 
+      popular: true,
+      features: ["Unlimited Student Files", "Full Compliance Hub", "Marketing Design Studio", "QR Code Tracking", "Integrated Ticketing"] 
+    },
+    { 
+      plan: "Enterprise", 
+      price: "Custom", 
+      features: ["Multi-Branch Management", "Custom API Integration", "White-label Portal", "Before & After Departure Support"] 
+    }
   ];
 
   return (
@@ -34,7 +51,7 @@ const LandingPage = () => {
           <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
         <Link to="/login">
-          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
+          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
             Start Free Trial
           </button>
         </Link>
@@ -50,29 +67,28 @@ const LandingPage = () => {
           Global Agency <span className="text-[#14B8A6]">Operating System</span>
         </h1>
         <p className="max-w-3xl mx-auto text-gray-500 text-xl mb-12 leading-relaxed">
-          From AI Eligibility Assessment to Air Ticketing—manage your entire student consultancy business with real-time tracking and automated compliance.
+          From AI Eligibility Assessment to Air Ticketing—manage your entire student consultancy business with real-time tracking.
         </p>
-        <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
+        <div className="flex justify-center">
           <Link to="/login">
-            <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg shadow-teal-200 hover:scale-105 transition-all">
+            <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
               Get Started Free <ArrowRight size={22} />
             </button>
           </Link>
         </div>
       </section>
 
-      {/* 3. Detailed Features Section */}
+      {/* 3. Features Grid */}
       <section id="features" className="py-24 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Powerful Features for <span className="text-[#14B8A6]">Modern Agencies</span></h2>
             <p className="text-gray-500">Every tool you need to process files 10x faster</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {allFeatures.map((f, i) => (
               <div key={i} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-xl transition-all group">
-                <div className="w-12 h-12 bg-[#14B8A6] rounded-xl flex items-center justify-center mb-6 text-white group-hover:rotate-6 transition-transform shadow-lg shadow-teal-100">
+                <div className="w-12 h-12 bg-[#14B8A6] rounded-xl flex items-center justify-center mb-6 text-white group-hover:rotate-6 transition-transform">
                   {f.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3">{f.title}</h3>
@@ -83,12 +99,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 4. Pricing Section */}
+      {/* 4. Pricing Section with Selection Logic */}
       <section id="pricing" className="py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-6">Simple, Transparent <span className="text-[#14B8A6]">Pricing</span></h2>
-            
             <div className="flex items-center justify-center gap-4 mb-8">
               <span className={`font-semibold ${billingCycle === 'monthly' ? 'text-[#0A192F]' : 'text-gray-400'}`}>Monthly</span>
               <button 
@@ -102,25 +117,16 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            {[
-              { 
-                plan: "Starter", 
-                price: billingCycle === 'monthly' ? "49" : "39", 
-                features: ["Up to 50 Student Files", "AI Assessment Hub", "Basic File Tracking", "Email Notifications", "Cloudinary Storage (5 slots)"] 
-              },
-              { 
-                plan: "Professional", 
-                price: billingCycle === 'monthly' ? "99" : "79", 
-                popular: true,
-                features: ["Unlimited Student Files", "Full Compliance Hub", "Marketing Design Studio", "QR Code Tracking", "Integrated Ticketing", "Priority Support"] 
-              },
-              { 
-                plan: "Enterprise", 
-                price: "Custom", 
-                features: ["Multi-Branch Management", "Custom API Integration", "White-label Portal", "Before & After Departure Support", "Dedicated Account Manager"] 
-              }
-            ].map((p, i) => (
-              <div key={i} className={`p-10 rounded-[2.5rem] border transition-all ${p.popular ? 'border-[#14B8A6] shadow-2xl shadow-teal-100 lg:scale-105 bg-white relative z-10' : 'border-gray-100 bg-white hover:border-teal-200'}`}>
+            {pricingPlans.map((p, i) => (
+              <div 
+                key={i} 
+                onClick={() => setSelectedPlan(p.plan)}
+                className={`p-10 rounded-[2.5rem] border transition-all cursor-pointer ${
+                  selectedPlan === p.plan 
+                  ? 'border-[#14B8A6] shadow-2xl shadow-teal-100 lg:scale-105 bg-white relative z-10' 
+                  : 'border-gray-100 bg-white hover:border-teal-200 opacity-80 hover:opacity-100'
+                }`}
+              >
                 {p.popular && <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#14B8A6] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</span>}
                 <h3 className="text-xl font-bold mb-2">{p.plan}</h3>
                 <div className="mb-8">
@@ -134,8 +140,10 @@ const LandingPage = () => {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-4 rounded-xl font-bold transition-all ${p.popular ? 'bg-[#14B8A6] text-white hover:bg-[#0D9488] shadow-lg shadow-teal-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}>
-                  Get Started
+                <button className={`w-full py-4 rounded-xl font-bold transition-all ${
+                  selectedPlan === p.plan ? 'bg-[#14B8A6] text-white' : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {selectedPlan === p.plan ? 'Get Started Now' : 'Select Plan'}
                 </button>
               </div>
             ))}
@@ -143,14 +151,57 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 5. Footer */}
-      <footer className="py-12 border-t border-gray-100 text-center">
-        <div className="flex justify-center gap-8 mb-6 font-medium text-gray-600">
-          <a href="#" className="hover:text-[#14B8A6]">Privacy Policy</a>
-          <a href="#" className="hover:text-[#14B8A6]">Terms of Service</a>
-          <a href="#" className="hover:text-[#14B8A6]">Contact Support</a>
+      {/* 5. Extended Footer Links Section */}
+      <section className="py-20 border-t border-gray-100 bg-gray-50/30">
+        <div className="max-w-7xl mx-auto px-10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
+          <div className="col-span-2 lg:col-span-1">
+            <div className="text-2xl font-bold text-[#14B8A6] flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg">E</div>
+              EduConsult
+            </div>
+            <p className="text-gray-500 text-sm leading-relaxed">The only ERP you need to scale your global study abroad processing agency.</p>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#0A192F] mb-6">Company</h4>
+            <ul className="space-y-4 text-gray-500 text-sm">
+              <li><a href="#" className="hover:text-[#14B8A6]">About Us</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Success Stories</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Careers</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Press Kit</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#0A192F] mb-6">Product</h4>
+            <ul className="space-y-4 text-gray-500 text-sm">
+              <li><a href="#" className="hover:text-[#14B8A6]">Features</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Integrations</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">API Docs</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Status Page</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#0A192F] mb-6">Resources</h4>
+            <ul className="space-y-4 text-gray-500 text-sm">
+              <li><a href="#" className="hover:text-[#14B8A6]">Blog</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Community</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Help Center</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Webinars</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#0A192F] mb-6">Legal</h4>
+            <ul className="space-y-4 text-gray-500 text-sm">
+              <li><a href="#" className="hover:text-[#14B8A6]">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Terms of Service</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">GDPR</a></li>
+              <li><a href="#" className="hover:text-[#14B8A6]">Cookie Policy</a></li>
+            </ul>
+          </div>
         </div>
-        <p className="text-gray-400 text-sm">© 2026 EduConsult AI. Built for Professional Study Abroad Teams.</p>
+      </section>
+
+      <footer className="py-8 text-center text-gray-400 text-xs border-t border-gray-100">
+        <p>© 2026 EduConsult AI. All rights reserved. Built for Dhaka to London Processing.</p>
       </footer>
     </div>
   );
