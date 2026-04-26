@@ -32,61 +32,76 @@ const AuthPage = () => {
   const brandColor = "#e11d48"; 
 
   const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      if (isSignUp) {
-        // --- Registration Logic ---
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+  try {
+    if (isSignUp) {
+      // --- Cloudinary Upload (Unsigned) ---
+      let nidUrl = "";
+      if (nidFile) {
+        const formData = new FormData();
+        formData.append("file", nidFile);
+        // 'your_unsigned_preset' এর জায়গায় আপনার তৈরি করা প্রিসেট নাম দিন
+        formData.append("upload_preset", "your_unsigned_preset"); 
+        formData.append("cloud_name", "edustream"); // আপনার ক্লাউড নাম
 
-        let nidUrl = "";
-        if (nidFile) {
-          const storageRef = ref(storage, `nids/${user.uid}`);
-          await uploadBytes(storageRef, nidFile);
-          nidUrl = await getDownloadURL(storageRef);
-        }
-
-        await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          companyName,
-          authPersonName: authPerson,
-          contactNo,
-          address,
-          email,
-          package: selectedPackage,
-          nidUrl,
-          status: "pending", // Default status
-          createdAt: new Date().toISOString()
-        });
-
-        alert("Application Submitted! Please wait for Admin Approval.");
-        setIsSignUp(false); // রেজিস্ট্রেশন শেষে লগইন মোডে নিয়ে যাবে
-      } else {
-        // --- Login Logic ---
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // চেক করা ইউজার এপ্রুভড কি না
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          if (userData.status === "approved") {
-            navigate('/dashboard'); // এপ্রুভড হলে ড্যাশবোর্ডে যাবে
-          } else {
-            alert("Your account is still pending approval.");
-            await auth.signOut(); // এপ্রুভড না হলে লগআউট করে দিবে
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/edustream/image/upload`,
+          {
+            method: "POST",
+            body: formData,
           }
+        );
+
+        if (!response.ok) throw new Error("Image upload failed");
+        
+        const data = await response.json();
+        nidUrl = data.secure_url; // ক্লাউডিনারি থেকে পাওয়া ইমেজের লিংক
+      }
+
+      // --- Firebase Auth & Firestore ---
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        companyName,
+        authPersonName: authPerson,
+        contactNo,
+        address,
+        email,
+        package: selectedPackage,
+        nidUrl: nidUrl, // এখানে ক্লাউডিনারি লিংক সেভ হবে
+        status: "pending",
+        createdAt: new Date().toISOString()
+      });
+
+      alert("Registration successful! Admin will review your profile.");
+      setIsSignUp(false);
+    } else {
+      // --- Login Logic ---
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.status === "approved") {
+          navigate('/dashboard');
+        } else {
+          alert("Wait for Admin Approval.");
+          await auth.signOut();
         }
       }
-    } catch (error: any) {
-      alert("Error: " + error.message);
-    } finally {
-      setLoading(false);
     }
-  };
-
+  } catch (error: any) {
+    console.error("Auth Error:", error);
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
   const inputStyle = "w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none transition-all text-sm focus:border-[#e11d48]";
   const iconStyle = "absolute left-3 top-3.5 h-4 w-4 text-gray-400";
 
