@@ -1,27 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import App from './App' // আপনার App.tsx কে ইমপোর্ট করুন
 import './index.css'
-
-// ব্যাকস্ল্যাশ (\) এর বদলে ফরওয়ার্ড স্ল্যাশ (/) ব্যবহার করুন
-import LandingPage from './app/(landing)/page.tsx'
-import LoginPage from './app/(auth)/login/page.tsx'
-import DashboardLayout from './app/(dashboard)/layout.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={
-          <DashboardLayout>
-            <div className="p-10 text-center">
-              <h1 className="text-3xl font-bold">EduStream AI ERP Live!</h1>
-            </div>
-          </DashboardLayout>
-        } />
-      </Routes>
-    </BrowserRouter>
+    {/* এখানে আলাদা করে Route দেওয়ার দরকার নেই, সব App.tsx থেকে আসবে */}
+    <App />
   </React.StrictMode>,
 )
