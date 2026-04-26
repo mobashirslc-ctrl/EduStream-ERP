@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, CreditCard, Landmark } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, Wallet, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
@@ -7,6 +7,15 @@ const LandingPage = () => {
   const [selectedPlan, setSelectedPlan] = useState<any>(null); 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('');
+
+  // হেড এডমিন প্যানেল থেকে এই ডাটাগুলো পরবর্তীতে পরিবর্তনযোগ্য হবে
+  const adminSettings = {
+    bkashNumber: "017XXXXXXXX",
+    nagadNumber: "018XXXXXXXX",
+    bankDetails: "A/C: EduConsult Ltd, City Bank, #123456789",
+    starterPrice: billingCycle === 'monthly' ? 5000 : 50000, // টাকা (৳)
+    professionalPrice: billingCycle === 'monthly' ? 10000 : 100000, // টাকা (৳)
+  };
 
   const allFeatures = [
     { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
@@ -23,7 +32,7 @@ const LandingPage = () => {
   const pricingPlans = [
     { 
       plan: "Starter", 
-      price: billingCycle === 'monthly' ? "49" : "39", 
+      price: adminSettings.starterPrice, 
       features: [
         "Up to 50 Student Files", 
         "AI Assessment Hub", 
@@ -34,7 +43,7 @@ const LandingPage = () => {
     },
     { 
       plan: "Professional", 
-      price: billingCycle === 'monthly' ? "99" : "79", 
+      price: adminSettings.professionalPrice, 
       popular: true,
       features: [
         "Unlimited Student Files", 
@@ -59,9 +68,9 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white font-sans text-[#0A192F]">
-      {/* 1. Navbar */}
-      <nav className="flex justify-between items-center px-10 py-6 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white font-sans text-[#0A192F] overflow-x-hidden">
+      {/* 1. Navbar - Fixes the top glitch */}
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 flex justify-between items-center px-6 md:px-10 py-5 max-w-full mx-auto">
         <div className="text-2xl font-bold text-[#14B8A6] flex items-center gap-2">
           <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg font-bold">E</div>
           EduConsult AI
@@ -72,7 +81,7 @@ const LandingPage = () => {
           <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
         <Link to="/login">
-          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
+          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
             Start Free Trial
           </button>
         </Link>
@@ -80,22 +89,20 @@ const LandingPage = () => {
 
       {/* 2. Hero Section */}
       <section className="pt-20 pb-20 px-6 text-center max-w-6xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-100 text-[#14B8A6] mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-100 text-[#14B8A6] mb-8 animate-fade-in">
           <Zap size={16} fill="currentColor" />
           <span className="text-sm font-semibold tracking-wide uppercase">The Ultimate Processing Hub ERP</span>
         </div>
-        <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-[1.1]">
+        <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-tight">
           Global Agency <span className="text-[#14B8A6]">Operating System</span>
         </h1>
         <p className="max-w-3xl mx-auto text-gray-500 text-xl mb-12 leading-relaxed">
           From AI Eligibility Assessment to Air Ticketing—manage your entire student consultancy business with real-time tracking.
         </p>
         <div className="flex justify-center">
-          <Link to="/login">
-            <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
-              Get Started Free <ArrowRight size={22} />
-            </button>
-          </Link>
+          <button onClick={() => document.getElementById('pricing')?.scrollIntoView({behavior: 'smooth'})} className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
+            Get Started Now <ArrowRight size={22} />
+          </button>
         </div>
       </section>
 
@@ -103,7 +110,7 @@ const LandingPage = () => {
       <section id="features" className="py-24 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Powerful Features for <span className="text-[#14B8A6]">Modern Agencies</span></h2>
+            <h2 className="text-4xl font-bold mb-4 italic">Powerful Features for <span className="text-[#14B8A6]">Modern Agencies</span></h2>
             <p className="text-gray-500">Every tool you need to process files 10x faster</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -120,11 +127,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 4. Pricing Section */}
+      {/* 4. Pricing Section - BDT Currency */}
       <section id="pricing" className="py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">Simple, Transparent <span className="text-[#14B8A6]">Pricing</span></h2>
+            <h2 className="text-4xl font-bold mb-6 italic text-[#14B8A6]">Simple, Transparent Pricing</h2>
             <div className="flex items-center justify-center gap-4 mb-8">
               <span className={`font-semibold ${billingCycle === 'monthly' ? 'text-[#0A192F]' : 'text-gray-400'}`}>Monthly</span>
               <button 
@@ -151,8 +158,10 @@ const LandingPage = () => {
                 {p.popular && <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#14B8A6] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</span>}
                 <h3 className="text-xl font-bold mb-2">{p.plan}</h3>
                 <div className="mb-8">
-                  <span className="text-4xl font-bold text-[#0A192F]">${p.price}</span>
-                  {p.price !== "Custom" && <span className="text-gray-500 font-medium">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}
+                  <span className="text-4xl font-bold text-[#0A192F]">
+                    {typeof p.price === 'number' ? `৳${p.price.toLocaleString()}` : p.price}
+                  </span>
+                  {typeof p.price === 'number' && <span className="text-gray-500 font-medium">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}
                 </div>
                 <ul className="space-y-4 mb-10 text-gray-600">
                   {p.features.map((feat, idx) => (
@@ -175,43 +184,60 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 5. Manual Payment Modal */}
+      {/* 5. Dynamic Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-md p-8 relative animate-in fade-in zoom-in duration-300">
-            <button onClick={() => setShowPaymentModal(false)} className="absolute right-6 top-6 text-gray-400 hover:text-black"><X /></button>
-            <h2 className="text-2xl font-bold mb-2">Checkout</h2>
-            <p className="text-gray-500 mb-6">Subscribing to: <span className="text-[#14B8A6] font-bold">{selectedPlan?.plan} Plan</span></p>
-            <div className="space-y-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-md p-8 relative animate-in fade-in zoom-in duration-300">
+            <button onClick={() => setShowPaymentModal(false)} className="absolute right-6 top-6 text-gray-400 hover:text-red-500 transition-colors"><X size={24} /></button>
+            <h2 className="text-2xl font-bold mb-1">Confirm Subscription</h2>
+            <p className="text-gray-500 mb-6">Plan: <span className="text-[#14B8A6] font-bold">{selectedPlan?.plan}</span></p>
+            
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-bold mb-2">Payment Method</label>
-                <select className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-teal-500" onChange={(e) => setPaymentMethod(e.target.value)} value={paymentMethod}>
+                <label className="block text-xs font-bold uppercase text-gray-400 mb-2">Select Payment Method</label>
+                <select className="w-full p-4 border-2 border-gray-100 rounded-2xl bg-gray-50 focus:border-[#14B8A6] outline-none transition-all" onChange={(e) => setPaymentMethod(e.target.value)} value={paymentMethod}>
                   <option value="">Choose Method...</option>
-                  <option value="bkash">MFS (bKash/Nagad/Rocket)</option>
+                  <option value="bkash">bKash (MFS)</option>
+                  <option value="nagad">Nagad (MFS)</option>
                   <option value="bank">Bank Transfer</option>
                 </select>
               </div>
-              {paymentMethod === 'bkash' && (
-                <div className="p-4 bg-teal-50 rounded-xl border border-teal-100">
-                  <p className="text-sm font-medium text-teal-800 mb-2 font-bold text-center underline">Send Money: 017XXXXXXXX (Personal)</p>
-                  <input type="text" placeholder="Enter Transaction ID" className="w-full p-3 border rounded-lg focus:outline-none focus:border-[#14B8A6]" />
+
+              {(paymentMethod === 'bkash' || paymentMethod === 'nagad') && (
+                <div className="p-5 bg-teal-50 rounded-2xl border border-teal-100">
+                  <p className="text-sm font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                    <Wallet size={16} /> Send Money to: 
+                    <span className="bg-white px-2 py-1 rounded-lg text-[#14B8A6] border border-teal-200">
+                      {paymentMethod === 'bkash' ? adminSettings.bkashNumber : adminSettings.nagadNumber}
+                    </span>
+                  </p>
+                  <input type="text" placeholder="Transaction ID (e.g. TR678XX)" className="w-full p-3 border-2 border-white rounded-xl focus:border-[#14B8A6] outline-none" />
                 </div>
               )}
+
               {paymentMethod === 'bank' && (
-                <div className="p-4 bg-teal-50 rounded-xl border border-teal-100">
-                  <p className="text-xs font-medium text-teal-800 mb-2">A/C: EduConsult Ltd, City Bank, #123456789</p>
-                  <label className="block text-[10px] font-bold text-teal-600 mb-1 uppercase text-center">Upload Payment Slip</label>
-                  <input type="file" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-teal-600 file:text-white" />
+                <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                  <p className="text-xs font-medium text-blue-800 mb-3 flex items-center gap-2 leading-relaxed italic">
+                    <Landmark size={16} /> {adminSettings.bankDetails}
+                  </p>
+                  <label className="block text-[10px] font-bold text-blue-600 mb-1 uppercase text-center">Upload Payment Slip</label>
+                  <input type="file" className="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-600 file:text-white" />
                 </div>
               )}
-              <button className="w-full py-4 bg-[#0A192F] text-white rounded-xl font-bold mt-4 hover:bg-black transition-all">Confirm Payment</button>
-              <p className="text-[10px] text-center text-gray-400 mt-2">আমাদের টিম পেমেন্ট ভেরিফাই করে ১-২ ঘণ্টার মধ্যে আপনার মডিউলগুলো আনলক করে দেবে।</p>
+
+              <button className="w-full py-4 bg-[#0A192F] text-white rounded-2xl font-bold shadow-xl hover:bg-black transition-all">
+                Confirm & Submit
+              </button>
+              
+              <p className="text-[10px] text-center text-gray-400 italic">
+                এডমিন আপনার পেমেন্ট যাচাই করে ১-২ ঘণ্টার মধ্যে প্যাকেজ এক্টিভ করে দেবেন।
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 6. Footer Links */}
+      {/* 6. Footer Section */}
       <section className="py-20 border-t border-gray-100 bg-gray-50/30">
         <div className="max-w-7xl mx-auto px-10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
           <div className="col-span-2 lg:col-span-1">
