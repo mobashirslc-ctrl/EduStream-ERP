@@ -17,6 +17,8 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         
         {/* আপনি চাইলে ড্যাশবোর্ডও এখানে অ্যাড করতে পারেন */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        
       </Routes>
     </Router>
   );
