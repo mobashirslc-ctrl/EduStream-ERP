@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, Wallet, Landmark } from 'lucide-react';
-import Link from 'next/link'; // Next.js এর জন্য Link ইমপোর্ট
+import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -62,8 +62,8 @@ const LandingPage = () => {
           <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden md:block text-sm font-bold text-gray-600 hover:text-[#14B8A6]">Login</Link>
-          <Link href="/login?package=Free">
+          <Link to="/login" className="hidden md:block text-sm font-bold text-gray-600 hover:text-[#14B8A6]">Login</Link>
+          <Link to="/login?package=Free">
             <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
               Start Free Trial
             </button>
@@ -147,7 +147,7 @@ const LandingPage = () => {
                   </span>
                   {typeof p.price === 'number' && <span className="text-gray-500 font-medium">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}
                 </div>
-                <ul className="space-y-4 mb-10 text-gray-600">
+                <ul className="space-y-4 mb-10 text-gray-600 text-left">
                   {p.features.map((feat, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm">
                       <CheckCircle2 size={18} className="text-[#14B8A6] shrink-0" /> {feat}
@@ -163,7 +163,7 @@ const LandingPage = () => {
                      Contact Sales
                    </button>
                 ) : (
-                  <Link href={`/login?package=${p.plan}`}>
+                  <Link to={`/login?package=${p.plan}`}>
                     <button className={`w-full py-4 rounded-xl font-bold transition-all ${selectedPlan?.plan === p.plan ? 'bg-[#14B8A6] text-white shadow-lg shadow-teal-200' : 'bg-gray-100 text-gray-400'}`}>
                       {selectedPlan?.plan === p.plan ? 'Get Started Now' : 'Select Plan'}
                     </button>
@@ -175,7 +175,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 5. Dynamic Payment Modal (For Enterprise/Manual) */}
+      {/* 5. Dynamic Payment Modal */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div className="bg-white rounded-[2.5rem] w-full max-w-md p-8 relative animate-in fade-in zoom-in duration-300">
@@ -205,7 +205,6 @@ const LandingPage = () => {
             </div>
             <p className="text-gray-500 text-sm leading-relaxed">The only ERP you need to scale your global study abroad processing agency.</p>
           </div>
-          {/* Footer Links (Same as your original) */}
           <div>
             <h4 className="font-bold text-[#0A192F] mb-6 text-sm uppercase tracking-wider">Company</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
