@@ -1,19 +1,39 @@
-import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-const LoginPage = () => {
+const AuthPage = () => {
+  const [searchParams] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(false); // Default লগইন
+  const selectedPackage = searchParams.get('package');
+
+  useEffect(() => {
+    // যদি URL-এ প্যাকেজ থাকে (যেমন ?package=Free), তবে অটোমেটিক রেজিস্ট্রেশন মোড অন হবে
+    if (selectedPackage) {
+      setIsSignUp(true);
+    }
+  }, [selectedPackage]);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-100">
-      <div className="p-10 bg-white shadow-2xl rounded-3xl border border-slate-200">
-        <h1 className="text-3xl font-bold mb-2 text-teal-600 text-center">EduStream ERP</h1>
-        <p className="text-slate-500 mb-8 text-center">Sign in to your account</p>
-        <div className="space-y-4 w-72">
-          <input type="email" placeholder="Email" className="w-full p-3 bg-slate-50 border rounded-xl outline-teal-500" />
-          <input type="password" placeholder="Password" className="w-full p-3 bg-slate-50 border rounded-xl outline-teal-500" />
-          <button className="w-full bg-teal-600 text-white py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all">Login</button>
-        </div>
-      </div>
+    <div className="auth-container">
+      <h2>{isSignUp ? `Register for ${selectedPackage} Plan` : 'Login to Account'}</h2>
+      
+      <form>
+        {/* যদি ইজ সাইন আপ ট্রু হয়, তবে নাম বা অতিরিক্ত ইনপুট দেখাবে */}
+        {isSignUp && (
+          <input type="text" placeholder="Full Name" className="input-field" />
+        )}
+        
+        <input type="email" placeholder="Email Address" />
+        <input type="password" placeholder="Password" />
+
+        <button type="submit">
+          {isSignUp ? 'Start My Free Trial' : 'Login Now'}
+        </button>
+      </form>
+
+      <p onClick={() => setIsSignUp(!isSignUp)}>
+        {isSignUp ? "Already have an account? Login" : "Don't have an account? Register"}
+      </p>
     </div>
   );
 };
-
-export default LoginPage;
