@@ -35,31 +35,37 @@ const AuthPage = () => {
   e.preventDefault();
   setLoading(true);
 
-  try {
-    if (isSignUp) {
-      // --- Cloudinary Upload (Unsigned) ---
-      let nidUrl = "";
-      if (nidFile) {
-        const formData = new FormData();
-        formData.append("file", nidFile);
-        // 'your_unsigned_preset' এর জায়গায় আপনার তৈরি করা প্রিসেট নাম দিন
-        formData.append("upload_preset", "your_unsigned_preset"); 
-        formData.append("cloud_name", "edustream"); // আপনার ক্লাউড নাম
+ try {
+  if (isSignUp) {
+    // --- Cloudinary Upload (Unsigned) ---
+    let nidUrl = "";
+    if (nidFile) {
+      const formData = new FormData();
+      formData.append("file", nidFile);
+      formData.append("upload_preset", "gorun_ltd"); // আপনার Unsigned Preset নাম
 
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/edustream/image/upload`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+      // এখানে fetch লিংকের edustream এর জায়গায় আপনার সঠিক Cloud Name আছে কি না নিশ্চিত করুন
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/edustream/image/upload`,
+        {
+          method: "POST",
+          body: formData, // FormData দিলে Headers এ Content-Type দেওয়ার দরকার নেই
+        }
+      );
 
-        if (!response.ok) throw new Error("Image upload failed");
-        
-        const data = await response.json();
-        nidUrl = data.secure_url; // ক্লাউডিনারি থেকে পাওয়া ইমেজের লিংক
+      // যদি রেসপন্স ওকে না হয়, তবে এরর ডিটেইলস কনসোলে দেখাবে
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Cloudinary Error Details:", errorData);
+        throw new Error(errorData.error?.message || "Image upload failed");
       }
+      
+      const data = await response.json();
+      nidUrl = data.secure_url; 
+      console.log("Cloudinary Upload Success:", nidUrl);
+    }
 
+    // --- বাকি ফায়ারবেস সেভ লজিক আগের মতোই থাকবে ---
       // --- Firebase Auth & Firestore ---
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
