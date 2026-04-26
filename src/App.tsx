@@ -4,6 +4,7 @@ import './App.css';
 // আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী সঠিক পাথ (Path)
 import LandingPage from './app/(landing)/page'; 
 import AuthPage from './app/AuthPage'; 
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
