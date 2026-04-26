@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react';
 import { Building2, User, Mail, Phone, Lock, ArrowLeft, X, MapPin, Loader2 } from 'lucide-react';
 
 // Firebase imports
-import { auth, db, storage } from '../lib/firebase'; 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../lib/firebase'; 
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -32,82 +31,82 @@ const AuthPage = () => {
   const brandColor = "#e11d48"; 
 
   const handleAuth = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
- try {
-  if (isSignUp) {
-    // --- Cloudinary Upload (Unsigned) ---
-    let nidUrl = "";
-    if (nidFile) {
-      const formData = new FormData();
-      formData.append("file", nidFile);
-      formData.append("upload_preset", "gorun_ltd"); // আপনার Unsigned Preset নাম
+    try {
+      if (isSignUp) {
+        // --- 1. Cloudinary Upload (Unsigned) ---
+        let nidUrl = "";
+        if (nidFile) {
+          const formData = new FormData();
+          formData.append("file", nidFile);
+          formData.append("upload_preset", "gorun_ltd");
 
-      // এখানে fetch লিংকের edustream এর জায়গায় আপনার সঠিক Cloud Name আছে কি না নিশ্চিত করুন
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/edustream/image/upload`,
-        {
-          method: "POST",
-          body: formData, // FormData দিলে Headers এ Content-Type দেওয়ার দরকার নেই
+          const response = await fetch(
+            `https://api.cloudinary.com/v1_1/ddziennkh/image/upload`,
+            { method: "POST", body: formData }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || "NID Upload failed");
+          }
+          
+          const data = await response.json();
+          nidUrl = data.secure_url; 
         }
-      );
 
-      // যদি রেসপন্স ওকে না হয়, তবে এরর ডিটেইলস কনসোলে দেখাবে
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Cloudinary Error Details:", errorData);
-        throw new Error(errorData.error?.message || "Image upload failed");
-      }
-      
-      const data = await response.json();
-      nidUrl = data.secure_url; 
-      console.log("Cloudinary Upload Success:", nidUrl);
-    }
+        // --- 2. Firebase Auth & Firestore ---
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-    // --- বাকি ফায়ারবেস সেভ লজিক আগের মতোই থাকবে ---
-      // --- Firebase Auth & Firestore ---
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          companyName,
+          authPersonName: authPerson,
+          contactNo,
+          address,
+          email,
+          package: selectedPackage,
+          nidUrl: nidUrl,
+          status: "pending",
+          createdAt: new Date().toISOString()
+        });
 
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        companyName,
-        authPersonName: authPerson,
-        contactNo,
-        address,
-        email,
-        package: selectedPackage,
-        nidUrl: nidUrl, // এখানে ক্লাউডিনারি লিংক সেভ হবে
-        status: "pending",
-        createdAt: new Date().toISOString()
-      });
-
-      alert("Registration successful! Admin will review your profile.");
-      setIsSignUp(false);
-    } else {
-      // --- Login Logic ---
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        if (userData.status === "approved") {
-          navigate('/dashboard');
+        alert("Application Submitted! Please wait for Admin Approval.");
+        await signOut(auth); 
+        setIsSignUp(false);
+        // Reset Form
+        setEmail(''); setPassword(''); setCompanyName(''); setAuthPerson('');
+        setContactNo(''); setAddress(''); setNidFile(null);
+      } else {
+        // --- 3. Login Logic ---
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.status === "approved") {
+            navigate('/dashboard');
+          } else {
+            alert("Your account is still pending admin approval.");
+            await signOut(auth);
+          }
         } else {
-          alert("Wait for Admin Approval.");
-          await auth.signOut();
+          alert("No partner record found.");
+          await signOut(auth);
         }
       }
+    } catch (error: any) {
+      console.error("Auth Error:", error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    console.error("Auth Error:", error);
-    alert(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   const inputStyle = "w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none transition-all text-sm focus:border-[#e11d48]";
   const iconStyle = "absolute left-3 top-3.5 h-4 w-4 text-gray-400";
 
@@ -194,7 +193,7 @@ const AuthPage = () => {
         </div>
       </div>
 
-      {/* Policy Modal - Code remains same but logic added to close button */}
+      {/* Policy Modal */}
       {showPolicy && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
