@@ -4,7 +4,7 @@ import './App.css';
 // আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী সঠিক পাথ (Path)
 import LandingPage from './app/(landing)/page'; 
 import AuthPage from './app/AuthPage'; 
-import Dashboard from './pages/Dashboard';
+import Dashboard from './app/Dashboard';
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         
         {/* আপনি চাইলে ড্যাশবোর্ডও এখানে অ্যাড করতে পারেন */}
         <Route path="/dashboard" element={<Dashboard />} />
-        
+
       </Routes>
     </Router>
   );
