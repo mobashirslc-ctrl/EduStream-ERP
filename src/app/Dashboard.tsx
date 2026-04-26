@@ -11,19 +11,18 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  const brandColor = "#10b981"; // ল্যান্ডিং পেজের এমেরাল্ড গ্রিন
+  const brandColor = "#10b981"; // Emerald Green
 
-  // ল্যান্ডিং পেজের ১০টি মূল ফিচার
   const allFeatures = [
-    { id: 'ai_assessment', name: 'AI Assessment Hub', icon: Zap, minPackage: 'Basic' },
-    { id: 'cloudinary', name: 'Cloudinary Manager', icon: Camera, minPackage: 'Basic' },
-    { id: 'tracking', name: '20-Step Tracking', icon: BarChart3, minPackage: 'Basic' },
-    { id: 'mail_alerts', name: 'Auto Mail Alerts', icon: Bell, minPackage: 'Standard' },
-    { id: 'invoicing', name: 'Smart Invoicing', icon: FileText, minPackage: 'Standard' },
-    { id: 'compliance', name: 'Staff & Compliance', icon: Users, minPackage: 'Standard' },
-    { id: 'marketing', name: 'Marketing Studio', icon: Globe, minPackage: 'Professional' },
-    { id: 'qr_tracking', name: 'QR Student Tracking', icon: Database, minPackage: 'Professional' },
-    { id: 'ticketing', name: 'Integrated Ticketing', icon: ShieldCheck, minPackage: 'Professional' },
+    { id: 'ai_assessment', name: 'AI Assessment', icon: Zap, minPackage: 'Basic' },
+    { id: 'cloudinary', name: 'Cloud Manager', icon: Camera, minPackage: 'Basic' },
+    { id: 'tracking', name: '20-Step Track', icon: BarChart3, minPackage: 'Basic' },
+    { id: 'mail_alerts', name: 'Mail Alerts', icon: Bell, minPackage: 'Standard' },
+    { id: 'invoicing', name: 'Smart Invoice', icon: FileText, minPackage: 'Standard' },
+    { id: 'compliance', name: 'Compliance', icon: Users, minPackage: 'Standard' },
+    { id: 'marketing', name: 'Marketing', icon: Globe, minPackage: 'Professional' },
+    { id: 'qr_tracking', name: 'QR Tracking', icon: Database, minPackage: 'Professional' },
+    { id: 'ticketing', name: 'Ticketing', icon: ShieldCheck, minPackage: 'Professional' },
     { id: 'support', name: 'Priority Support', icon: MessageSquare, minPackage: 'Professional' },
   ];
 
@@ -44,7 +43,7 @@ const Dashboard = () => {
               return;
             } else {
               const remaining = expiryTime - currentTime;
-              setTimeLeft(`${Math.floor(remaining / 60000)} mins`);
+              setTimeLeft(`${Math.floor(remaining / 60000)}m`);
             }
           }
           setUserData(data);
@@ -58,28 +57,28 @@ const Dashboard = () => {
   }, []);
 
   const isFeatureLocked = (minPackage: string) => {
-    if (userData?.status === 'trial') return false; // ট্রায়ালে সব আনলক
+    if (userData?.status === 'trial') return false; 
     const packages = ['Basic', 'Standard', 'Professional'];
     const userPkg = userData?.package || 'Basic';
     return packages.indexOf(userPkg) < packages.indexOf(minPackage);
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center font-bold text-emerald-500">Loading Portal...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center font-bold text-emerald-500">Loading...</div>;
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
-      {/* Sidebar - Fixed Width and Perfect Alignment */}
-      <aside className="w-72 bg-white border-r border-slate-100 flex flex-col shadow-sm">
-        <div className="p-8">
-          <div className="flex items-center gap-3">
-             <div style={{ backgroundColor: brandColor }} className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black">HP</div>
-             <h1 className="text-xl font-black tracking-tighter">PARTNER <span style={{ color: brandColor }}>PORTAL</span></h1>
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans">
+      {/* Sidebar - Compact and Fixed */}
+      <aside className="w-64 bg-white border-r border-slate-100 flex flex-col flex-shrink-0">
+        <div className="p-6">
+          <div className="flex items-center gap-2">
+             <div style={{ backgroundColor: brandColor }} className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs">HP</div>
+             <h1 className="text-lg font-black tracking-tighter uppercase">Partner <span style={{ color: brandColor }}>Portal</span></h1>
           </div>
         </div>
         
-        <nav className="flex-1 px-4 overflow-y-auto space-y-1">
+        <nav className="flex-1 px-3 overflow-y-auto space-y-1 custom-scrollbar">
           {allFeatures.map((f) => (
-            <div key={f.id} className="flex items-center justify-between px-4 py-3 text-sm font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-2xl cursor-pointer transition-all">
+            <div key={f.id} className="flex items-center justify-between px-4 py-2.5 text-[13px] font-bold text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl cursor-pointer transition-all">
               <div className="flex items-center gap-3">
                 <f.icon className="h-4 w-4" /> {f.name}
               </div>
@@ -88,49 +87,49 @@ const Dashboard = () => {
           ))}
         </nav>
 
-        <div className="p-6 border-t border-slate-50">
-          <button onClick={() => auth.signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-500 transition-all font-bold text-sm">
-            <LogOut className="h-4 w-4" /> Logout Account
+        <div className="p-4 border-t border-slate-50">
+          <button onClick={() => auth.signOut()} className="w-full flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-red-500 transition-all font-bold text-xs uppercase tracking-wider">
+            <LogOut className="h-4 w-4" /> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content - Smooth Scrolling and Perfect Sizing */}
-      <main className="flex-1 overflow-y-auto p-10">
-        <header className="flex justify-between items-center mb-12">
+      {/* Main Content - Wide and Clean Layout */}
+      <main className="flex-1 overflow-y-auto bg-[#fdfdfd] p-6 lg:p-10">
+        <header className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight">Welcome, {userData?.companyName || 'Partner'}! 👋</h2>
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-900">Hi, {userData?.companyName || 'Partner'}! 👋</h2>
             {userData?.status === 'trial' ? (
-              <div className="inline-flex items-center gap-2 text-emerald-700 font-bold bg-emerald-50 px-4 py-2 rounded-full mt-4 text-xs border border-emerald-100">
-                <Clock className="h-4 w-4" /> TRIAL ENDS IN: {timeLeft}
+              <div className="inline-flex items-center gap-2 text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-full mt-2 text-[10px] border border-emerald-100 uppercase tracking-widest">
+                <Clock className="h-3.5 w-3.5" /> Trial: {timeLeft} left
               </div>
             ) : (
-              <p className="text-slate-400 mt-2 font-medium uppercase tracking-widest text-[11px]">Active Plan: <span style={{ color: brandColor }} className="font-black">{userData?.package}</span></p>
+              <p className="text-slate-400 mt-1 text-[10px] font-bold uppercase tracking-widest">Plan: <span style={{ color: brandColor }}>{userData?.package}</span></p>
             )}
           </div>
-          <button style={{ backgroundColor: brandColor }} className="text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-100 hover:shadow-emerald-200 hover:-translate-y-1 transition-all flex items-center gap-2">
-            <Plus className="h-5 w-5" /> Submit Application
+          <button style={{ backgroundColor: brandColor }} className="text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:scale-105 transition-all flex items-center gap-2 text-xs uppercase tracking-wider">
+            <Plus className="h-4 w-4" /> New Application
           </button>
         </header>
 
-        {/* Feature Grid - Full List with Locking Logic */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {/* Feature Grid - Re-sized for better spacing */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
           {allFeatures.map((feature) => {
             const locked = isFeatureLocked(feature.minPackage);
             return (
-              <div key={feature.id} className={`group relative p-8 rounded-[2.5rem] border-2 transition-all duration-300 ${locked ? 'bg-slate-50 border-slate-100' : 'bg-white border-white shadow-sm hover:shadow-2xl hover:shadow-emerald-100/50'}`}>
+              <div key={feature.id} className={`group relative p-5 lg:p-6 rounded-[1.5rem] border transition-all duration-300 ${locked ? 'bg-slate-50/50 border-slate-100 grayscale opacity-60' : 'bg-white border-slate-50 shadow-sm hover:shadow-xl hover:shadow-emerald-100/40 hover:-translate-y-1'}`}>
                 {locked && (
-                  <div className="absolute top-6 right-6 bg-slate-200 p-2 rounded-full">
-                    <Lock className="h-3 w-3 text-slate-500" />
+                  <div className="absolute top-4 right-4 bg-slate-200/50 p-1.5 rounded-full">
+                    <Lock className="h-3 w-3 text-slate-400" />
                   </div>
                 )}
-                <div style={{ color: locked ? '#cbd5e1' : brandColor }} className={`mb-6 p-4 rounded-3xl w-fit transition-transform group-hover:scale-110 ${locked ? 'bg-slate-100' : 'bg-emerald-50'}`}>
-                  <feature.icon className="h-8 w-8" />
+                <div style={{ color: locked ? '#cbd5e1' : brandColor }} className={`mb-4 p-3 rounded-xl w-fit transition-all ${locked ? 'bg-slate-100' : 'bg-emerald-50 group-hover:bg-emerald-500 group-hover:text-white'}`}>
+                  <feature.icon className="h-6 w-6 lg:h-7 lg:w-7" />
                 </div>
-                <h3 className={`font-black text-base leading-tight mb-2 ${locked ? 'text-slate-400' : 'text-slate-900'}`}>{feature.name}</h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                   {locked ? `Requires ${feature.minPackage}` : 'Feature Active'}
-                </p>
+                <h3 className={`font-black text-xs lg:text-sm tracking-tight mb-1 ${locked ? 'text-slate-400' : 'text-slate-800'}`}>{feature.name}</h3>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                   {locked ? `Requires ${feature.minPackage}` : 'Active Access'}
+                </span>
               </div>
             );
           })}
