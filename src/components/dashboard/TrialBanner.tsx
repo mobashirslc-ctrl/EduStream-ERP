@@ -1,10 +1,9 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AlertTriangle, Crown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // ঠিক আছে
 
 const TrialBanner = () => {
-  // উদাহরণস্বরূপ ২৪ ঘণ্টা সেট করা হয়েছে
   const [timeLeft, setTimeLeft] = useState("23:59:59");
 
   return (
@@ -14,7 +13,8 @@ const TrialBanner = () => {
         <span>FREE TRIAL VERSION: Your access expires in <span className="font-mono bg-white/20 px-2 py-0.5 rounded ml-1">{timeLeft}</span></span>
       </div>
       
-      <Link to="/#pricing">
+      {/* এখানে to="/" দিলে সরাসরি হোমপেজে যাবে */}
+      <Link to="/">
         <button className="bg-white text-red-600 px-4 py-1 rounded-full flex items-center gap-1 hover:bg-gray-100 transition-all text-[11px] uppercase tracking-wider">
           <Crown size={12} fill="currentColor" /> Upgrade Now
         </button>
