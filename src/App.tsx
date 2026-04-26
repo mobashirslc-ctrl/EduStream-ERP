@@ -1,16 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './app/page'; 
-import AuthPage from './app/AuthPage'; // নিশ্চিত করুন ফাইলটি src/app/AuthPage.tsx এই নামেই আছে
 import './App.css';
+
+// আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী সঠিক পাথ (Path)
+import LandingPage from './app/(landing)/page'; 
+import AuthPage from './app/AuthPage'; 
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* ল্যান্ডিং পেজ */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* ল্যান্ডিং পেজ থেকে /login?package=Free এভাবে কল করলে এটি কাজ করবে */}
+        {/* অথ পেজ (লগইন/রেজিস্ট্রেশন) */}
         <Route path="/login" element={<AuthPage />} />
+        
+        {/* আপনি চাইলে ড্যাশবোর্ডও এখানে অ্যাড করতে পারেন */}
       </Routes>
     </Router>
   );
