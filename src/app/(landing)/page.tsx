@@ -1,181 +1,156 @@
-import React from 'react';
-import { Zap, ArrowRight, CheckCircle2, Layout, Users, BarChart3, ShieldCheck, Palette, Megaphone } from 'lucide-react';
+import React, { useState } from 'react';
+import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Mail, Plane, Users, BarChart3, Palette, FileText, Globe, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+
+  // আপনার সবকটি আকর্ষণীয় ফিচার এখানে লিস্ট করা হলো
+  const allFeatures = [
+    { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports for students." },
+    { icon: <CloudUpload />, title: "Cloudinary Manager", desc: "Secure 5-slot PDF upload system directly synced with Cloudinary for every student file." },
+    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Start' to 'University Reached' with granular status updates." },
+    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Every compliance update triggers an automated email to the student and partner instantly." },
+    { icon: <FileText />, title: "Smart Invoicing", desc: "Generate file submission invoices and financial reports automatically within the portal." },
+    { icon: <Users />, title: "Staff & Compliance", desc: "Task management and real-time monitoring of your team's workflow and compliance." },
+    { icon: <Palette />, title: "Marketing Studio", desc: "Canva-style design tool, multi-platform campaign launcher, and AI content writer." },
+    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for every student to track their own file progress without login." },
+    { icon: <Plane />, title: "Integrated Ticketing", desc: "Real-time flight search and pricing API. Request and manage air tickets within the ERP." },
+    { icon: <Globe />, title: "Before Departure", desc: "Automated pre-departure checklists, orientation materials, and travel guides for students." },
+    { icon: <Users />, title: "After Arrival Support", desc: "Airport pickup coordination, accommodation booking, and local support tracking." }
+  ];
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#0A192F]">
       {/* 1. Navbar */}
       <nav className="flex justify-between items-center px-10 py-6 max-w-7xl mx-auto">
         <div className="text-2xl font-bold text-[#14B8A6] flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg">E</div>
+          <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg font-bold">E</div>
           EduConsult AI
         </div>
         <div className="hidden md:flex gap-8 font-medium text-gray-600">
           <a href="#features" className="hover:text-[#14B8A6] transition-colors">Features</a>
-          <Link to="/pricing" className="hover:text-[#14B8A6] transition-colors">Pricing</Link>
+          <a href="#pricing" className="hover:text-[#14B8A6] transition-colors">Pricing</a>
           <a href="#demo" className="hover:text-[#14B8A6] transition-colors">Demo</a>
         </div>
         <Link to="/login">
-          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all">
+          <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
             Start Free Trial
           </button>
         </Link>
       </nav>
 
       {/* 2. Hero Section */}
-      <section className="pt-20 pb-20 px-6 text-center max-w-5xl mx-auto">
+      <section className="pt-20 pb-20 px-6 text-center max-w-6xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-100 text-[#14B8A6] mb-8">
           <Zap size={16} fill="currentColor" />
-          <span className="text-sm font-semibold tracking-wide">AI-POWERED EDUCATION MANAGEMENT</span>
+          <span className="text-sm font-semibold tracking-wide uppercase">The Ultimate Processing Hub ERP</span>
         </div>
-        
-        <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-[1.05]">
-          Transform Your<br /> 
-          <span className="text-[#14B8A6]">Consultancy Business</span>
+        <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-[1.1]">
+          Global Agency <span className="text-[#14B8A6]">Operating System</span>
         </h1>
-        
-        <p className="max-w-2xl mx-auto text-gray-500 text-xl mb-12 leading-relaxed">
-          Complete SaaS platform for education agencies with AI assessment, CRM, design studio, and real-time tracking. Everything you need in one place.
+        <p className="max-w-3xl mx-auto text-gray-500 text-xl mb-12 leading-relaxed">
+          From AI Eligibility Assessment to Air Ticketing—manage your entire student consultancy business with real-time tracking and automated compliance.
         </p>
-        
-        <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
           <Link to="/login">
             <button className="px-10 py-4 bg-[#14B8A6] text-white rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg shadow-teal-200 hover:scale-105 transition-all">
               Get Started Free <ArrowRight size={22} />
             </button>
           </Link>
-          <button className="px-10 py-4 border-2 border-teal-100 text-[#14B8A6] rounded-xl font-bold text-lg hover:bg-teal-50 transition-all">
-            Watch Demo
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12 border-t border-gray-100">
-          <div>
-            <div className="text-4xl font-bold text-[#0A192F]">500+</div>
-            <div className="text-gray-500 font-medium">Active Agencies</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-[#0A192F]">50K+</div>
-            <div className="text-gray-500 font-medium">Students Processed</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-[#0A192F]">98%</div>
-            <div className="text-gray-500 font-medium">Success Rate</div>
-          </div>
         </div>
       </section>
 
-      {/* 3. Features Section (Based on image 1) */}
+      {/* 3. Detailed Features Section */}
       <section id="features" className="py-24 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Everything You Need to <span className="text-[#14B8A6]">Succeed</span></h2>
-            <p className="text-gray-500">Powerful features designed specifically for education consultancy agencies</p>
+            <h2 className="text-4xl font-bold mb-4">Powerful Features for <span className="text-[#14B8A6]">Modern Agencies</span></h2>
+            <p className="text-gray-500">Every tool you need to process files 10x faster</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: <Zap className="text-white" />, title: "AI Student Assessment", desc: "Intelligent eligibility checker with instant results. AI analyzes profiles and matches best-fit universities." },
-              { icon: <Palette className="text-white" />, title: "DIY Design Studio", desc: "Canva-style tools for creating marketing materials. Pre-built templates for success stories." },
-              { icon: <Users className="text-white" />, title: "Multi-Level CRM", desc: "Manage sub-agents, staff, and students with role-based permissions in one platform." },
-              { icon: <BarChart3 className="text-white" />, title: "Real-time Tracking", desc: "Track application status from submission to visa approval with automated notifications." },
-              { icon: <ShieldCheck className="text-white" />, title: "Compliance Management", desc: "Kanban-style workflow for document processing with secure document vault." },
-              { icon: <Megaphone className="text-white" />, title: "AI Marketing Hub", desc: "Generate social media content, Facebook posts, and captions automatically with AI." }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-xl transition-all group">
-                <div className="w-12 h-12 bg-[#14B8A6] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {feature.icon}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {allFeatures.map((f, i) => (
+              <div key={i} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-xl transition-all group">
+                <div className="w-12 h-12 bg-[#14B8A6] rounded-xl flex items-center justify-center mb-6 text-white group-hover:rotate-6 transition-transform shadow-lg shadow-teal-100">
+                  {f.icon}
                 </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{feature.desc}</p>
+                <h3 className="text-xl font-bold mb-3">{f.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. Ready to Transform (Based on image 3) */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto bg-gradient-to-r from-[#14B8A6] to-[#0D9488] rounded-[2rem] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="md:w-1/2">
-            <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Agency?</h2>
-            <p className="text-teal-50 text-lg mb-8">Join 500+ agencies already using EduConsult AI to streamline their operations and grow their business.</p>
-            <ul className="space-y-4 mb-10">
-              <li className="flex items-center gap-3"><CheckCircle2 size={20} className="text-teal-200" /> Free 14-day trial, no credit card required</li>
-              <li className="flex items-center gap-3"><CheckCircle2 size={20} className="text-teal-200" /> Setup in less than 5 minutes</li>
-              <li className="flex items-center gap-3"><CheckCircle2 size={20} className="text-teal-200" /> Cancel anytime, no questions asked</li>
-            </ul>
-            <div className="flex gap-4">
-              <Link to="/login" className="bg-white text-[#14B8A6] px-8 py-3 rounded-xl font-bold hover:bg-teal-50 transition-all flex items-center gap-2">
-                Start Free Trial <ArrowRight size={18} />
-              </Link>
-              <button className="border-2 border-white/30 px-8 py-3 rounded-xl font-bold hover:bg-white/10 transition-all">
-                Schedule Demo
+      {/* 4. Pricing Section */}
+      <section id="pricing" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6">Simple, Transparent <span className="text-[#14B8A6]">Pricing</span></h2>
+            
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <span className={`font-semibold ${billingCycle === 'monthly' ? 'text-[#0A192F]' : 'text-gray-400'}`}>Monthly</span>
+              <button 
+                onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+                className="w-14 h-7 bg-gray-200 rounded-full relative p-1 transition-all"
+              >
+                <div className={`w-5 h-5 bg-[#14B8A6] rounded-full transition-all ${billingCycle === 'yearly' ? 'translate-x-7' : 'translate-x-0'}`} />
               </button>
+              <span className={`font-semibold ${billingCycle === 'yearly' ? 'text-[#0A192F]' : 'text-gray-400'}`}>Yearly <span className="text-xs bg-teal-100 text-[#14B8A6] px-2 py-0.5 rounded-full ml-1 font-bold">Save 20%</span></span>
             </div>
           </div>
-          <div className="md:w-1/3 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-            <div className="space-y-6">
-              {[
-                { label: "Students Processed", val: "50,247" },
-                { label: "Visa Success Rate", val: "98.5%" },
-                { label: "Active Agencies", val: "523" },
-                { label: "Average Response Time", val: "2.3h" }
-              ].map((stat, i) => (
-                <div key={i} className="flex justify-between items-center border-b border-white/10 pb-4 last:border-0 last:pb-0">
-                  <span className="text-teal-100">{stat.label}</span>
-                  <span className="text-xl font-bold">{stat.val}</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            {[
+              { 
+                plan: "Starter", 
+                price: billingCycle === 'monthly' ? "49" : "39", 
+                features: ["Up to 50 Student Files", "AI Assessment Hub", "Basic File Tracking", "Email Notifications", "Cloudinary Storage (5 slots)"] 
+              },
+              { 
+                plan: "Professional", 
+                price: billingCycle === 'monthly' ? "99" : "79", 
+                popular: true,
+                features: ["Unlimited Student Files", "Full Compliance Hub", "Marketing Design Studio", "QR Code Tracking", "Integrated Ticketing", "Priority Support"] 
+              },
+              { 
+                plan: "Enterprise", 
+                price: "Custom", 
+                features: ["Multi-Branch Management", "Custom API Integration", "White-label Portal", "Before & After Departure Support", "Dedicated Account Manager"] 
+              }
+            ].map((p, i) => (
+              <div key={i} className={`p-10 rounded-[2.5rem] border transition-all ${p.popular ? 'border-[#14B8A6] shadow-2xl shadow-teal-100 lg:scale-105 bg-white relative z-10' : 'border-gray-100 bg-white hover:border-teal-200'}`}>
+                {p.popular && <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#14B8A6] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</span>}
+                <h3 className="text-xl font-bold mb-2">{p.plan}</h3>
+                <div className="mb-8">
+                  <span className="text-4xl font-bold text-[#0A192F]">${p.price}</span>
+                  {p.price !== "Custom" && <span className="text-gray-500 font-medium">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}
                 </div>
-              ))}
-            </div>
+                <ul className="space-y-4 mb-10 text-gray-600">
+                  {p.features.map((feat, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm">
+                      <CheckCircle2 size={18} className="text-[#14B8A6] shrink-0" /> {feat}
+                    </li>
+                  ))}
+                </ul>
+                <button className={`w-full py-4 rounded-xl font-bold transition-all ${p.popular ? 'bg-[#14B8A6] text-white hover:bg-[#0D9488] shadow-lg shadow-teal-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}>
+                  Get Started
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 5. Footer (Based on image 4) */}
-      <footer className="py-20 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-10 grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
-          <div>
-            <h4 className="font-bold mb-6">Product</h4>
-            <ul className="space-y-4 text-gray-500">
-              <li><a href="#features" className="hover:text-[#14B8A6]">Features</a></li>
-              <li><Link to="/pricing" className="hover:text-[#14B8A6]">Pricing</Link></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Demo</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Updates</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6">Resources</h4>
-            <ul className="space-y-4 text-gray-500">
-              <li><a href="#" className="hover:text-[#14B8A6]">Documentation</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Tutorials</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">API Reference</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Support</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6">Company</h4>
-            <ul className="space-y-4 text-gray-500">
-              <li><a href="#" className="hover:text-[#14B8A6]">About Us</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Blog</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Careers</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6">Legal</h4>
-            <ul className="space-y-4 text-gray-500">
-              <li><a href="#" className="hover:text-[#14B8A6]">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">Cookie Policy</a></li>
-              <li><a href="#" className="hover:text-[#14B8A6]">GDPR</a></li>
-            </ul>
-          </div>
+      {/* 5. Footer */}
+      <footer className="py-12 border-t border-gray-100 text-center">
+        <div className="flex justify-center gap-8 mb-6 font-medium text-gray-600">
+          <a href="#" className="hover:text-[#14B8A6]">Privacy Policy</a>
+          <a href="#" className="hover:text-[#14B8A6]">Terms of Service</a>
+          <a href="#" className="hover:text-[#14B8A6]">Contact Support</a>
         </div>
-        <div className="text-center text-gray-400 text-sm">
-          © 2026 EduConsult AI. All rights reserved.
-        </div>
+        <p className="text-gray-400 text-sm">© 2026 EduConsult AI. Built for Professional Study Abroad Teams.</p>
       </footer>
     </div>
   );
