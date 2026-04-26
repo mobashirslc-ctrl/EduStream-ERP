@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, CreditCard, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<string | null>("Professional"); // ডিফল্ট প্রোফেশনাল সিলেক্টেড
+  const [selectedPlan, setSelectedPlan] = useState<any>(null); 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
 
   const allFeatures = [
     { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
@@ -22,18 +24,37 @@ const LandingPage = () => {
     { 
       plan: "Starter", 
       price: billingCycle === 'monthly' ? "49" : "39", 
-      features: ["Up to 50 Student Files", "AI Assessment Hub", "Basic File Tracking", "Email Notifications"] 
+      features: [
+        "Up to 50 Student Files", 
+        "AI Assessment Hub", 
+        "Compliance Management (Status Tracking)", 
+        "Email Notifications", 
+        "Cloudinary Storage (5 slots)"
+      ] 
     },
     { 
       plan: "Professional", 
       price: billingCycle === 'monthly' ? "99" : "79", 
       popular: true,
-      features: ["Unlimited Student Files", "Full Compliance Hub", "Marketing Design Studio", "QR Code Tracking", "Integrated Ticketing"] 
+      features: [
+        "Unlimited Student Files", 
+        "All Staff Management", 
+        "Full Compliance Hub", 
+        "Marketing Design Studio", 
+        "Integrated Ticketing", 
+        "QR Code Tracking"
+      ] 
     },
     { 
       plan: "Enterprise", 
       price: "Custom", 
-      features: ["Multi-Branch Management", "Custom API Integration", "White-label Portal", "Before & After Departure Support"] 
+      features: [
+        "Multi-Branch Management", 
+        "Custom API Integration", 
+        "White-label Portal", 
+        "Before & After Departure Support", 
+        "24/7 Dedicated Support"
+      ] 
     }
   ];
 
@@ -99,7 +120,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 4. Pricing Section with Selection Logic */}
+      {/* 4. Pricing Section */}
       <section id="pricing" className="py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -120,9 +141,9 @@ const LandingPage = () => {
             {pricingPlans.map((p, i) => (
               <div 
                 key={i} 
-                onClick={() => setSelectedPlan(p.plan)}
+                onClick={() => setSelectedPlan(p)}
                 className={`p-10 rounded-[2.5rem] border transition-all cursor-pointer ${
-                  selectedPlan === p.plan 
+                  selectedPlan?.plan === p.plan 
                   ? 'border-[#14B8A6] shadow-2xl shadow-teal-100 lg:scale-105 bg-white relative z-10' 
                   : 'border-gray-100 bg-white hover:border-teal-200 opacity-80 hover:opacity-100'
                 }`}
@@ -140,10 +161,13 @@ const LandingPage = () => {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-4 rounded-xl font-bold transition-all ${
-                  selectedPlan === p.plan ? 'bg-[#14B8A6] text-white' : 'bg-gray-100 text-gray-400'
-                }`}>
-                  {selectedPlan === p.plan ? 'Get Started Now' : 'Select Plan'}
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan(p); setShowPaymentModal(true); }}
+                  className={`w-full py-4 rounded-xl font-bold transition-all ${
+                    selectedPlan?.plan === p.plan ? 'bg-[#14B8A6] text-white shadow-lg shadow-teal-200' : 'bg-gray-100 text-gray-400'
+                  }`}
+                >
+                  {selectedPlan?.plan === p.plan ? 'Get Started Now' : 'Select Plan'}
                 </button>
               </div>
             ))}
@@ -151,18 +175,54 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 5. Extended Footer Links Section */}
+      {/* 5. Manual Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-md p-8 relative animate-in fade-in zoom-in duration-300">
+            <button onClick={() => setShowPaymentModal(false)} className="absolute right-6 top-6 text-gray-400 hover:text-black"><X /></button>
+            <h2 className="text-2xl font-bold mb-2">Checkout</h2>
+            <p className="text-gray-500 mb-6">Subscribing to: <span className="text-[#14B8A6] font-bold">{selectedPlan?.plan} Plan</span></p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold mb-2">Payment Method</label>
+                <select className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-teal-500" onChange={(e) => setPaymentMethod(e.target.value)} value={paymentMethod}>
+                  <option value="">Choose Method...</option>
+                  <option value="bkash">MFS (bKash/Nagad/Rocket)</option>
+                  <option value="bank">Bank Transfer</option>
+                </select>
+              </div>
+              {paymentMethod === 'bkash' && (
+                <div className="p-4 bg-teal-50 rounded-xl border border-teal-100">
+                  <p className="text-sm font-medium text-teal-800 mb-2 font-bold text-center underline">Send Money: 017XXXXXXXX (Personal)</p>
+                  <input type="text" placeholder="Enter Transaction ID" className="w-full p-3 border rounded-lg focus:outline-none focus:border-[#14B8A6]" />
+                </div>
+              )}
+              {paymentMethod === 'bank' && (
+                <div className="p-4 bg-teal-50 rounded-xl border border-teal-100">
+                  <p className="text-xs font-medium text-teal-800 mb-2">A/C: EduConsult Ltd, City Bank, #123456789</p>
+                  <label className="block text-[10px] font-bold text-teal-600 mb-1 uppercase text-center">Upload Payment Slip</label>
+                  <input type="file" className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-teal-600 file:text-white" />
+                </div>
+              )}
+              <button className="w-full py-4 bg-[#0A192F] text-white rounded-xl font-bold mt-4 hover:bg-black transition-all">Confirm Payment</button>
+              <p className="text-[10px] text-center text-gray-400 mt-2">আমাদের টিম পেমেন্ট ভেরিফাই করে ১-২ ঘণ্টার মধ্যে আপনার মডিউলগুলো আনলক করে দেবে।</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Footer Links */}
       <section className="py-20 border-t border-gray-100 bg-gray-50/30">
         <div className="max-w-7xl mx-auto px-10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
           <div className="col-span-2 lg:col-span-1">
             <div className="text-2xl font-bold text-[#14B8A6] flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg">E</div>
+              <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center text-white text-lg font-bold">E</div>
               EduConsult
             </div>
             <p className="text-gray-500 text-sm leading-relaxed">The only ERP you need to scale your global study abroad processing agency.</p>
           </div>
           <div>
-            <h4 className="font-bold text-[#0A192F] mb-6">Company</h4>
+            <h4 className="font-bold text-[#0A192F] mb-6 text-sm uppercase tracking-wider">Company</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
               <li><a href="#" className="hover:text-[#14B8A6]">About Us</a></li>
               <li><a href="#" className="hover:text-[#14B8A6]">Success Stories</a></li>
@@ -171,7 +231,7 @@ const LandingPage = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-[#0A192F] mb-6">Product</h4>
+            <h4 className="font-bold text-[#0A192F] mb-6 text-sm uppercase tracking-wider">Product</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
               <li><a href="#" className="hover:text-[#14B8A6]">Features</a></li>
               <li><a href="#" className="hover:text-[#14B8A6]">Integrations</a></li>
@@ -180,7 +240,7 @@ const LandingPage = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-[#0A192F] mb-6">Resources</h4>
+            <h4 className="font-bold text-[#0A192F] mb-6 text-sm uppercase tracking-wider">Resources</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
               <li><a href="#" className="hover:text-[#14B8A6]">Blog</a></li>
               <li><a href="#" className="hover:text-[#14B8A6]">Community</a></li>
@@ -189,7 +249,7 @@ const LandingPage = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-[#0A192F] mb-6">Legal</h4>
+            <h4 className="font-bold text-[#0A192F] mb-6 text-sm uppercase tracking-wider">Legal</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
               <li><a href="#" className="hover:text-[#14B8A6]">Privacy Policy</a></li>
               <li><a href="#" className="hover:text-[#14B8A6]">Terms of Service</a></li>
@@ -201,7 +261,7 @@ const LandingPage = () => {
       </section>
 
       <footer className="py-8 text-center text-gray-400 text-xs border-t border-gray-100">
-        <p>© 2026 EduConsult AI. All rights reserved. Built for Dhaka to London Processing.</p>
+        <p>© 2026 EduConsult AI. All rights reserved. Built for Global Processing Teams.</p>
       </footer>
     </div>
   );
