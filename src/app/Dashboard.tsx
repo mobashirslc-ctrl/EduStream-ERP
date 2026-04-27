@@ -4,16 +4,14 @@ import {
   Database, ShieldCheck, BarChart3, Users, MessageSquare, Clock, Camera 
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
-// --- FEATURE COMPONENTS IMPORT ---
+// --- FEATURE COMPONENTS ---
 import AIAssessment from '../components/dashboard/features/AIAssessment';
 import CloudManager from '../components/dashboard/features/CloudManager';
 import TrackingSystem from '../components/dashboard/features/TrackingSystem';
 import MailAlerts from '../components/dashboard/features/MailAlerts';
 import SmartInvoicing from '../components/dashboard/features/SmartInvoicing';
-
-// NOTUN ADD KORA 5-TI FEATURE:
 import Compliance from '../components/dashboard/features/Compliance';
 import MarketingStudio from '../components/dashboard/features/MarketingStudio';
 import QRTracking from '../components/dashboard/features/QRTracking';
@@ -26,7 +24,7 @@ const Dashboard = () => {
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
-  const brandColor = "#10b981"; // Emerald Green
+  const brandColor = "#10b981"; 
 
   const allFeatures = [
     { id: 'ai_assessment', name: 'AI Assessment', icon: Zap, minPackage: 'Basic' },
@@ -42,33 +40,27 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    const checkAccess = async () => {
-      if (auth.currentUser) {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          if (data.status === 'trial') {
-            const startTime = new Date(data.createdAt).getTime();
-            const currentTime = new Date().getTime();
-            const expiryTime = startTime + (2 * 60 * 60 * 1000);
-            if (currentTime > expiryTime) {
-              await updateDoc(userRef, { status: 'blocked' });
-              auth.signOut();
-              return;
-            } else {
-              const remaining = expiryTime - currentTime;
-              setTimeLeft(`${Math.floor(remaining / 60000)}m`);
-            }
-          }
-          setUserData(data);
+    if (!auth.currentUser) return;
+
+    // Real-time listener add kora hoyeche jate update sathe sathe dekha jay
+    const unsub = onSnapshot(doc(db, "users", auth.currentUser.uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setUserData(data);
+        
+        // Trial calculation logic
+        if (data.status === 'trial') {
+          const startTime = new Date(data.createdAt).getTime();
+          const currentTime = new Date().getTime();
+          const expiryTime = startTime + (2 * 60 * 60 * 1000);
+          const remaining = expiryTime - currentTime;
+          setTimeLeft(remaining > 0 ? `${Math.floor(remaining / 60000)}m` : "Expired");
         }
       }
       setLoading(false);
-    };
-    checkAccess();
-    const timer = setInterval(checkAccess, 60000);
-    return () => clearInterval(timer);
+    });
+
+    return () => unsub();
   }, []);
 
   const isFeatureLocked = (minPackage: string) => {
@@ -113,7 +105,7 @@ const Dashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto bg-[#fdfdfd] p-6 lg:p-10">
         <header className="flex justify-between items-center mb-8">
           <div>
@@ -157,60 +149,59 @@ const Dashboard = () => {
             );
           })}
         </div>
-      </main>
-      {/* --- RECENT SUBMISSIONS SECTION --- */}
-<div className="mt-10 px-4 pb-10">
-  <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Recent Submissions</h3>
-  
-  <div className="space-y-4">
-    {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
-      <div key={i} className="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm hover:shadow-md transition-all group">
-        <div className="flex justify-between items-start">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center font-black">
-               {sub.studentName.charAt(0)}
-            </div>
-            <div>
-              <p className="text-sm font-black text-slate-800">
-                Recent student <span className="text-emerald-600">{sub.studentName}</span> applied to <span className="text-blue-600">{sub.universityName}</span>
-              </p>
-              <p className="text-[10px] font-bold text-slate-400 mt-1">{sub.submittedAt}</p>
-            </div>
-          </div>
+
+        {/* --- RECENT SUBMISSIONS SECTION (Inside <main>) --- */}
+        <div className="mt-16 border-t border-slate-100 pt-10">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Recent Submissions Activity</h3>
           
-          <div className="flex flex-col items-end gap-2">
-            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter ${
-              sub.status === 'Pending' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
-            }`}>
-              {sub.status}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
+              <div key={i} className="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm hover:shadow-md transition-all group animate-in slide-in-from-bottom-3 duration-500">
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center font-black">
+                       {sub.studentName?.charAt(0) || 'S'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-slate-800">
+                        <span className="text-emerald-600">{sub.studentName}</span> applied to <span className="text-blue-600">{sub.universityName}</span>
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 mt-1">{sub.submittedAt}</p>
+                    </div>
+                  </div>
+                  
+                  <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter ${
+                      sub.status === 'Pending' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
+                  }`}>
+                    {sub.status || 'Pending'}
+                  </span>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                   <button 
+                     onClick={() => setActiveFeature('cloudinary')}
+                     className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
+                   >
+                     Click here to view files
+                   </button>
+                   <div className="flex items-center gap-1">
+                      <div className={`w-1.5 h-1.5 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Compliance: {sub.status || 'Checking'}</span>
+                   </div>
+                </div>
+              </div>
+            ))}
+
+            {!userData?.recentSubmissions?.length && (
+              <div className="col-span-full text-center py-12 bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-100">
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.2em]">No applications recorded yet</p>
+              </div>
+            )}
           </div>
         </div>
+      </main>
 
-        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-           <button 
-             onClick={() => {/* Function to open file viewer modal */}}
-             className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
-           >
-             Click here to view files
-           </button>
-           <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
-              <span className="text-[9px] font-bold text-slate-500 uppercase">Compliance Update: {sub.status}</span>
-           </div>
-        </div>
-      </div>
-    ))}
-
-    {!userData?.recentSubmissions?.length && (
-      <div className="text-center py-10 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No applications yet</p>
-      </div>
-    )}
-  </div>
-</div>
-
-      {/* --- FEATURE OVERLAYS (ALL 10) --- */}
+      {/* --- FEATURE OVERLAYS --- */}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'cloudinary' && <CloudManager isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'tracking' && <TrackingSystem isOpen={true} onClose={() => setActiveFeature(null)} />}
