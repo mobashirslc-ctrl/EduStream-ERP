@@ -57,34 +57,34 @@ const Dashboard = () => {
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#F8FAF9]">
       <div className="text-emerald-500 font-black italic animate-pulse text-2xl tracking-tighter uppercase">
-        EduStream Engine Loading...
+        EDUSTREAM HUB LOADING...
       </div>
     </div>
   );
 
   return (
-    <div className="flex h-screen w-full bg-[#F8FAF9] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#F8FAF9] overflow-hidden font-sans">
       
-      {/* 1. SIDEBAR - Fully Fixed & Shrunk for more space */}
-      <aside className="w-20 lg:w-64 bg-white border-r border-slate-100 flex flex-col shrink-0 z-30">
-        <div className="p-6 lg:p-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg font-black italic shrink-0">E</div>
-          <div className="hidden lg:block leading-none">
-             <h1 className="text-lg font-black italic tracking-tighter text-slate-800 uppercase">EduStream</h1>
-             <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">B2B Processing</p>
+      {/* 1. SIDEBAR - Exact Branding Position */}
+      <aside className="w-20 lg:w-72 bg-white border-r border-slate-100 flex flex-col shrink-0 z-30 shadow-sm">
+        <div className="p-8 lg:p-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg font-black italic shrink-0">E</div>
+            <h1 className="hidden lg:block text-2xl font-black italic tracking-tighter text-slate-800 uppercase leading-none">EduStream</h1>
           </div>
+          <p className="hidden lg:block text-[9px] font-bold text-emerald-500 uppercase tracking-[0.25em] ml-1">B2B Processing Hub</p>
         </div>
         
-        <nav className="flex-1 px-4 space-y-1 mt-6">
+        <nav className="flex-1 px-6 space-y-2 mt-4">
           {[
             { icon: LayoutDashboard, label: "Overview", active: true },
             { icon: Users, label: "Student Files" },
             { icon: FileText, label: "Commissions" },
             { icon: Settings, label: "Settings" }
           ].map((item, i) => (
-            <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all ${item.active ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:bg-slate-50'}`}>
+            <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all ${item.active ? 'bg-emerald-50 text-emerald-600 shadow-sm font-bold' : 'text-slate-400 hover:bg-slate-50'}`}>
               <item.icon size={20} />
-              <span className="hidden lg:block font-bold text-[11px] uppercase tracking-wide">{item.label}</span>
+              <span className="hidden lg:block text-[11px] uppercase tracking-widest">{item.label}</span>
             </div>
           ))}
         </nav>
@@ -93,109 +93,125 @@ const Dashboard = () => {
       {/* 2. MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
-        {/* HEADER */}
-        <header className="h-20 lg:h-24 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-20 shrink-0">
+        {/* HEADER - Fixed Alignment */}
+        <header className="h-28 bg-white/60 backdrop-blur-xl border-b border-slate-50 flex items-center justify-between px-8 lg:px-14 sticky top-0 z-20 shrink-0">
           <div className="min-w-0">
-            <h2 className="text-xl lg:text-2xl font-black text-slate-800 italic uppercase tracking-tighter truncate">
-              Hi, {userData?.companyName || 'Rakhi'}!
+            <h2 className="text-2xl lg:text-3xl font-black text-slate-800 italic uppercase tracking-tighter leading-tight">
+              Welcome, <span className="text-emerald-500">{userData?.companyName || 'Rakhi'}!</span>
             </h2>
-            <p className="text-[9px] font-bold text-emerald-500 tracking-widest uppercase">Global Partner Portal</p>
+            <div className="flex items-center gap-2 mt-1">
+               <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Global Agency Partner Portal</span>
+               <span className="bg-emerald-100 text-emerald-600 px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter">Status: Active</span>
+            </div>
           </div>
-          <button onClick={() => setActiveFeature('cloudinary')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-100 flex items-center gap-2 shrink-0">
-            <Plus size={16} strokeWidth={3} /> <span className="hidden sm:inline">Add Student</span>
+          <button onClick={() => setActiveFeature('cloudinary')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-emerald-100 flex items-center gap-3 shrink-0 active:scale-95">
+            <Plus size={18} strokeWidth={4} /> Add New Student
           </button>
         </header>
 
         {/* SCROLLABLE DASHBOARD */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-10 space-y-10">
+        <div className="flex-1 overflow-y-auto p-8 lg:p-14 space-y-14">
           
-          {/* STATS - Fixed Grid with Flex-Wrap Logic */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          {/* STATS - 4 Column Pill Design */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
             {[
               { label: 'Total Files', value: userData?.stats?.totalFiles || '245', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
               { label: 'Processing', value: userData?.stats?.processing || '89', icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' },
               { label: 'Successful', value: userData?.stats?.success || '156', icon: CheckCircle2, color: 'text-cyan-500', bg: 'bg-cyan-50' },
               { label: 'Revenue', value: userData?.stats?.revenue || '$12k', icon: BarChart3, color: 'text-teal-500', bg: 'bg-teal-50' },
             ].map((stat, i) => (
-              <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm flex flex-col items-center text-center group hover:shadow-md transition-all">
-                <div className={`${stat.bg} ${stat.color} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <stat.icon size={26} />
+              <div key={i} className="bg-white p-10 rounded-[3.5rem] border border-white shadow-xl shadow-slate-200/20 flex flex-col items-center text-center group hover:-translate-y-1 transition-all">
+                <div className={`${stat.bg} ${stat.color} w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={28} />
                 </div>
-                <h4 className="text-5xl font-black text-slate-800 tracking-tighter mb-1">{stat.value}</h4>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+                <h4 className="text-6xl font-black text-slate-800 tracking-tighter mb-1">{stat.value}</h4>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">{stat.label}</p>
               </div>
             ))}
           </div>
 
-          {/* MAIN GRID HUB */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+          {/* MAIN GRID - CUSTOM WIDTHS (Recent Activity Narrower, AI Checker Wider) */}
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
             
-            {/* Recent Updates - Takes 8 cols */}
-            <div className="xl:col-span-8 bg-white rounded-[3rem] p-8 lg:p-10 shadow-sm border border-slate-50 min-h-[400px]">
-              <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6">
-                 <h3 className="font-black text-xl lg:text-2xl text-slate-800 italic uppercase tracking-tighter">Recent Processing Activity</h3>
-                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Real-time DB Sync</span>
+            {/* Recent Processing Updates - Narrower (6 Cols) */}
+            <div className="xl:col-span-7 bg-white rounded-[4rem] p-10 lg:p-12 shadow-xl shadow-slate-200/20 border border-white">
+              <div className="flex items-center justify-between mb-10 pb-8 border-b border-slate-50">
+                 <h3 className="font-black text-2xl lg:text-3xl text-slate-800 italic uppercase tracking-tighter leading-none">Recent Processing<br/>Updates</h3>
+                 <div className="text-right">
+                    <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest underline decoration-2 cursor-pointer">Full Database →</p>
                  </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {userData?.recentSubmissions?.length > 0 ? (
                   userData.recentSubmissions.slice(0, 3).map((sub: any, i: number) => (
-                    <div key={i} className="flex flex-wrap items-center justify-between p-6 rounded-[2rem] bg-slate-50/50 border border-transparent hover:border-emerald-100 transition-all gap-4">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-xl font-black text-slate-200 shadow-sm">S</div>
+                    <div key={i} className="flex items-center justify-between p-8 rounded-[3rem] bg-slate-50/50 border border-transparent hover:bg-white hover:shadow-lg transition-all group">
+                      <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-2xl font-black text-slate-200 shadow-sm border border-slate-100">S</div>
                         <div>
-                          <p className="font-bold text-slate-800 text-lg">Student: <span className="text-emerald-600 underline">In Review</span></p>
-                          <p className="text-[10px] text-slate-400 uppercase font-black mt-0.5 tracking-wider">Passport: {sub.passportNo || 'REF-N/A'}</p>
+                          <p className="font-black text-slate-800 text-xl uppercase tracking-tighter italic">Student: <span className="text-emerald-500">In Review</span></p>
+                          <div className="flex items-center gap-4 mt-1">
+                             <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                                <FileText size={12} className="text-emerald-500" /> 
+                                <span className="uppercase tracking-widest">View Documents</span>
+                             </div>
+                             <span className="text-[10px] text-slate-300 font-bold italic uppercase tracking-widest">Passport: REF-N/A</span>
+                          </div>
                         </div>
                       </div>
-                      <button className="bg-white text-emerald-500 border border-emerald-100 text-[9px] font-black px-6 py-2 rounded-full uppercase italic hover:bg-emerald-500 hover:text-white transition-all">Download Report</button>
+                      <div className="hidden sm:block">
+                        <span className="bg-emerald-50 text-emerald-600 text-[9px] font-black px-6 py-2.5 rounded-full uppercase italic border border-emerald-100 shadow-sm">Progressing</span>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-20 text-center text-slate-300 font-bold italic uppercase tracking-tighter opacity-50">No Data Streams Found</div>
+                  <div className="py-24 text-center">
+                    <div className="text-slate-200 font-black italic text-3xl uppercase tracking-tighter opacity-40">No Live Streams</div>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* AI HUB CARD - Takes 4 cols */}
-            <div className="xl:col-span-4 bg-[#0A192F] rounded-[3rem] p-10 text-white relative overflow-hidden flex flex-col justify-center min-h-[400px] group shadow-2xl">
+            {/* AI HUB CARD - Wider (5 Cols) */}
+            <div className="xl:col-span-5 bg-[#0A192F] rounded-[4rem] p-12 text-white relative overflow-hidden flex flex-col justify-center shadow-2xl border border-slate-800 group">
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-emerald-500/20 group-hover:rotate-12 transition-transform">
-                    <Zap size={32} />
+                  <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center mb-10 shadow-2xl shadow-emerald-500/40 group-hover:rotate-6 transition-all duration-500">
+                    <Zap size={40} fill="currentColor" />
                   </div>
-                  <h3 className="text-3xl font-black mb-4 italic uppercase leading-none tracking-tighter">AI Eligibility<br/><span className="text-emerald-500">Checker</span></h3>
-                  <p className="text-slate-400 text-[10px] leading-relaxed mb-10 font-medium italic">Verify university requirements instantly via B2B model.</p>
-                  <button onClick={() => setActiveFeature('ai_assessment')} className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 shadow-xl shadow-emerald-900/20">
+                  <h3 className="text-5xl font-black mb-6 italic uppercase leading-[0.9] tracking-tighter">AI Eligibility<br/><span className="text-emerald-500 underline decoration-4 underline-offset-8">Checker</span></h3>
+                  <p className="text-slate-400 text-xs leading-relaxed mb-12 font-medium italic opacity-80 max-w-sm">Verify university requirements instantly via B2B model logic. High accuracy assessment engine ready.</p>
+                  <button onClick={() => setActiveFeature('ai_assessment')} className="w-full py-6 bg-emerald-500 hover:bg-emerald-400 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] transition-all active:scale-95 shadow-xl shadow-emerald-500/20 text-[#0A192F]">
                       Launch AI Assistant
                   </button>
                 </div>
-                <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-[80px]"></div>
+                {/* Background Decoration */}
+                <div className="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-[120px] group-hover:bg-emerald-500/20 transition-all duration-1000"></div>
+                <div className="absolute right-10 bottom-10 text-emerald-500/10 font-black italic text-9xl select-none uppercase tracking-tighter pointer-events-none group-hover:translate-y-4 transition-all duration-700">AI</div>
             </div>
           </div>
 
-          {/* SERVICE SUITE - Fluid Wrapping Fix */}
-          <div className="space-y-8 pb-10">
-            <div className="flex items-center gap-3 mb-10">
-               <div className="h-8 w-1.5 bg-emerald-500 rounded-full"></div>
-               <h3 className="font-black text-2xl lg:text-3xl italic text-slate-800 uppercase tracking-tighter">Partner B2B Service Suite</h3>
+          {/* SERVICE SUITE - Pill Wrapping Optimization */}
+          <div className="space-y-10 pb-20">
+            <div className="flex items-center gap-4 mb-12">
+               <div className="h-10 w-2.5 bg-emerald-500 rounded-full"></div>
+               <h3 className="font-black text-3xl lg:text-4xl italic text-slate-800 uppercase tracking-tighter">Partner B2B Service Suite</h3>
             </div>
             
-            {/* Eikhane auto-cols logic kora hoyeche jate width constraint na thake */}
-            <div className="flex flex-wrap gap-6 justify-start">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
               {allFeatures.map((feature) => {
                 const locked = isFeatureLocked(feature.minPackage);
                 return (
                   <div key={feature.id} 
                     onClick={() => handleFeatureClick(feature.id, locked)}
-                    className={`flex-1 min-w-[180px] max-w-[240px] p-8 rounded-[3.5rem] border-2 transition-all cursor-pointer ${locked ? 'bg-slate-50 border-transparent opacity-40 grayscale' : 'bg-white border-white hover:border-emerald-100 hover:shadow-xl hover:-translate-y-1'}`}>
-                    <div className={`mb-6 p-5 rounded-2xl w-fit ${locked ? 'bg-slate-100 text-slate-300' : 'bg-emerald-50 text-emerald-500'}`}>
-                      <feature.icon size={28} strokeWidth={2.5} />
+                    className={`p-10 rounded-[4rem] border-2 transition-all duration-500 cursor-pointer flex flex-col items-center text-center ${locked ? 'bg-slate-50 border-transparent opacity-40 grayscale cursor-not-allowed' : 'bg-white border-white hover:border-emerald-100 hover:shadow-2xl hover:-translate-y-2 shadow-xl shadow-slate-200/10 group'}`}>
+                    <div className={`mb-8 p-6 rounded-[1.8rem] shadow-sm transition-all duration-500 ${locked ? 'bg-slate-100 text-slate-300' : 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white'}`}>
+                      <feature.icon size={32} strokeWidth={2.5} />
                     </div>
-                    <h3 className="font-black text-[13px] text-slate-800 mb-2 italic uppercase leading-tight">{feature.name}</h3>
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{locked ? 'Locked' : 'Active Access'}</p>
+                    <h3 className="font-black text-[14px] lg:text-[15px] text-slate-800 mb-2 italic uppercase tracking-tight leading-tight">{feature.name}</h3>
+                    <div className="flex items-center gap-2">
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{locked ? 'Upgrade Plan' : 'Active Access'}</p>
+                        {locked && <Lock size={12} className="text-slate-300" />}
+                    </div>
                   </div>
                 );
               })}
