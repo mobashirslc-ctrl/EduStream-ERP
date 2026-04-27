@@ -17,7 +17,8 @@ import { SmartInvoicing } from "../components/dashboard/features/SmartInvoicing"
 import { Support } from "../components/dashboard/features/Support"; 
 import { Ticketing } from "../components/dashboard/features/Ticketing"; 
 import { TrackingSystem } from "../components/dashboard/features/TrackingSystem";
-import { AgentHub } from "../components/dashboard/features/AgentHub"; 
+import { AgentHub } from "../components/dashboard/features/AgentHub";
+import { EmployeeManagement } from "../components/dashboard/features/EmployeeManagement"; 
 
 export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
@@ -46,7 +47,9 @@ const features = [
     { name: 'QR Tracking', icon: Database },
     { name: 'Ticketing System', icon: Users },
     { name: 'Priority Support', icon: MessageSquare }, // Ekhane comma (,) thakte hobe
+    { name: 'Team Hub', icon: Users },
     { name: 'Agent Network', icon: Users } // Duplicate AI Assessment muche eita rakho
+    
   ];
 
   // Helper function to open Cloudinary PDF
@@ -67,6 +70,7 @@ const features = [
       case 'Ticketing System': return <Ticketing />;
       case 'Priority Support': return <Support />;
       case 'AI Assessment': return <AIAssessment />;
+      case 'Team Hub': return <EmployeeManagement />;
     case 'Agent Network': return <AgentHub />;
       default: return null;
     }
