@@ -35,8 +35,7 @@ export default function ClientDashboard() {
     { icon: CheckCircle, label: 'Completed', value: '156', change: '+18%', color: 'from-teal-500 to-cyan-500' },
     { icon: TrendingUp, label: 'Success Rate', value: '94%', change: '+3%', color: 'from-emerald-500 to-teal-500' }
   ];
-
-  const features = [
+const features = [
     { name: 'AI Assessment', icon: Zap },
     { name: 'Cloud Manager', icon: Camera },
     { name: '20-Step Track', icon: BarChart },
@@ -46,9 +45,8 @@ export default function ClientDashboard() {
     { name: 'Marketing Studio', icon: Globe },
     { name: 'QR Tracking', icon: Database },
     { name: 'Ticketing System', icon: Users },
-    { name: 'Priority Support', icon: MessageSquare }
-    { name: 'AI Assessment', icon: Zap },
-  { name: 'Agent Network', icon: Users },
+    { name: 'Priority Support', icon: MessageSquare }, // Ekhane comma (,) thakte hobe
+    { name: 'Agent Network', icon: Users } // Duplicate AI Assessment muche eita rakho
   ];
 
   // Helper function to open Cloudinary PDF
