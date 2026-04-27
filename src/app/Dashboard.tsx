@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   FileText, Plus, Lock, Zap, Camera, BarChart3, Bell, 
   Users, Globe, Database, ShieldCheck, MessageSquare, CheckCircle2,
-  Clock, LayoutDashboard, Settings, Search, Download
+  Clock, LayoutDashboard, Settings, Download
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -17,7 +17,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
-  // 1. Logic: Feature Suite with Package Constraints
   const allFeatures = [
     { id: 'ai_assessment', name: 'AI Assessment', icon: Zap, minPackage: 'Basic' },
     { id: 'cloudinary', name: 'Cloud Manager', icon: Camera, minPackage: 'Basic' },
@@ -47,155 +46,165 @@ const Dashboard = () => {
     return packages.indexOf(userPkg) < packages.indexOf(minPackage);
   };
 
-  const generateStudentPDF = (sub: any) => {
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text("EDU-STREAM B2B HUB", 105, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.text(`Student: ${sub.studentName}`, 20, 40);
-    doc.text(`Passport: ${sub.passportNo || 'N/A'}`, 20, 50);
-    doc.text(`Status: ${sub.status || 'Processing'}`, 20, 60);
-    doc.save(`${sub.studentName}_Report.pdf`);
+  const handleFeatureClick = (featureId: string, locked: boolean) => {
+    if (locked) {
+      alert("Please upgrade your package to access this feature.");
+      return;
+    }
+    if (featureId === 'cloudinary' || featureId === 'ai_assessment') {
+      setActiveFeature(featureId);
+    } else {
+      alert(`${featureId.replace('_', ' ').toUpperCase()} is being integrated. Available in next update!`);
+    }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center text-cyan-500 font-bold">Loading MNC Portal...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center text-emerald-500 font-bold italic animate-pulse">EDU-STREAM HUB INITIALIZING...</div>;
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F3F7F9] font-sans text-slate-600 overflow-x-hidden">
+    <div className="flex min-h-screen w-full bg-[#F4F7F6] font-sans text-slate-700">
       
-      {/* SIDEBAR - Slim & Smart */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-0 h-screen shrink-0">
-        <div className="p-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-cyan-100 italic font-black">E</div>
-          <span className="text-xl font-bold text-slate-800 tracking-tight italic">EduStream</span>
+      {/* 1. SIDEBAR - Ultra Slim Smart Sidebar */}
+      <aside className="w-24 lg:w-80 bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen shrink-0 z-30 shadow-sm">
+        <div className="p-10 flex items-center gap-4">
+          <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-100 font-black text-2xl italic">E</div>
+          <div className="hidden lg:block leading-tight">
+             <h1 className="text-2xl font-black italic tracking-tighter text-slate-800">EduStream</h1>
+             <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">B2B Processing Hub</p>
+          </div>
         </div>
-        <nav className="flex-1 px-4 space-y-1">
+        
+        <nav className="flex-1 px-8 space-y-4 mt-6">
           {[
             { icon: LayoutDashboard, label: "Overview", active: true },
             { icon: Users, label: "Student Files" },
-            { icon: FileText, label: "Commissions" },
-            { icon: Settings, label: "Settings" }
+            { icon: FileText, label: "Partner Commissions" },
+            { icon: Settings, label: "Agency Settings" }
           ].map((item, i) => (
-            <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${item.active ? 'bg-cyan-50 text-cyan-600 font-semibold' : 'hover:bg-slate-50 text-slate-400'}`}>
-              <item.icon size={18} />
-              <span className="text-sm font-medium">{item.label}</span>
+            <div key={i} className={`flex items-center gap-5 p-5 rounded-[1.5rem] cursor-pointer transition-all ${item.active ? 'bg-emerald-50 text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-slate-50'}`}>
+              <item.icon size={24} />
+              <span className="hidden lg:block font-bold text-sm tracking-tight">{item.label}</span>
             </div>
           ))}
         </nav>
       </aside>
 
-      {/* MAIN AREA */}
-      <main className="flex-1 flex flex-col min-w-0">
+      {/* 2. MAIN DASHBOARD - Edge to Edge */}
+      <main className="flex-1 min-w-0 bg-[#F4F7F6] overflow-x-hidden">
         
-        {/* HEADER - Balanced Spacing */}
-        <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 lg:px-16 sticky top-0 z-10">
+        {/* HEADER - Transparent & Wide */}
+        <header className="h-28 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-10 lg:px-20 sticky top-0 z-20 w-full">
           <div>
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Hi, {userData?.companyName || 'rakhi'}!</h2>
-            <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mt-1 italic">Agency Partner Portal</p>
+            <h2 className="text-3xl font-black text-slate-800 italic uppercase">Hi, {userData?.companyName || 'Rakhi'}!</h2>
+            <p className="text-xs font-bold text-emerald-500 tracking-[0.2em] uppercase mt-1">Global Agency Partner Portal</p>
           </div>
-          <div className="flex items-center gap-6">
-             <button onClick={() => setActiveFeature('cloudinary')} className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-cyan-100 transition-all flex items-center gap-2 active:scale-95">
-                <Plus size={16} /> Add New Student
-             </button>
+          <div className="flex items-center gap-8">
+            <button onClick={() => setActiveFeature('cloudinary')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-emerald-200 transition-all active:scale-95 flex items-center gap-3">
+                <Plus size={20} strokeWidth={3} /> Add New Student
+            </button>
           </div>
         </header>
 
-        {/* CONTENT - Ultra Wide Padding */}
-        <div className="p-10 lg:p-16 space-y-10 w-full max-w-[1800px] mx-auto">
+        {/* PAGE CONTENT */}
+        <div className="p-10 lg:p-20 space-y-16">
           
-          {/* Stats Bar - Clean Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+          {/* STATS SECTION - Wider Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10">
             {[
-              { label: 'Active Students', value: userData?.stats?.totalFiles || '245', icon: Users, trend: '+12%' },
-              { label: 'Files in Process', value: userData?.stats?.processing || '89', icon: Clock, trend: '+5%' },
-              { label: 'Completed', value: userData?.stats?.success || '156', icon: CheckCircle2, trend: '+18%' },
-              { label: 'Success Rate', value: userData?.stats?.revenue || '94%', icon: BarChart3, trend: '+3%' },
+              { label: 'Active Students', value: userData?.stats?.totalFiles || '245', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+              { label: 'Files in Process', value: userData?.stats?.processing || '89', icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' },
+              { label: 'Completed Files', value: userData?.stats?.success || '156', icon: CheckCircle2, color: 'text-cyan-500', bg: 'bg-cyan-50' },
+              { label: 'B2B Revenue', value: userData?.stats?.revenue || '$12k', icon: BarChart3, color: 'text-teal-500', bg: 'bg-teal-50' },
             ].map((stat, i) => (
-              <div key={i} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="p-3 bg-cyan-50 text-cyan-500 rounded-2xl"><stat.icon size={24} /></div>
-                  <span className="text-[10px] font-bold text-cyan-600 bg-cyan-50 px-2 py-1 rounded-lg">{stat.trend}</span>
+              <div key={i} className="bg-white p-12 rounded-[3.5rem] border border-white shadow-xl shadow-slate-200/40 hover:shadow-2xl transition-all group">
+                <div className={`${stat.bg} ${stat.color} w-20 h-20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={36} />
                 </div>
-                <h4 className="text-4xl font-bold text-slate-800">{stat.value}</h4>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">{stat.label}</p>
+                <h4 className="text-6xl font-black text-slate-800 mb-2 tracking-tighter">{stat.value}</h4>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+          {/* ACTIVITY & AI HUB */}
+          <div className="grid grid-cols-1 3xl:grid-cols-3 gap-12">
             
-            {/* Activity List - Readable & Clickable */}
-            <div className="xl:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-10">
-              <div className="flex items-center justify-between mb-10 border-b border-slate-50 pb-6">
-                <h3 className="font-bold text-xl text-slate-800 tracking-tight">Recent Status Updates</h3>
-                <button className="text-cyan-600 text-xs font-bold hover:underline">View All Activity →</button>
+            {/* Recent Updates - Takes More Width */}
+            <div className="3xl:col-span-2 bg-white rounded-[4rem] p-16 shadow-xl shadow-slate-200/40 border border-white">
+              <div className="flex items-center justify-between mb-12 border-b border-slate-50 pb-10">
+                <h3 className="font-black text-3xl text-slate-800 italic uppercase tracking-tighter">Recent Status Updates</h3>
+                <span className="bg-emerald-50 text-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Real-time Sync</span>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {userData?.recentSubmissions?.length > 0 ? (
-                  userData.recentSubmissions.slice(0, 5).reverse().map((sub: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-6 rounded-2xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100">
-                      <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-cyan-500 group-hover:text-white transition-all font-bold">
+                  userData.recentSubmissions.slice(0, 4).reverse().map((sub: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between p-10 rounded-[2.5rem] hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
+                      <div className="flex items-center gap-10">
+                        <div className="w-24 h-24 bg-slate-100 rounded-[2rem] flex items-center justify-center text-4xl font-black text-slate-300 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                           {(sub.studentName || "S").charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-700">
-                             <span className="text-cyan-600 font-bold">{sub.studentName}</span> has submitted their file for review.
+                          <p className="text-2xl font-bold text-slate-800">
+                             Student: <span className="text-emerald-600 font-black">{sub.studentName}</span>
                           </p>
-                          <div className="flex gap-4 mt-2">
-                             <button onClick={() => generateStudentPDF(sub)} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-cyan-600 flex items-center gap-1">
-                                <Download size={12}/> Download Summary PDF
+                          <div className="flex gap-6 mt-3">
+                             <button className="text-emerald-500 text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:underline">
+                                <FileText size={16}/> Download Report
                              </button>
+                             <span className="text-slate-300 text-xs font-bold italic">Passport: {sub.passportNo || 'N/A'}</span>
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="bg-cyan-50 text-cyan-600 text-[9px] font-black px-4 py-1.5 rounded-full uppercase italic">In Review</span>
-                        <p className="text-[9px] font-bold text-slate-300 mt-2 uppercase">Just Now</p>
+                        <span className="bg-emerald-50 text-emerald-600 text-[11px] font-black px-8 py-3 rounded-full uppercase tracking-widest italic">Under Review</span>
+                        <p className="text-[10px] font-bold text-slate-300 mt-4 uppercase tracking-[0.2em]">Updated Just Now</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-10 text-slate-300 italic text-sm">No activity found.</div>
+                  <div className="py-20 text-center text-slate-300 font-bold italic text-xl opacity-30">No active student files detected.</div>
                 )}
               </div>
             </div>
 
-            {/* Quick Actions & AI */}
-            <div className="space-y-8">
-              <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                <h3 className="font-bold text-slate-800 mb-6 text-center text-sm uppercase tracking-widest">Quick Actions</h3>
-                <div className="space-y-3">
-                   <button onClick={() => setActiveFeature('cloudinary')} className="w-full py-4 bg-cyan-500 text-white rounded-xl text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-cyan-100 hover:bg-cyan-600 transition-all">Add New Student</button>
-                   <button onClick={() => setActiveFeature('cloudinary')} className="w-full py-4 border border-cyan-100 text-cyan-600 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-cyan-50 transition-all">Upload Documents</button>
-                   <button className="w-full py-4 border border-slate-100 text-slate-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all">Download Reports</button>
-                </div>
-              </div>
-
-              <div className="bg-[#0A192F] rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl group">
-                 <h3 className="text-xl font-bold mb-2">AI Assistant Ready</h3>
-                 <p className="text-xs text-slate-400 mb-8 leading-relaxed">Instant student eligibility assessment & tracking.</p>
-                 <button onClick={() => setActiveFeature('ai_assessment')} className="w-full py-4 bg-cyan-500 hover:bg-cyan-600 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">Launch AI</button>
-                 <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl"></div>
+            {/* AI ASSISTANT - Elegant Vertical Card */}
+            <div className="space-y-12">
+              <div className="bg-[#0A192F] rounded-[4rem] p-16 text-white shadow-2xl relative overflow-hidden group min-h-[500px] flex flex-col justify-center">
+                 <div className="relative z-10">
+                    <div className="w-20 h-20 bg-emerald-500 rounded-[2rem] flex items-center justify-center mb-10 shadow-lg shadow-emerald-500/20"><Zap size={40} /></div>
+                    <h3 className="text-4xl font-black mb-6 italic uppercase leading-none">AI Eligibility<br/><span className="text-emerald-500">Checker</span></h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-12 font-medium">Verify university requirements instantly using our advanced AI processing model.</p>
+                    <button onClick={() => setActiveFeature('ai_assessment')} className="w-full py-7 bg-emerald-500 hover:bg-emerald-600 rounded-3xl font-black text-xs uppercase tracking-[0.4em] transition-all shadow-xl shadow-emerald-500/20 active:scale-95">
+                        Launch AI Engine
+                    </button>
+                 </div>
+                 <div className="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-[120px] group-hover:bg-emerald-500/20 transition-all"></div>
               </div>
             </div>
           </div>
 
-          {/* Service Suite - Clean Grid */}
+          {/* PARTNER SERVICE SUITE - Full Width & Wide Cards */}
           <div className="pt-10">
-            <h3 className="font-bold text-xl text-slate-800 mb-8 italic tracking-tight">Partner B2B Service Suite</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+            <div className="flex items-center gap-6 mb-16">
+               <div className="h-10 w-3 bg-emerald-500 rounded-full"></div>
+               <h3 className="font-black text-4xl italic text-slate-800 uppercase tracking-tighter">Partner B2B Service Suite</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-10">
               {allFeatures.map((feature) => {
                 const locked = isFeatureLocked(feature.minPackage);
                 return (
-                  <div key={feature.id} onClick={() => !locked && setActiveFeature(feature.id)}
-                    className={`p-8 rounded-[2rem] border transition-all duration-300 ${locked ? 'bg-slate-50 opacity-40 grayscale' : 'bg-white hover:shadow-xl hover:-translate-y-1 hover:border-cyan-100 cursor-pointer shadow-sm'}`}>
-                    <div className={`mb-4 p-4 rounded-xl w-fit ${locked ? 'bg-slate-100 text-slate-300' : 'bg-cyan-50 text-cyan-500'}`}>
-                      <feature.icon size={22} />
+                  <div key={feature.id} 
+                    onClick={() => handleFeatureClick(feature.id, locked)}
+                    className={`p-12 rounded-[3.5rem] border-2 transition-all duration-500 ${locked ? 'bg-slate-50 border-transparent opacity-50 grayscale cursor-not-allowed' : 'bg-white border-white hover:border-emerald-200 hover:shadow-2xl hover:-translate-y-3 cursor-pointer shadow-xl shadow-slate-200/30'}`}>
+                    <div className={`mb-8 p-6 rounded-3xl w-fit ${locked ? 'bg-slate-100 text-slate-300' : 'bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all'}`}>
+                      <feature.icon size={36} strokeWidth={2.5} />
                     </div>
-                    <h3 className="font-bold text-xs text-slate-800 mb-1">{feature.name}</h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{locked ? `Upgrade Required` : 'Active Access'}</p>
+                    <h3 className="font-black text-lg text-slate-800 mb-3 tracking-tight">{feature.name}</h3>
+                    <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{locked ? `Upgrade Required` : 'Active Access'}</p>
+                        {locked && <Lock size={16} className="text-slate-300" />}
+                    </div>
                   </div>
                 );
               })}
@@ -204,7 +213,7 @@ const Dashboard = () => {
         </div>
       </main>
 
-      {/* Modals */}
+      {/* OVERLAYS */}
       {activeFeature === 'cloudinary' && <CloudManager isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
     </div>
