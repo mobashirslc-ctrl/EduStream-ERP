@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, X, Loader2, CheckCircle, User, CreditCard, Send, FileText, School } from 'lucide-react';
+import { Camera, Loader2, CheckCircle, User, CreditCard, Send, FileText, School } from 'lucide-react';
 import { auth, db } from '../../../lib/firebase'; 
 import { doc, updateDoc, onSnapshot, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { uploadToCloudinary } from '../../../lib/cloudinary';
 
-const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+// "export function" use kora hoyeche jate Dashboard-er logic-er sathe mile
+export function CloudManager() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [dbDocs, setDbDocs] = useState<any>({});
   const [studentName, setStudentName] = useState("");
   const [passportNo, setPassportNo] = useState("");
-  const [universityName, setUniversityName] = useState(""); // Notun Input
+  const [universityName, setUniversityName] = useState("");
   const [isFullySubmitted, setIsFullySubmitted] = useState(false);
   
-  // IELTS ebong baki gulo fix kora hoyeche
   const docs = [
-    "Passport", 
-    "SSC Transcript", 
-    "HSC Transcript", 
-    "Bachelor Transcript", 
-    "Master's Transcript", 
-    "IELTS Certificate", // Corrected Name
-    "Others"
+    "Passport", "SSC Transcript", "HSC Transcript", 
+    "Bachelor Transcript", "Master's Transcript", 
+    "IELTS Certificate", "Others"
   ];
 
   useEffect(() => {
-    if (!auth.currentUser || !isOpen) return;
+    if (!auth.currentUser) return;
     const unsub = onSnapshot(doc(db, "users", auth.currentUser.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
@@ -35,13 +31,12 @@ const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
       }
     });
     return () => unsub();
-  }, [isOpen]);
+  }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (!file || !auth.currentUser) return;
 
-    // Validation
     if (!studentName || !passportNo || !universityName) {
       alert("Please fill in Student Name, Passport No, and University Name first!");
       return;
@@ -67,104 +62,106 @@ const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
 
     } catch (err: any) {
       console.error("Upload Error:", err);
-      alert("Upload failed. Please check your internet or Cloudinary settings.");
+      alert("Upload failed. Check settings.");
     } finally {
       setUploading(null);
     }
   };
 
   const finalizeSubmission = async () => {
-    if (!studentName || Object.keys(dbDocs).length === 0) {
-      alert("Please enter details and upload at least one document.");
+    if (!studentName || !universityName || Object.keys(dbDocs).length === 0) {
+      alert("Details ebong documents upload koro.");
       return;
     }
 
     setIsFullySubmitted(true);
-    await updateDoc(doc(db, "users", auth.currentUser!.uid), {
+    const userRef = doc(db, "users", auth.currentUser!.uid);
+
+    const newSubmission = {
+      studentName,
+      universityName,
+      passportNo,
+      documents: dbDocs,
+      status: 'Pending',
+      submittedAt: new Date().toLocaleString(),
+      timestamp: serverTimestamp()
+    };
+
+    await updateDoc(userRef, {
       submissionStatus: 'Ready for Review',
-      complianceStatus: 'Pending',
-      lastSubmissionDate: serverTimestamp()
+      activeApplication: newSubmission,
+      recentSubmissions: arrayUnion(newSubmission)
     });
 
     setTimeout(() => {
       setIsFullySubmitted(false);
-      onClose();
     }, 2500);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-300 relative overflow-hidden">
-        
-        {isFullySubmitted && (
-          <div className="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center text-center p-6 animate-in fade-in">
-            <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mb-4 shadow-lg shadow-emerald-200">
-              <CheckCircle size={40} className="animate-pulse" />
-            </div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Files Submitted!</h2>
-            <p className="text-slate-500 font-bold mt-2 text-sm uppercase tracking-widest">Sent to Compliance Hub</p>
+    <div className="w-full max-w-2xl mx-auto relative">
+      {/* Success Animation Overlay */}
+      {isFullySubmitted && (
+        <div className="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center text-center p-6 animate-in fade-in rounded-[2rem]">
+          <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mb-4">
+            <CheckCircle size={40} className="animate-pulse" />
           </div>
-        )}
-
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-black flex items-center gap-2 text-slate-800 uppercase tracking-tighter">
-            <Camera className="text-emerald-500" /> New Application
-          </h3>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-all"><X size={20}/></button>
+          <h2 className="text-2xl font-black text-slate-900 uppercase">Files Submitted!</h2>
+          <p className="text-slate-500 font-bold mt-2 text-sm uppercase tracking-widest">Sent to Compliance Hub</p>
         </div>
+      )}
 
-        {/* --- 3 INPUT BOXES --- */}
-        <div className="grid grid-cols-1 gap-3 mb-8">
-          <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-6">
+        {/* INPUTS SECTION */}
+        <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div className="relative">
-                <User className="absolute left-4 top-3.5 text-slate-400" size={14} />
+                <User className="absolute left-4 top-4 text-slate-400" size={16} />
                 <input 
                   type="text" placeholder="Student Name" value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
                 />
              </div>
              <div className="relative">
-                <CreditCard className="absolute left-4 top-3.5 text-slate-400" size={14} />
+                <CreditCard className="absolute left-4 top-4 text-slate-400" size={16} />
                 <input 
                   type="text" placeholder="Passport Number" value={passportNo}
                   onChange={(e) => setPassportNo(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
                 />
              </div>
           </div>
           <div className="relative">
-            <School className="absolute left-4 top-3.5 text-slate-400" size={14} />
+            <School className="absolute left-4 top-4 text-slate-400" size={16} />
             <input 
               type="text" placeholder="Target University Name" value={universityName}
               onChange={(e) => setUniversityName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
             />
           </div>
         </div>
 
-        {/* --- FILE LIST --- */}
-        <div className="space-y-2 max-h-[30vh] overflow-y-auto pr-2 mb-6 custom-scrollbar">
+        {/* FILE LIST */}
+        <div className="grid grid-cols-1 gap-3">
           {docs.map((d, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group">
+            <div key={i} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-emerald-200 transition-all">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${dbDocs[d] ? 'bg-emerald-500 text-white' : 'bg-white border text-slate-300'}`}>
-                   <FileText size={14} />
+                <div className={`p-2 rounded-xl ${dbDocs[d] ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
+                   <FileText size={18} />
                 </div>
-                <span className={`text-[13px] font-bold ${dbDocs[d] ? 'text-slate-900' : 'text-slate-500'}`}>{d}</span>
+                <span className={`text-sm font-black italic uppercase tracking-tighter ${dbDocs[d] ? 'text-slate-900' : 'text-slate-400'}`}>{d}</span>
               </div>
               
               <div className="flex items-center gap-2">
                 <input type="file" className="hidden" id={`f-${i}`} onChange={(e) => handleUpload(e, d)} disabled={uploading === d} />
                 <label 
                   htmlFor={`f-${i}`} 
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all ${
-                    dbDocs[d] ? 'bg-emerald-50 text-emerald-600' : 'bg-white border text-slate-400 hover:text-emerald-500'
+                  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all ${
+                    dbDocs[d] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-900 text-white hover:bg-emerald-600'
                   }`}
                 >
-                  {uploading === d ? <Loader2 className="animate-spin h-3 w-3" /> : dbDocs[d] ? 'Change' : 'Select'}
+                  {uploading === d ? <Loader2 className="animate-spin h-3 w-3" /> : dbDocs[d] ? 'Update' : 'Select'}
                 </label>
               </div>
             </div>
@@ -173,13 +170,11 @@ const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
 
         <button 
           onClick={finalizeSubmission}
-          className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl"
+          className="w-full bg-emerald-500 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-xl shadow-emerald-100"
         >
           <Send size={18} /> Send Application
         </button>
       </div>
     </div>
   );
-};
-
-export default CloudManager;
+}

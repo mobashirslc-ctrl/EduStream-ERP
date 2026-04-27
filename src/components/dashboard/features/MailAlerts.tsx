@@ -1,23 +1,44 @@
 import React from 'react';
-import { Bell, X } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
-const MailAlerts = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  if (!isOpen) return null;
+// "export function" use kora hoyeche jate Dashboard properly import korte pare
+export function MailAlerts() {
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 text-center shadow-2xl">
-        <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Bell size={32} />
+    <div className="w-full max-w-md mx-auto text-center py-6">
+      <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm">
+        <Bell size={40} />
+      </div>
+      
+      <h3 className="text-2xl font-black text-slate-800 mb-3 italic uppercase tracking-tighter">
+        Smart Mail Alerts
+      </h3>
+      
+      <p className="text-sm text-slate-500 mb-8 font-medium leading-relaxed italic">
+        Compliance team status update korlei student ebong partner-er kache auto mail jabe.
+      </p>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm">
+           <span className="text-sm font-black text-slate-600 uppercase tracking-tight">Active Notifications</span>
+           {/* Custom Toggle UI */}
+           <div className="w-12 h-6 bg-emerald-500 rounded-full relative cursor-pointer">
+              <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+           </div>
         </div>
-        <h3 className="text-xl font-black text-slate-800 mb-2">Smart Mail Alerts</h3>
-        <p className="text-sm text-slate-500 mb-6 font-medium leading-relaxed">Compliance team status update korlei student ebong partner-er kache auto mail jabe.</p>
-        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-4">
-           <span className="text-sm font-bold text-slate-600">Active Notifications</span>
-           <div className="w-10 h-5 bg-emerald-500 rounded-full relative"><div className="w-3 h-3 bg-white rounded-full absolute right-1 top-1"></div></div>
+
+        <div className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm opacity-60">
+           <span className="text-sm font-black text-slate-600 uppercase tracking-tight">Partner Copy CC</span>
+           <div className="w-12 h-6 bg-slate-200 rounded-full relative cursor-pointer">
+              <div className="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
+           </div>
         </div>
-        <button onClick={onClose} className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-xs">Close Settings</button>
+      </div>
+
+      <div className="mt-10 p-4 bg-teal-50 rounded-2xl border border-teal-100">
+        <p className="text-[10px] font-bold text-teal-700 uppercase tracking-widest">
+          Status: Automation Engine is Live
+        </p>
       </div>
     </div>
   );
-};
-export default MailAlerts;
+}
