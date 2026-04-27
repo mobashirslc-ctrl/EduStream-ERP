@@ -3,11 +3,10 @@ import React, { useState } from 'react';
 import { 
   Users, FileText, CheckCircle, TrendingUp, ArrowLeft, GraduationCap, 
   Plus, Upload, BarChart, Zap, Camera, Bell, ShieldCheck, 
-  Globe, Database, MessageSquare, X 
+  Globe, Database, MessageSquare, X, ExternalLink 
 } from 'lucide-react';
-import jsPDF from 'jspdf';
 
-// --- FIXED IMPORTS: Matching your actual file names from screenshots ---
+// --- FEATURE IMPORTS ---
 import { AIAssessment } from "../components/dashboard/features/AIAssessment";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
 import { Compliance } from "../components/dashboard/features/Compliance"; 
@@ -19,11 +18,15 @@ import { Support } from "../components/dashboard/features/Support";
 import { Ticketing } from "../components/dashboard/features/Ticketing"; 
 import { TrackingSystem } from "../components/dashboard/features/TrackingSystem"; 
 
-// Ensure this file exists in src/app/
-import { RecentStatusNotifications } from "./RecentStatusNotifications";
-
 export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
+
+  // Requirement: Student submissions dynamic kora ebong PDF open kora
+  const [submissions] = useState([
+    { id: 1, name: "Arif Ahmed", passport: "BE098712", status: "IN REVIEW", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
+    { id: 2, name: "Sumaiya Khan", passport: "BW002145", status: "PROCESSING", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
+    { id: 3, name: "Tanvir Hasan", passport: "BP055432", status: "COMPLIANCE", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" }
+  ]);
 
   const stats = [
     { icon: Users, label: 'Active Students', value: '245', change: '+12%', color: 'from-teal-500 to-emerald-500' },
@@ -45,7 +48,11 @@ export default function ClientDashboard() {
     { name: 'Priority Support', icon: MessageSquare }
   ];
 
-  // FIXED MAPPING: Links names to imported components correctly
+  // Helper function to open Cloudinary PDF
+  const openPdf = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   const renderFeatureComponent = () => {
     switch (activeFeature) {
       case 'AI Assessment': return <AIAssessment />;
@@ -71,7 +78,7 @@ export default function ClientDashboard() {
           <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
             <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-teal-50/30">
               <h2 className="text-2xl font-black text-teal-900 uppercase italic tracking-tighter">{activeFeature}</h2>
-              <button onClick={() => setActiveFeature(null)} className="p-3 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-rose-500 text-xl font-bold">
+              <button onClick={() => setActiveFeature(null)} className="p-3 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-rose-500">
                 <X size={24} />
               </button>
             </div>
@@ -126,19 +133,46 @@ export default function ClientDashboard() {
 
         {/* LIVE STATUS & QUICK ACTIONS */}
         <div className="grid lg:grid-cols-12 gap-10">
+          
+          {/* Requirement: Student name dynamic notification & Clickable PDF link */}
           <div className="lg:col-span-8 bg-white rounded-[3rem] p-10 border border-teal-50 shadow-sm flex flex-col min-h-[500px]">
             <h2 className="text-2xl font-black text-teal-900 italic uppercase mb-8 border-l-4 border-teal-500 pl-4">Live Submission Status</h2>
-            <RecentStatusNotifications />
+            <div className="space-y-4 flex-1">
+               {submissions.map((sub) => (
+                 <div key={sub.id} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl border border-transparent hover:border-teal-200 transition-all group">
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-teal-600 font-black shadow-sm group-hover:bg-teal-500 group-hover:text-white transition-all">S</div>
+                      <div>
+                        <h4 className="font-black text-slate-800 uppercase italic">File Submitted: {sub.name}</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Passport: {sub.passport} • Status: <span className="text-teal-600">{sub.status}</span></p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => openPdf(sub.url)}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 rounded-xl font-black text-[10px] uppercase border border-slate-100 hover:bg-teal-600 hover:text-white transition-all shadow-sm"
+                    >
+                      <ExternalLink size={14} /> Click Here
+                    </button>
+                 </div>
+               ))}
+            </div>
           </div>
 
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-white rounded-[3rem] border border-teal-50 p-10 shadow-sm">
               <h3 className="text-xl font-black text-teal-900 uppercase italic mb-6">Quick Operations</h3>
               <div className="space-y-4">
-                <button className="w-full flex items-center gap-4 p-5 bg-teal-500 hover:bg-teal-600 text-white rounded-[1.8rem] font-black text-sm uppercase transition-all shadow-xl shadow-teal-100">
+                {/* Requirement: Add student and upload logic triggers features */}
+                <button 
+                  onClick={() => setActiveFeature('Ticketing System')}
+                  className="w-full flex items-center gap-4 p-5 bg-teal-500 hover:bg-teal-600 text-white rounded-[1.8rem] font-black text-sm uppercase transition-all shadow-xl shadow-teal-100"
+                >
                   <Plus size={20} /> Add New Student
                 </button>
-                <button className="w-full flex items-center gap-4 p-5 border-2 border-teal-50 text-teal-700 hover:bg-teal-50 rounded-[1.8rem] font-black text-sm uppercase transition-all">
+                <button 
+                  onClick={() => setActiveFeature('Cloud Manager')}
+                  className="w-full flex items-center gap-4 p-5 border-2 border-teal-50 text-teal-700 hover:bg-teal-50 rounded-[1.8rem] font-black text-sm uppercase transition-all"
+                >
                   <Upload size={20} /> Upload Documents
                 </button>
               </div>
