@@ -7,19 +7,23 @@ import { auth, db } from '../lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 // --- FEATURE COMPONENTS IMPORT ---
-// Ei file gulo amra serialy ekta ekta kore src/app/features/ folder-e banabo
 import AIAssessment from '../components/dashboard/features/AIAssessment';
 import CloudManager from '../components/dashboard/features/CloudManager';
 import TrackingSystem from '../components/dashboard/features/TrackingSystem';
 import MailAlerts from '../components/dashboard/features/MailAlerts';
 import SmartInvoicing from '../components/dashboard/features/SmartInvoicing';
 
+// NOTUN ADD KORA 5-TI FEATURE:
+import Compliance from '../components/dashboard/features/Compliance';
+import MarketingStudio from '../components/dashboard/features/MarketingStudio';
+import QRTracking from '../components/dashboard/features/QRTracking';
+import Ticketing from '../components/dashboard/features/Ticketing';
+import Support from '../components/dashboard/features/Support';
+
 const Dashboard = () => {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<string>("");
-  
-  // NEW: State for managing active feature overlay
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
   const brandColor = "#10b981"; // Emerald Green
@@ -74,7 +78,7 @@ const Dashboard = () => {
     return packages.indexOf(userPkg) < packages.indexOf(minPackage);
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center font-bold text-emerald-500">Loading Educonsult AI...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center font-bold text-emerald-500">Loading Educonsult...</div>;
 
   return (
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans">
@@ -82,7 +86,7 @@ const Dashboard = () => {
       <aside className="w-64 bg-white border-r border-slate-100 flex flex-col flex-shrink-0">
         <div className="p-6">
           <div className="flex items-center gap-2">
-             <div style={{ backgroundColor: brandColor }} className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs">EC</div>
+             <div style={{ backgroundColor: brandColor }} className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs">HP</div>
              <h1 className="text-lg font-black tracking-tighter uppercase">Partner <span style={{ color: brandColor }}>Portal</span></h1>
           </div>
         </div>
@@ -122,11 +126,7 @@ const Dashboard = () => {
               <p className="text-slate-400 mt-1 text-[10px] font-bold uppercase tracking-widest">Plan: <span style={{ color: brandColor }}>{userData?.package}</span></p>
             )}
           </div>
-          <button 
-            style={{ backgroundColor: brandColor }} 
-            onClick={() => setActiveFeature('cloudinary')}
-            className="text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:scale-105 transition-all flex items-center gap-2 text-xs uppercase tracking-wider"
-          >
+          <button onClick={() => setActiveFeature('cloudinary')} style={{ backgroundColor: brandColor }} className="text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:scale-105 transition-all flex items-center gap-2 text-xs uppercase tracking-wider">
             <Plus className="h-4 w-4" /> New Application
           </button>
         </header>
@@ -159,7 +159,7 @@ const Dashboard = () => {
         </div>
       </main>
 
-      {/* --- FEATURE OVERLAYS --- */}
+      {/* --- FEATURE OVERLAYS (ALL 10) --- */}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'cloudinary' && <CloudManager isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'tracking' && <TrackingSystem isOpen={true} onClose={() => setActiveFeature(null)} />}
