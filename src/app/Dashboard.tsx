@@ -16,7 +16,8 @@ import { QRTracking } from "../components/dashboard/features/QRTracking";
 import { SmartInvoicing } from "../components/dashboard/features/SmartInvoicing"; 
 import { Support } from "../components/dashboard/features/Support"; 
 import { Ticketing } from "../components/dashboard/features/Ticketing"; 
-import { TrackingSystem } from "../components/dashboard/features/TrackingSystem"; 
+import { TrackingSystem } from "../components/dashboard/features/TrackingSystem";
+import { AgentHub } from "../components/dashboard/features/AgentHub"; 
 
 export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
@@ -46,6 +47,8 @@ export default function ClientDashboard() {
     { name: 'QR Tracking', icon: Database },
     { name: 'Ticketing System', icon: Users },
     { name: 'Priority Support', icon: MessageSquare }
+    { name: 'AI Assessment', icon: Zap },
+  { name: 'Agent Network', icon: Users },
   ];
 
   // Helper function to open Cloudinary PDF
@@ -65,6 +68,8 @@ export default function ClientDashboard() {
       case 'QR Tracking': return <QRTracking />;
       case 'Ticketing System': return <Ticketing />;
       case 'Priority Support': return <Support />;
+      case 'AI Assessment': return <AIAssessment />;
+    case 'Agent Network': return <AgentHub />;
       default: return null;
     }
   };
