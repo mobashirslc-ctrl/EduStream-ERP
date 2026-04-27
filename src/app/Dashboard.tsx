@@ -1,11 +1,27 @@
+import React, { useState } from 'react';
 import { 
   Users, FileText, CheckCircle, TrendingUp, ArrowLeft, GraduationCap, 
   Plus, Upload, BarChart, Zap, Camera, Bell, ShieldCheck, 
-  Globe, Database, MessageSquare, Lock, ChevronRight 
+  Globe, Database, MessageSquare, Lock, ChevronRight, X 
 } from 'lucide-react';
+import jsPDF from 'jspdf';
 import { RecentStatusNotifications } from './RecentStatusNotifications';
 
+// Core Feature Components - (Ensure these files exist in your path)
+import { AIAssessment } from "../components/dashboard/features/AIAssessment";
+import { CloudManager } from "../components/dashboard/features/CloudManager";
+import { StepTrack } from "../components/dashboard/features/StepTrack";
+import { MailAlerts } from "../components/dashboard/features/MailAlerts";
+import { SmartInvoice } from "../components/dashboard/features/SmartInvoice";
+import { ComplianceHub } from "../components/dashboard/features/ComplianceHub";
+import { MarketingStudio } from "../components/dashboard/features/MarketingStudio";
+import { QRTracking } from "../components/dashboard/features/QRTracking";
+import { TicketingSystem } from "../components/dashboard/features/TicketingSystem";
+import { PrioritySupport } from "../components/dashboard/features/PrioritySupport";
+
 export function ClientDashboard() {
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+
   const stats = [
     { icon: Users, label: 'Active Students', value: '245', change: '+12%', color: 'from-teal-500 to-emerald-500' },
     { icon: FileText, label: 'Files in Process', value: '89', change: '+5%', color: 'from-cyan-500 to-blue-500' },
@@ -13,22 +29,56 @@ export function ClientDashboard() {
     { icon: TrendingUp, label: 'Success Rate', value: '94%', change: '+3%', color: 'from-emerald-500 to-teal-500' }
   ];
 
-  // Requirement: The 10 Professional Features
   const features = [
-    { name: 'AI Assessment', icon: Zap },
-    { name: 'Cloud Manager', icon: Camera },
-    { name: '20-Step Track', icon: BarChart },
-    { name: 'Mail Alerts', icon: Bell },
-    { name: 'Smart Invoice', icon: FileText },
-    { name: 'Compliance Hub', icon: ShieldCheck },
-    { name: 'Marketing Studio', icon: Globe },
-    { name: 'QR Tracking', icon: Database },
-    { name: 'Ticketing System', icon: Users },
-    { name: 'Priority Support', icon: MessageSquare }
+    { name: 'AI Assessment', icon: Zap, id: 'ai' },
+    { name: 'Cloud Manager', icon: Camera, id: 'cloud' },
+    { name: '20-Step Track', icon: BarChart, id: 'track' },
+    { name: 'Mail Alerts', icon: Bell, id: 'mail' },
+    { name: 'Smart Invoice', icon: FileText, id: 'invoice' },
+    { name: 'Compliance Hub', icon: ShieldCheck, id: 'compliance' },
+    { name: 'Marketing Studio', icon: Globe, id: 'marketing' },
+    { name: 'QR Tracking', icon: Database, id: 'qr' },
+    { name: 'Ticketing System', icon: Users, id: 'ticket' },
+    { name: 'Priority Support', icon: MessageSquare, id: 'support' }
   ];
 
+  // Component Mapping Logic
+  const renderFeatureComponent = () => {
+    switch (activeFeature) {
+      case 'AI Assessment': return <AIAssessment />;
+      case 'Cloud Manager': return <CloudManager />;
+      case '20-Step Track': return <StepTrack />;
+      case 'Mail Alerts': return <MailAlerts />;
+      case 'Smart Invoice': return <SmartInvoice />;
+      case 'Compliance Hub': return <ComplianceHub />;
+      case 'Marketing Studio': return <MarketingStudio />;
+      case 'QR Tracking': return <QRTracking />;
+      case 'Ticketing System': return <TicketingSystem />;
+      case 'Priority Support': return <PrioritySupport />;
+      default: return null;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAF9] font-sans">
+    <div className="min-h-screen bg-[#F8FAF9] font-sans relative">
+      
+      {/* FEATURE MODAL OVERLAY */}
+      {activeFeature && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-teal-50/30">
+              <h2 className="text-2xl font-black text-teal-900 uppercase italic tracking-tighter">{activeFeature}</h2>
+              <button onClick={() => setActiveFeature(null)} className="p-3 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-rose-500">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-10">
+              {renderFeatureComponent()}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* NAVBAR */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-teal-50 sticky top-0 z-50 p-6">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
@@ -51,13 +101,13 @@ export function ClientDashboard() {
         {/* HEADER */}
         <div>
           <h1 className="text-4xl font-black text-teal-950 italic uppercase tracking-tighter">Client Dashboard</h1>
-          <p className="text-teal-600 font-medium italic mt-2 underline decoration-teal-100 decoration-4">Bangladesh B2B Agency Operations</p>
+          <p className="text-teal-600 font-medium italic mt-2 underline decoration-teal-100 decoration-4 italic">Bangladesh B2B Agency Operations</p>
         </div>
 
         {/* STATS: Wide Horizontal Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-[2.5rem] border border-teal-50 p-8 hover:shadow-2xl hover:shadow-teal-900/5 transition-all flex flex-row items-center gap-8 group">
+            <div key={index} className="bg-white rounded-[2.5rem] border border-teal-50 p-8 hover:shadow-2xl hover:shadow-teal-900/5 transition-all flex flex-row items-center gap-8 group cursor-default">
               <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-[1.5rem] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0`}>
                 <stat.icon className="w-8 h-8 text-white" />
               </div>
@@ -74,9 +124,9 @@ export function ClientDashboard() {
 
         {/* MAIN SECTION */}
         <div className="grid lg:grid-cols-12 gap-10">
-          {/* Notifications Area (Wide) */}
+          {/* Notifications Area */}
           <div className="lg:col-span-8 bg-white rounded-[3rem] p-10 border border-teal-50 shadow-sm flex flex-col min-h-[500px]">
-            <h2 className="text-2xl font-black text-teal-900 italic uppercase mb-8 tracking-tighter">Live Submission Status</h2>
+            <h2 className="text-2xl font-black text-teal-900 italic uppercase mb-8 tracking-tighter border-l-4 border-teal-500 pl-4">Live Submission Status</h2>
             <RecentStatusNotifications />
           </div>
 
@@ -94,34 +144,43 @@ export function ClientDashboard() {
               </div>
             </div>
 
-            <div className="bg-[#0A192F] rounded-[3rem] p-10 text-white relative overflow-hidden group min-h-[320px] flex flex-col justify-center">
+            <div 
+              onClick={() => setActiveFeature('AI Assessment')}
+              className="bg-[#0A192F] rounded-[3rem] p-10 text-white relative overflow-hidden group min-h-[320px] flex flex-col justify-center cursor-pointer shadow-2xl hover:scale-[1.02] transition-all"
+            >
               <div className="relative z-10">
-                <Zap className="text-teal-500 mb-6" size={48} fill="currentColor" />
-                <h3 className="text-3xl font-black italic uppercase leading-none mb-4">AI Eligibility<br/><span className="text-teal-500">Assistant</span></h3>
-                <button className="w-full mt-6 px-4 py-4 bg-teal-500 hover:bg-teal-400 text-[#0A192F] font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] transition-all">
-                  Launch Assistant
-                </button>
+                <Zap className="text-teal-400 mb-6 group-hover:animate-pulse" size={48} fill="currentColor" />
+                <h3 className="text-3xl font-black italic uppercase leading-none mb-4 tracking-tighter">AI Eligibility<br/><span className="text-teal-500">Assistant</span></h3>
+                <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-8 opacity-70">Automated B2B Vetting</p>
+                <div className="inline-flex px-6 py-3 bg-teal-500/10 border border-teal-500/50 text-teal-400 rounded-full text-[10px] font-black uppercase tracking-widest">Launch Core Engine</div>
               </div>
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl"></div>
             </div>
           </div>
         </div>
 
-        {/* 10 FEATURES SUITE: Horizontal Pill Wrap */}
+        {/* 10 FEATURES SUITE: Final Optimization */}
         <div className="space-y-10 pb-20">
             <div className="flex items-center gap-4">
               <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
-              <h3 className="font-black text-3xl italic text-teal-900 uppercase tracking-tighter">Partner B2B Service Suite (10 Core Features)</h3>
+              <h3 className="font-black text-3xl italic text-teal-900 uppercase tracking-tighter">Partner B2B Service Suite</h3>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
               {features.map((f, i) => (
-                <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 hover:border-teal-200 hover:-translate-y-2 transition-all flex flex-col items-center text-center group cursor-pointer">
-                  <div className="mb-6 p-5 bg-teal-50 text-teal-500 rounded-2xl group-hover:bg-teal-500 group-hover:text-white transition-all">
+                <div 
+                  key={i} 
+                  onClick={() => setActiveFeature(f.name)}
+                  className="bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 hover:border-teal-300 hover:shadow-teal-100 hover:-translate-y-2 transition-all flex flex-col items-center text-center group cursor-pointer"
+                >
+                  <div className="mb-6 p-5 bg-teal-50 text-teal-500 rounded-2xl group-hover:bg-teal-500 group-hover:text-white transition-all shadow-sm">
                     <f.icon size={28} />
                   </div>
                   <h3 className="font-black text-[13px] text-teal-900 mb-1 italic uppercase tracking-tight">{f.name}</h3>
-                  <span className="text-[9px] font-black text-teal-400 uppercase tracking-widest italic">Active Access</span>
+                  <div className="flex items-center gap-1.5 justify-center">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-[9px] font-black text-teal-400 uppercase tracking-widest italic">Live Sync</span>
+                  </div>
                 </div>
               ))}
             </div>
