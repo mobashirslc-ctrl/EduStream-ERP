@@ -151,56 +151,63 @@ const Dashboard = () => {
         </div>
 
         {/* --- RECENT SUBMISSIONS SECTION (Inside <main>) --- */}
-        <div className="mt-16 border-t border-slate-100 pt-10">
-          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Recent Submissions Activity</h3>
+<div className="mt-16 border-t border-slate-100 pt-10 px-4">
+  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">
+    Recent Activity Feed
+  </h3>
+  
+  <div className="space-y-4">
+    {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
+      <div key={i} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all group animate-in slide-in-from-bottom-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
-              <div key={i} className="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm hover:shadow-md transition-all group animate-in slide-in-from-bottom-3 duration-500">
-                <div className="flex justify-between items-start">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center font-black">
-                       {sub.studentName?.charAt(0) || 'S'}
-                    </div>
-                    <div>
-                      <p className="text-sm font-black text-slate-800">
-                        <span className="text-emerald-600">{sub.studentName}</span> applied to <span className="text-blue-600">{sub.universityName}</span>
-                      </p>
-                      <p className="text-[10px] font-bold text-slate-400 mt-1">{sub.submittedAt}</p>
-                    </div>
-                  </div>
-                  
-                  <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter ${
-                      sub.status === 'Pending' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
-                  }`}>
-                    {sub.status || 'Pending'}
-                  </span>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-                   <button 
-                     onClick={() => setActiveFeature('cloudinary')}
-                     className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
-                   >
-                     Click here to view files
-                   </button>
-                   <div className="flex items-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Compliance: {sub.status || 'Checking'}</span>
-                   </div>
-                </div>
-              </div>
-            ))}
-
-            {!userData?.recentSubmissions?.length && (
-              <div className="col-span-full text-center py-12 bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-100">
-                <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.2em]">No applications recorded yet</p>
-              </div>
-            )}
+          {/* Direct Written Text Style */}
+          <div className="flex-1">
+            <p className="text-[15px] leading-relaxed font-medium text-slate-700">
+              Recent student <span className="text-emerald-600 font-black italic underline decoration-emerald-200 uppercase tracking-tighter">"{sub.studentName || 'N/A'}"</span> tar shokol documents submit korlo, ekhon seta <span className="font-black text-slate-900 underline decoration-blue-300">Compliance Team</span>-er kache review-te ache.
+            </p>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+                Ref: {sub.passportNo || 'No Passport'}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+                {sub.submittedAt}
+              </span>
+            </div>
           </div>
-        </div>
-      </main>
 
+          {/* Action Button & Status */}
+          <div className="flex items-center gap-4 border-l border-slate-50 pl-6">
+            <div className="text-right hidden md:block">
+               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Live Status</p>
+               <div className="flex items-center justify-end gap-1.5 mt-1">
+                 <div className={`w-2 h-2 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
+                 <span className={`text-[10px] font-black uppercase tracking-tighter ${sub.status === 'Pending' ? 'text-orange-500' : 'text-emerald-600'}`}>
+                   {sub.status || 'Pending'}
+                 </span>
+               </div>
+            </div>
+
+            <button 
+              onClick={() => generateCombinedPDF(sub)}
+              className="bg-slate-900 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-emerald-600 hover:-translate-y-1 transition-all shadow-xl shadow-slate-100 flex items-center gap-2"
+            >
+              <FileText size={14} className="group-hover:rotate-12 transition-transform" /> 
+              Bistatrito Dekhte Click koro
+            </button>
+          </div>
+
+        </div>
+      </div>
+    ))}
+
+    {!userData?.recentSubmissions?.length && (
+      <div className="text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100">
+        <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.3em]">No applications recorded yet</p>
+      </div>
+    )}
+  </div>
+</div>
       {/* --- FEATURE OVERLAYS --- */}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'cloudinary' && <CloudManager isOpen={true} onClose={() => setActiveFeature(null)} />}
