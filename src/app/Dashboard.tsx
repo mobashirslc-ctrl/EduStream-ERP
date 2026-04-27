@@ -113,50 +113,69 @@ export default function ClientDashboard() {
           <h1 className="text-4xl font-black text-teal-950 italic uppercase tracking-tighter underline decoration-teal-100 decoration-8 underline-offset-8">Client Dashboard</h1>
         </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-[2.5rem] border border-teal-50 p-8 hover:shadow-2xl transition-all flex flex-row items-center gap-8 group">
-              <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-[1.5rem] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0`}>
-                <stat.icon className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                 <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{stat.label}</span>
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{stat.change}</span>
-                 </div>
-                 <div className="text-4xl font-black text-teal-950 tracking-tighter">{stat.value}</div>
-              </div>
-            </div>
-          ))}
+        {/* STATS SECTION - Optimized Size */}
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+  {stats.map((stat, index) => (
+    <div key={index} className="bg-white rounded-[2rem] border border-teal-50 p-6 hover:shadow-xl transition-all flex items-center gap-5 group min-h-[140px]">
+      {/* Icon Container - Fixed size jate choto screen-e boro na hoy */}
+      <div className={`w-14 h-14 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform shrink-0`}>
+        <stat.icon className="w-7 h-7 text-white" />
+      </div>
+      
+      {/* Text Content - Responsive font sizes */}
+      <div className="overflow-hidden">
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.label}</span>
+          <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">{stat.change}</span>
         </div>
+        <div className="text-2xl sm:text-3xl font-black text-teal-950 tracking-tighter leading-tight">
+          {stat.value}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
 
-        {/* LIVE STATUS & QUICK ACTIONS */}
-        <div className="grid lg:grid-cols-12 gap-10">
+       {/* LIVE STATUS & QUICK ACTIONS */}
+<div className="grid lg:grid-cols-12 gap-10">
+  
+  {/* Requirement: Student name dynamic notification & Clickable PDF link */}
+  <div className="lg:col-span-8 bg-white rounded-[3rem] p-10 border border-teal-50 shadow-sm flex flex-col min-h-[500px]">
+    <h2 className="text-2xl font-black text-teal-900 italic uppercase mb-8 border-l-4 border-teal-500 pl-4">Live Submission Status</h2>
+    
+    <div className="space-y-4 flex-1">
+      {submissions.map((sub) => (
+        <div key={sub.id} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl border border-transparent hover:border-teal-200 transition-all group overflow-hidden">
           
-          {/* Requirement: Student name dynamic notification & Clickable PDF link */}
-          <div className="lg:col-span-8 bg-white rounded-[3rem] p-10 border border-teal-50 shadow-sm flex flex-col min-h-[500px]">
-            <h2 className="text-2xl font-black text-teal-900 italic uppercase mb-8 border-l-4 border-teal-500 pl-4">Live Submission Status</h2>
-            <div className="space-y-4 flex-1">
-               {submissions.map((sub) => (
-                 <div key={sub.id} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl border border-transparent hover:border-teal-200 transition-all group">
-                    <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-teal-600 font-black shadow-sm group-hover:bg-teal-500 group-hover:text-white transition-all">S</div>
-                      <div>
-                        <h4 className="font-black text-slate-800 uppercase italic">File Submitted: {sub.name}</h4>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Passport: {sub.passport} • Status: <span className="text-teal-600">{sub.status}</span></p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => openPdf(sub.url)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 rounded-xl font-black text-[10px] uppercase border border-slate-100 hover:bg-teal-600 hover:text-white transition-all shadow-sm"
-                    >
-                      <ExternalLink size={14} /> Click Here
-                    </button>
-                 </div>
-               ))}
+          <div className="flex items-center gap-6 overflow-hidden flex-1 mr-4">
+            {/* Icon - Shrink-0 jate choto na hoy */}
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-teal-600 font-black shadow-sm group-hover:bg-teal-500 group-hover:text-white transition-all shrink-0">
+              S
+            </div>
+            
+            {/* Text Content - Truncate add kora hoyeche jate bitor thake */}
+            <div className="min-w-0 flex-1">
+              <h4 className="font-black text-slate-800 uppercase italic truncate text-sm sm:text-base">
+                File Submitted: {sub.name}
+              </h4>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 truncate">
+                Passport: <span className="text-teal-600">{sub.passport}</span> • Status: <span className="text-teal-600">{sub.status}</span>
+              </p>
             </div>
           </div>
+
+          {/* Button - Shrink-0 jate thik thake */}
+          <button 
+            onClick={() => openPdf(sub.url)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 rounded-xl font-black text-[10px] uppercase border border-slate-100 hover:bg-teal-600 hover:text-white transition-all shadow-sm shrink-0"
+          >
+            <ExternalLink size={14} /> Click Here
+          </button>
+          
+        </div>
+      ))}
+    </div>
+  </div>
 
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-white rounded-[3rem] border border-teal-50 p-10 shadow-sm">
