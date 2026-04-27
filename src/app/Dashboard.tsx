@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { jsPDF } from "jspdf"; // PDF generate korar jonno lagbe
 
 // --- FEATURE COMPONENTS ---
 import AIAssessment from '../components/dashboard/features/AIAssessment';
@@ -42,13 +43,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (!auth.currentUser) return;
 
-    // Real-time listener add kora hoyeche jate update sathe sathe dekha jay
     const unsub = onSnapshot(doc(db, "users", auth.currentUser.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
         setUserData(data);
         
-        // Trial calculation logic
         if (data.status === 'trial') {
           const startTime = new Date(data.createdAt).getTime();
           const currentTime = new Date().getTime();
@@ -62,6 +61,31 @@ const Dashboard = () => {
 
     return () => unsub();
   }, []);
+
+  // --- PDF GENERATION LOGIC ---
+  const generateCombinedPDF = (sub: any) => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.setTextColor(16, 185, 129);
+    doc.text("EDUCONSULT APPLICATION SUMMARY", 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text(`Student Name: ${sub.studentName || 'N/A'}`, 20, 40);
+    doc.text(`Passport: ${sub.passportNo || 'N/A'}`, 20, 50);
+    doc.text(`University: ${sub.universityName || 'N/A'}`, 20, 60);
+    doc.text(`Submitted At: ${sub.submittedAt || 'N/A'}`, 20, 70);
+    
+    doc.text("Document Links (Click to View):", 20, 90);
+    let y = 100;
+    Object.entries(sub.documents || {}).forEach(([key, url]: any) => {
+      doc.setTextColor(0, 0, 255);
+      doc.text(`- ${key}`, 25, y);
+      doc.link(25, y - 5, 100, 10, { url });
+      y += 10;
+    });
+    doc.save(`${sub.studentName || 'Student'}_Files.pdf`);
+  };
 
   const isFeatureLocked = (minPackage: string) => {
     if (userData?.status === 'trial') return false; 
@@ -150,64 +174,62 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* --- RECENT SUBMISSIONS SECTION (Inside <main>) --- */}
-<div className="mt-16 border-t border-slate-100 pt-10 px-4">
-  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">
-    Recent Activity Feed
-  </h3>
-  
-  <div className="space-y-4">
-    {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
-      <div key={i} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all group animate-in slide-in-from-bottom-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        {/* --- RECENT SUBMISSIONS SECTION --- */}
+        <div className="mt-16 border-t border-slate-100 pt-10 px-4">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">
+            Recent Activity Feed
+          </h3>
           
-          {/* Direct Written Text Style */}
-          <div className="flex-1">
-            <p className="text-[15px] leading-relaxed font-medium text-slate-700">
-              Recent student <span className="text-emerald-600 font-black italic underline decoration-emerald-200 uppercase tracking-tighter">"{sub.studentName || 'N/A'}"</span> tar shokol documents submit korlo, ekhon seta <span className="font-black text-slate-900 underline decoration-blue-300">Compliance Team</span>-er kache review-te ache.
-            </p>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
-                Ref: {sub.passportNo || 'No Passport'}
-              </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
-                {sub.submittedAt}
-              </span>
-            </div>
+          <div className="space-y-4">
+            {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
+              <div key={i} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all group animate-in slide-in-from-bottom-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex-1">
+                    <p className="text-[15px] leading-relaxed font-medium text-slate-700">
+                      Recent student <span className="text-emerald-600 font-black italic underline decoration-emerald-200 uppercase tracking-tighter">"{sub.studentName || 'N/A'}"</span> tar shokol documents submit korlo, ekhon seta <span className="font-black text-slate-900 underline decoration-blue-300">Compliance Team</span>-er kache review-te ache.
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+                        Ref: {sub.passportNo || 'No Passport'}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">
+                        {sub.submittedAt}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 border-l border-slate-50 pl-6">
+                    <div className="text-right hidden md:block">
+                       <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Live Status</p>
+                       <div className="flex items-center justify-end gap-1.5 mt-1">
+                         <div className={`w-2 h-2 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
+                         <span className={`text-[10px] font-black uppercase tracking-tighter ${sub.status === 'Pending' ? 'text-orange-500' : 'text-emerald-600'}`}>
+                           {sub.status || 'Pending'}
+                         </span>
+                       </div>
+                    </div>
+
+                    <button 
+                      onClick={() => generateCombinedPDF(sub)}
+                      className="bg-slate-900 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-emerald-600 hover:-translate-y-1 transition-all shadow-xl shadow-slate-100 flex items-center gap-2"
+                    >
+                      <FileText size={14} className="group-hover:rotate-12 transition-transform" /> 
+                      Bistatrito Dekhte Click koro
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {!userData?.recentSubmissions?.length && (
+              <div className="text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100">
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.3em]">No applications recorded yet</p>
+              </div>
+            )}
           </div>
-
-          {/* Action Button & Status */}
-          <div className="flex items-center gap-4 border-l border-slate-50 pl-6">
-            <div className="text-right hidden md:block">
-               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Live Status</p>
-               <div className="flex items-center justify-end gap-1.5 mt-1">
-                 <div className={`w-2 h-2 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
-                 <span className={`text-[10px] font-black uppercase tracking-tighter ${sub.status === 'Pending' ? 'text-orange-500' : 'text-emerald-600'}`}>
-                   {sub.status || 'Pending'}
-                 </span>
-               </div>
-            </div>
-
-            <button 
-              onClick={() => generateCombinedPDF(sub)}
-              className="bg-slate-900 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-emerald-600 hover:-translate-y-1 transition-all shadow-xl shadow-slate-100 flex items-center gap-2"
-            >
-              <FileText size={14} className="group-hover:rotate-12 transition-transform" /> 
-              Bistatrito Dekhte Click koro
-            </button>
-          </div>
-
         </div>
-      </div>
-    ))}
+      </main>
 
-    {!userData?.recentSubmissions?.length && (
-      <div className="text-center py-20 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100">
-        <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.3em]">No applications recorded yet</p>
-      </div>
-    )}
-  </div>
-</div>
       {/* --- FEATURE OVERLAYS --- */}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'cloudinary' && <CloudManager isOpen={true} onClose={() => setActiveFeature(null)} />}
@@ -219,7 +241,6 @@ const Dashboard = () => {
       {activeFeature === 'qr_tracking' && <QRTracking isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'ticketing' && <Ticketing isOpen={true} onClose={() => setActiveFeature(null)} />}
       {activeFeature === 'support' && <Support isOpen={true} onClose={() => setActiveFeature(null)} />}
-
     </div>
   );
 };
