@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, Wallet, Landmark } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle2, CloudUpload, QrCode, Plane, Users, BarChart3, Palette, FileText, Globe, Bell, X, Wallet, Landmark, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
@@ -13,41 +13,61 @@ const LandingPage = () => {
     bkashNumber: "017XXXXXXXX",
     nagadNumber: "018XXXXXXXX",
     bankDetails: "A/C: EduConsult Ltd, City Bank, #123456789",
+    // ৫ক, ১০ক এবং ৩০ক স্ট্র্যাটেজি অনুযায়ী আপডেট করা হয়েছে
     starterPrice: billingCycle === 'monthly' ? 5000 : 50000,
     professionalPrice: billingCycle === 'monthly' ? 10000 : 100000,
+    enterprisePrice: billingCycle === 'monthly' ? 30000 : 300000,
   };
 
   const allFeatures = [
     { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
-    { icon: <CloudUpload />, title: "Cloudinary Manager", desc: "Secure 5-slot PDF upload system synced with Cloudinary." },
-    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Start' to 'University Reached'." },
-    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Compliance updates trigger automated emails instantly." },
-    { icon: <FileText />, title: "Smart Invoicing", desc: "Generate file submission invoices and financial reports." },
-    { icon: <Users />, title: "Staff & Compliance", desc: "Task management and real-time monitoring of your team." },
-    { icon: <Palette />, title: "Marketing Studio", desc: "Canva-style tool and multi-platform campaign launcher." },
-    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for students to track progress." },
-    { icon: <Plane />, title: "Integrated Ticketing", desc: "Real-time flight search and pricing API managed within ERP." }
+    { icon: <Users />, title: "Agent Network Hub", desc: "Recruit and manage sub-agents with a dedicated B2B portal." },
+    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Submission' to 'University Enrollment'." },
+    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Compliance updates trigger automated emails instantly to partners." },
+    { icon: <FileText />, title: "Smart Invoicing", desc: "Digital payment receipt generator for student files and commissions." },
+    { icon: <ShieldCheck />, title: "Compliance Hub", desc: "Advanced file auditing and visa compliance checking for zero risk." },
+    { icon: <Palette />, title: "Marketing Studio", desc: "Ready-made promotional designs to boost your agency branding." },
+    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for physical files and instant status updates." },
+    { icon: <Globe />, title: "Full White-label", desc: "Complete brand ownership with custom domain and your own logo." }
   ];
 
   const pricingPlans = [
     { 
       plan: "Starter", 
       price: adminSettings.starterPrice, 
-      features: ["Up to 50 Student Files", "AI Assessment Hub", "Status Tracking", "Email Notifications", "Cloudinary Storage"] 
+      features: [
+        "AI Assessment Hub", 
+        "20-Step File Tracking", 
+        "Cloud Manager (Max 50 Files)", 
+        "Auto Email Notifications", 
+        "Standard EduStream Interface"
+      ] 
     },
     { 
       plan: "Professional", 
       price: adminSettings.professionalPrice, 
       popular: true,
-      features: ["Unlimited Student Files", "All Staff Management", "Full Compliance Hub", "Marketing Design Studio", "Integrated Ticketing", "QR Code Tracking"] 
+      features: [
+        "Everything in Starter", 
+        "Agent Network Hub (Sub-Agents)", 
+        "Team Hub & Task Scoring", 
+        "Compliance Hub & Audit", 
+        "Marketing Studio & Smart Invoice", 
+        "QR Code Tracking System"
+      ] 
     },
     { 
       plan: "Enterprise", 
-      price: "Custom", 
-      features: ["Multi-Branch Management", "Custom API Integration", "White-label Portal", "24/7 Dedicated Support"] 
+      price: adminSettings.enterprisePrice, 
+      features: [
+        "Everything in Professional", 
+        "Full White-label Branding", 
+        "Multi-Branch Management", 
+        "Custom Domain Support", 
+        "API Access & Dedicated Support"
+      ] 
     }
   ];
-
   return (
     <div className="min-h-screen bg-white font-sans text-[#0A192F] overflow-x-hidden italic">
       {/* 1. Navbar */}

@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 // --- FEATURE IMPORTS ---
+import { hasAccess, PackageTier } from "../config/permissions"; // Path-ta check kore niyo
+import { Lock } from 'lucide-react'; // Lock icon-ta dorkar hobe
 import { AIAssessment } from "../components/dashboard/features/AIAssessment";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
 import { Compliance } from "../components/dashboard/features/Compliance"; 
@@ -22,7 +24,9 @@ import { EmployeeManagement } from "../components/dashboard/features/EmployeeMan
 
 export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
-
+const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  // Manual package state (Testing-er jonno 'starter', 'pro' ba 'enterprise' likhe check koro)
+  const [userPackage, setUserPackage] = useState<PackageTier>('starter');
   // Requirement: Student submissions dynamic kora ebong PDF open kora
   const [submissions] = useState([
     { id: 1, name: "Arif Ahmed", passport: "BE098712", status: "IN REVIEW", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
@@ -240,3 +244,46 @@ const features = [
     </div>
   );
 }
+{features.map((f, i) => {
+  const isAvailable = hasAccess(userPackage, f.name); // Access check korbe
+
+  return (
+    <div 
+      key={i} 
+      onClick={() => {
+        if (isAvailable) {
+          setActiveFeature(f.name);
+        } else {
+          alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. Upgrade to unlock!`);
+        }
+      }} 
+      className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 transition-all flex flex-col items-center text-center group cursor-pointer relative ${
+        !isAvailable ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:border-teal-300 hover:-translate-y-2'
+      }`}
+    >
+      {/* Lock Icon Overlay for Starter Users */}
+      {!isAvailable && (
+        <div className="absolute top-4 right-6 text-amber-500">
+          <Lock size={16} />
+        </div>
+      )}
+
+      <div className={`mb-6 p-5 rounded-2xl transition-all shadow-sm ${
+        isAvailable ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' : 'bg-slate-100 text-slate-400'
+      }`}>
+        <f.icon size={28} />
+      </div>
+
+      <h3 className="font-black text-[13px] text-teal-900 mb-1 italic uppercase tracking-tight">
+        {f.name}
+      </h3>
+      
+      <div className="flex items-center gap-1.5 justify-center">
+        <div className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+        <span className="text-[9px] font-black text-teal-400 uppercase tracking-widest italic tracking-tighter">
+          {isAvailable ? 'Live Sync' : 'Locked'}
+        </span>
+      </div>
+    </div>
+  );
+})}
