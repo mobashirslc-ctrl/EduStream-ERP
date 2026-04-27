@@ -158,6 +158,57 @@ const Dashboard = () => {
           })}
         </div>
       </main>
+      {/* --- RECENT SUBMISSIONS SECTION --- */}
+<div className="mt-10 px-4 pb-10">
+  <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Recent Submissions</h3>
+  
+  <div className="space-y-4">
+    {userData?.recentSubmissions?.slice().reverse().map((sub: any, i: number) => (
+      <div key={i} className="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm hover:shadow-md transition-all group">
+        <div className="flex justify-between items-start">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center font-black">
+               {sub.studentName.charAt(0)}
+            </div>
+            <div>
+              <p className="text-sm font-black text-slate-800">
+                Recent student <span className="text-emerald-600">{sub.studentName}</span> applied to <span className="text-blue-600">{sub.universityName}</span>
+              </p>
+              <p className="text-[10px] font-bold text-slate-400 mt-1">{sub.submittedAt}</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-end gap-2">
+            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter ${
+              sub.status === 'Pending' ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-500'
+            }`}>
+              {sub.status}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+           <button 
+             onClick={() => {/* Function to open file viewer modal */}}
+             className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
+           >
+             Click here to view files
+           </button>
+           <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${sub.status === 'Pending' ? 'bg-orange-400 animate-pulse' : 'bg-emerald-500'}`}></div>
+              <span className="text-[9px] font-bold text-slate-500 uppercase">Compliance Update: {sub.status}</span>
+           </div>
+        </div>
+      </div>
+    ))}
+
+    {!userData?.recentSubmissions?.length && (
+      <div className="text-center py-10 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No applications yet</p>
+      </div>
+    )}
+  </div>
+</div>
 
       {/* --- FEATURE OVERLAYS (ALL 10) --- */}
       {activeFeature === 'ai_assessment' && <AIAssessment isOpen={true} onClose={() => setActiveFeature(null)} />}
