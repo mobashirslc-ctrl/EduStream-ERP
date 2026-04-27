@@ -8,16 +8,11 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 // --- FEATURE COMPONENTS IMPORT ---
 // Ei file gulo amra serialy ekta ekta kore src/app/features/ folder-e banabo
-import AIAssessment from './features/AIAssessment';
-import CloudManager from './features/CloudManager';
-import TrackingSystem from './features/TrackingSystem';
-import MailAlerts from './features/MailAlerts';
-import SmartInvoicing from './features/SmartInvoicing';
-import Compliance from './features/Compliance';
-import MarketingStudio from './features/MarketingStudio';
-import QRTracking from './features/QRTracking';
-import Ticketing from './features/Ticketing';
-import Support from './features/Support';
+import AIAssessment from '../components/dashboard/features/AIAssessment';
+import CloudManager from '../components/dashboard/features/CloudManager';
+import TrackingSystem from '../components/dashboard/features/TrackingSystem';
+import MailAlerts from '../components/dashboard/features/MailAlerts';
+import SmartInvoicing from '../components/dashboard/features/SmartInvoicing';
 
 const Dashboard = () => {
   const [userData, setUserData] = useState<any>(null);
