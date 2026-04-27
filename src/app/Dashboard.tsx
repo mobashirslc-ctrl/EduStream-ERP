@@ -24,10 +24,9 @@ import { EmployeeManagement } from "../components/dashboard/features/EmployeeMan
 
 export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
-const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  
   // Manual package state (Testing-er jonno 'starter', 'pro' ba 'enterprise' likhe check koro)
   const [userPackage, setUserPackage] = useState<PackageTier>('starter');
-  // Requirement: Student submissions dynamic kora ebong PDF open kora
   const [submissions] = useState([
     { id: 1, name: "Arif Ahmed", passport: "BE098712", status: "IN REVIEW", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
     { id: 2, name: "Sumaiya Khan", passport: "BW002145", status: "PROCESSING", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
@@ -73,9 +72,8 @@ const features = [
       case 'QR Tracking': return <QRTracking />;
       case 'Ticketing System': return <Ticketing />;
       case 'Priority Support': return <Support />;
-      case 'AI Assessment': return <AIAssessment />;
       case 'Team Hub': return <EmployeeManagement />;
-    case 'Agent Network': return <AgentHub />;
+      case 'Agent Network': return <AgentHub />;
       default: return null;
     }
   };
@@ -226,26 +224,9 @@ const features = [
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-              {features.map((f, i) => (
-                <div key={i} onClick={() => setActiveFeature(f.name)} className="bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 hover:border-teal-300 hover:-translate-y-2 transition-all flex flex-col items-center text-center group cursor-pointer">
-                  <div className="mb-6 p-5 bg-teal-50 text-teal-500 rounded-2xl group-hover:bg-teal-500 group-hover:text-white transition-all shadow-sm">
-                    <f.icon size={28} />
-                  </div>
-                  <h3 className="font-black text-[13px] text-teal-900 mb-1 italic uppercase tracking-tight">{f.name}</h3>
-                  <div className="flex items-center gap-1.5 justify-center">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-[9px] font-black text-teal-400 uppercase tracking-widest italic tracking-tighter">Live Sync</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-{features.map((f, i) => {
-  const isAvailable = hasAccess(userPackage, f.name); // Access check korbe
+              {features.map((f, i) => {
+  // Check if the current user has access to this specific feature
+  const isAvailable = hasAccess(userPackage, f.name);
 
   return (
     <div 
@@ -254,33 +235,47 @@ const features = [
         if (isAvailable) {
           setActiveFeature(f.name);
         } else {
-          alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. Upgrade to unlock!`);
+          // Alert message for locked features
+          alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. \n\nPlease upgrade to Professional or Enterprise to unlock "${f.name}".`);
         }
       }} 
       className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 transition-all flex flex-col items-center text-center group cursor-pointer relative ${
-        !isAvailable ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:border-teal-300 hover:-translate-y-2'
+        !isAvailable 
+          ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50' 
+          : 'hover:border-teal-300 hover:-translate-y-2 hover:shadow-teal-200/20'
       }`}
     >
-      {/* Lock Icon Overlay for Starter Users */}
+      {/* Lock Icon Badge for Restricted Features */}
       {!isAvailable && (
-        <div className="absolute top-4 right-6 text-amber-500">
-          <Lock size={16} />
+        <div className="absolute top-5 right-6 bg-amber-100 p-1.5 rounded-full text-amber-600 shadow-sm">
+          <Lock size={14} strokeWidth={3} />
         </div>
       )}
 
+      {/* Feature Icon Container */}
       <div className={`mb-6 p-5 rounded-2xl transition-all shadow-sm ${
-        isAvailable ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' : 'bg-slate-100 text-slate-400'
+        isAvailable 
+          ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' 
+          : 'bg-slate-200 text-slate-400'
       }`}>
         <f.icon size={28} />
       </div>
 
-      <h3 className="font-black text-[13px] text-teal-900 mb-1 italic uppercase tracking-tight">
+      {/* Feature Name */}
+      <h3 className={`font-black text-[13px] mb-1 italic uppercase tracking-tight ${
+        isAvailable ? 'text-teal-900' : 'text-slate-500'
+      }`}>
         {f.name}
       </h3>
       
+      {/* Status Indicator */}
       <div className="flex items-center gap-1.5 justify-center">
-        <div className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
-        <span className="text-[9px] font-black text-teal-400 uppercase tracking-widest italic tracking-tighter">
+        <div className={`w-1.5 h-1.5 rounded-full ${
+          isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
+        }`}></div>
+        <span className={`text-[9px] font-black uppercase tracking-widest italic ${
+          isAvailable ? 'text-teal-400' : 'text-slate-400'
+        }`}>
           {isAvailable ? 'Live Sync' : 'Locked'}
         </span>
       </div>
