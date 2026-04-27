@@ -1,33 +1,66 @@
-import React, { useState } from 'react';
-import { Camera, X, Loader2, CheckCircle } from 'lucide-react';
-import { auth, db } from '../../../lib/firebase'; // Path thik koro proyojone
-import { doc, updateDoc } from 'firebase/firestore';
-import { uploadToCloudinary } from '../../../lib/cloudinary'; // Path thik koro
+import React, { useState, useEffect } from 'react';
+import { Camera, X, Loader2, CheckCircle, User, CreditCard, Send, FileText } from 'lucide-react';
+import { auth, db } from '../../../lib/firebase'; 
+import { doc, updateDoc, onSnapshot, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { uploadToCloudinary } from '../../../lib/cloudinary';
 
 const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const [uploading, setUploading] = useState<string | null>(null);
-  const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
+  const [dbDocs, setDbDocs] = useState<any>({});
+  const [studentName, setStudentName] = useState("");
+  const [passportNo, setPassportNo] = useState("");
+  const [isFullySubmitted, setIsFullySubmitted] = useState(false);
   
-  const docs = ["Passport", "SSC Transcript", "HSC Transcript", "IELTS/English", "Others"];
-  
+  // Dynamic list jekhane Bachelor o add kora hoyeche
+  const docs = [
+    "Passport", 
+    "SSC Transcript", 
+    "HSC Transcript", 
+    "Bachelor Transcript", 
+    "Master's Transcript", 
+    "IELTS/English", 
+    "Others"
+  ];
+
+  useEffect(() => {
+    if (!auth.currentUser || !isOpen) return;
+    const unsub = onSnapshot(doc(db, "users", auth.currentUser.uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setDbDocs(data.documents || {});
+        setStudentName(data.activeStudentName || "");
+        setPassportNo(data.activePassportNo || "");
+      }
+    });
+    return () => unsub();
+  }, [isOpen]);
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (!file || !auth.currentUser) return;
 
+    if (!studentName || !passportNo) {
+      alert("Prothome Student Name ebong Passport No likhun!");
+      return;
+    }
+
     setUploading(type);
     try {
-      // 1. Upload to Cloudinary
       const url = await uploadToCloudinary(file);
-      
-      // 2. Update Firestore User Document
       const userRef = doc(db, "users", auth.currentUser.uid);
+      
       await updateDoc(userRef, {
         [`documents.${type}`]: url,
-        lastUpdated: new Date().toISOString()
+        activeStudentName: studentName,
+        activePassportNo: passportNo,
+        lastUpdated: serverTimestamp(),
+        recentSubmissions: arrayUnion({
+          title: `${type} uploaded for ${studentName}`,
+          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          status: 'success'
+        })
       });
 
-      setUploadedDocs(prev => [...prev, type]);
-      alert(`${type} upload success!`);
     } catch (err: any) {
       alert("Upload failed: " + err.message);
     } finally {
@@ -35,41 +68,97 @@ const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
     }
   };
 
+  const finalizeSubmission = async () => {
+    // Ekhon ar 4-ti file-er kora-kori nei, optional rakha hoyeche
+    if (!studentName || Object.keys(dbDocs).length === 0) {
+      alert("Student name ebong oltoto ekti file upload korun.");
+      return;
+    }
+
+    setIsFullySubmitted(true);
+    await updateDoc(doc(db, "users", auth.currentUser!.uid), {
+      submissionStatus: 'Ready for Review',
+      complianceStatus: 'Pending',
+      lastSubmissionDate: serverTimestamp()
+    });
+
+    setTimeout(() => {
+      setIsFullySubmitted(false);
+      onClose();
+    }, 2500);
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-300 relative overflow-hidden">
+        
+        {isFullySubmitted && (
+          <div className="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center text-center p-6 animate-in fade-in">
+            <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mb-4 shadow-lg shadow-emerald-200">
+              <CheckCircle size={40} className="animate-pulse" />
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Submission Received!</h2>
+            <p className="text-slate-500 font-bold mt-2 text-sm uppercase tracking-widest">Processing in our B2B Hub...</p>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-black flex items-center gap-2 text-slate-800">
-            <Camera className="text-emerald-500" /> Upload Documents
+          <h3 className="text-xl font-black flex items-center gap-2 text-slate-800 uppercase tracking-tighter">
+            <Camera className="text-emerald-500" /> Application Portal
           </h3>
-          <button onClick={onClose}><X /></button>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-all"><X size={20}/></button>
         </div>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Student Full Name</label>
+            <div className="relative">
+              <User className="absolute left-4 top-3.5 text-slate-400" size={14} />
+              <input 
+                type="text" 
+                placeholder="Ex: John Doe"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Passport Number</label>
+            <div className="relative">
+              <CreditCard className="absolute left-4 top-3.5 text-slate-400" size={14} />
+              <input 
+                type="text" 
+                placeholder="Ex: A0123456"
+                value={passportNo}
+                onChange={(e) => setPassportNo(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2 max-h-[35vh] overflow-y-auto pr-2 mb-6 custom-scrollbar">
           {docs.map((d, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <span className="text-sm font-bold text-slate-600">{d}</span>
+            <div key={i} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-emerald-200 transition-all group">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${dbDocs[d] ? 'bg-emerald-500 text-white' : 'bg-white border text-slate-300'}`}>
+                   <FileText size={14} />
+                </div>
+                <span className={`text-[13px] font-bold ${dbDocs[d] ? 'text-slate-900' : 'text-slate-500'}`}>{d}</span>
+              </div>
               
               <div className="flex items-center gap-2">
-                {uploadedDocs.includes(d) && <CheckCircle size={16} className="text-emerald-500" />}
-                
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  id={`f-${i}`} 
-                  onChange={(e) => handleUpload(e, d)}
-                  disabled={uploading === d}
-                />
-                
+                <input type="file" className="hidden" id={`f-${i}`} onChange={(e) => handleUpload(e, d)} disabled={uploading === d} />
                 <label 
                   htmlFor={`f-${i}`} 
-                  className={`border px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all ${
-                    uploading === d ? 'bg-slate-200' : 'bg-white hover:bg-emerald-50 hover:text-emerald-600'
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all ${
+                    dbDocs[d] ? 'bg-emerald-50 text-emerald-600' : 'bg-white border text-slate-400 hover:text-emerald-500'
                   }`}
                 >
-                  {uploading === d ? <Loader2 className="animate-spin h-4 w-4" /> : 'Choose File'}
+                  {uploading === d ? <Loader2 className="animate-spin h-3 w-3" /> : dbDocs[d] ? 'Change' : 'Upload'}
                 </label>
               </div>
             </div>
@@ -77,10 +166,10 @@ const CloudManager = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
         </div>
 
         <button 
-          onClick={onClose}
-          className="w-full mt-8 bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-emerald-100 hover:bg-emerald-700 transition-colors"
+          onClick={finalizeSubmission}
+          className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
         >
-          Submit & Save Changes
+          <Send size={18} /> Submit Application
         </button>
       </div>
     </div>
