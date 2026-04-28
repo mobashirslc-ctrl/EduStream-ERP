@@ -5,10 +5,7 @@ import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<any>(pricingPlans[1]);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('');
-
+  
   const adminSettings = {
     bkashNumber: "017XXXXXXXX",
     nagadNumber: "018XXXXXXXX",
@@ -18,19 +15,6 @@ const LandingPage = () => {
     professionalPrice: billingCycle === 'monthly' ? 10000 : 100000,
     enterprisePrice: billingCycle === 'monthly' ? 30000 : 300000,
   };
-
-  const allFeatures = [
-    { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
-    { icon: <Users />, title: "Agent Network Hub", desc: "Recruit and manage sub-agents with a dedicated B2B portal." },
-    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Submission' to 'University Enrollment'." },
-    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Compliance updates trigger automated emails instantly to partners." },
-    { icon: <FileText />, title: "Smart Invoicing", desc: "Digital payment receipt generator for student files and commissions." },
-    { icon: <ShieldCheck />, title: "Compliance Hub", desc: "Advanced file auditing and visa compliance checking for zero risk." },
-    { icon: <Palette />, title: "Marketing Studio", desc: "Ready-made promotional designs to boost your agency branding." },
-    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for physical files and instant status updates." },
-    { icon: <Globe />, title: "Full White-label", desc: "Complete brand ownership with custom domain and your own logo." }
-  ];
-
   const pricingPlans = [
     { 
       plan: "Starter", 
@@ -68,6 +52,24 @@ const LandingPage = () => {
       ] 
     }
   ];
+  const [selectedPlan, setSelectedPlan] = useState<any>(pricingPlans[1]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+
+  const allFeatures = [
+    { icon: <Zap />, title: "AI Assessment Hub", desc: "Instant eligibility checker with downloadable AI-generated PDF reports." },
+    { icon: <Users />, title: "Agent Network Hub", desc: "Recruit and manage sub-agents with a dedicated B2B portal." },
+    { icon: <BarChart3 />, title: "20-Step Tracking", desc: "End-to-end tracking from 'File Submission' to 'University Enrollment'." },
+    { icon: <Bell />, title: "Auto Mail Alerts", desc: "Compliance updates trigger automated emails instantly to partners." },
+    { icon: <FileText />, title: "Smart Invoicing", desc: "Digital payment receipt generator for student files and commissions." },
+    { icon: <ShieldCheck />, title: "Compliance Hub", desc: "Advanced file auditing and visa compliance checking for zero risk." },
+    { icon: <Palette />, title: "Marketing Studio", desc: "Ready-made promotional designs to boost your agency branding." },
+    { icon: <QrCode />, title: "QR Student Tracking", desc: "Unique QR codes for physical files and instant status updates." },
+    { icon: <Globe />, title: "Full White-label", desc: "Complete brand ownership with custom domain and your own logo." }
+  ];
+
+  
   return (
     <div className="min-h-screen bg-white font-sans text-[#0A192F] overflow-x-hidden italic">
       {/* 1. Navbar */}
