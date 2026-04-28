@@ -59,7 +59,6 @@ export default function ClientDashboard() {
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
-        // Owner Check (Replace with your actual email)
         if(user.email === "admin@yourdomain.com") setIsOwner(true);
 
         const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -175,15 +174,15 @@ export default function ClientDashboard() {
       <nav className="bg-white/80 backdrop-blur-md border-b border-teal-50 sticky top-0 z-50 p-6">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
            <div className="flex items-center gap-4">
-              {timeLeft && (
-                <div className={`px-4 py-2 rounded-full border flex items-center gap-2 ${timeLeft === "Expired" ? "bg-rose-50 border-rose-200 text-rose-600" : "bg-teal-50 border-teal-100 text-teal-700"}`}>
-                  <Zap size={14} className={timeLeft !== "Expired" ? "animate-pulse" : ""} />
-                  <span className="text-[10px] font-black uppercase tracking-widest italic">{timeLeft === "Expired" ? "Package Expired" : `${userPackage} ends: ${timeLeft}`}</span>
-                </div>
-              )}
-              <button onClick={() => window.history.back()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-full font-bold text-sm transition-all">
-                <ArrowLeft className="w-4 h-4" /> Back
-              </button>
+             {timeLeft && (
+               <div className={`px-4 py-2 rounded-full border flex items-center gap-2 ${timeLeft === "Expired" ? "bg-rose-50 border-rose-200 text-rose-600" : "bg-teal-50 border-teal-100 text-teal-700"}`}>
+                 <Zap size={14} className={timeLeft !== "Expired" ? "animate-pulse" : ""} />
+                 <span className="text-[10px] font-black uppercase tracking-widest italic">{timeLeft === "Expired" ? "Package Expired" : `${userPackage} ends: ${timeLeft}`}</span>
+               </div>
+             )}
+             <button onClick={() => window.history.back()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-full font-bold text-sm transition-all">
+               <ArrowLeft className="w-4 h-4" /> Back
+             </button>
            </div>
         </div>
       </nav>
@@ -191,12 +190,10 @@ export default function ClientDashboard() {
       <div className="max-w-[1600px] mx-auto p-10 space-y-12">
         <h1 className="text-4xl font-black text-teal-950 italic uppercase tracking-tighter underline decoration-teal-100 decoration-8 underline-offset-8">Client Dashboard</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* --- MAIN SECTION: ACTIVITY & QUICK ACTIONS --- */}
+        {/* --- MAIN SECTION: ACTIVITY & QUICK ACTIONS --- */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
           
-          {/* LEFT COLUMN: RECENT STATUS UPDATES (এটি ৮ কলাম জায়গা নিবে) */}
+          {/* LEFT COLUMN: RECENT STATUS UPDATES */}
           <div className="lg:col-span-8 space-y-6">
             <div className="bg-white rounded-[3rem] border border-teal-50 shadow-xl overflow-hidden h-full">
               <div className="p-8 border-b border-teal-50 bg-teal-50/10 flex items-center gap-4">
@@ -210,7 +207,6 @@ export default function ClientDashboard() {
               </div>
 
               <div className="p-4 space-y-2">
-                {/* Single Update Item */}
                 <div className="flex items-start justify-between p-6 hover:bg-teal-50/30 transition-all border-b border-slate-50 last:border-0 rounded-[2rem] group">
                   <div className="flex gap-4">
                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#12B2A3] border border-teal-100 shadow-sm">
@@ -231,15 +227,12 @@ export default function ClientDashboard() {
                   </div>
                   <div className="text-[9px] font-black text-slate-300 uppercase italic tracking-tighter">Just Now</div>
                 </div>
-                {/* আপনি এখানে আরও আইটেম ম্যাপ করতে পারেন */}
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: QUICK ACTIONS & AI ASSISTANT (এটি ৪ কলাম জায়গা নিবে) */}
+          {/* RIGHT COLUMN: QUICK ACTIONS & AI ASSISTANT */}
           <div className="lg:col-span-4 space-y-6">
-            
-            {/* QUICK ACTIONS SECTION */}
             <div className="bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl">
               <h3 className="font-black text-lg italic text-teal-900 uppercase mb-6 flex items-center gap-2">
                 <Zap className="text-teal-500" size={18} /> Quick Actions
@@ -249,7 +242,6 @@ export default function ClientDashboard() {
                   <Plus size={18} /> Add New Student
                 </button>
 
-                {/* University Entry Form */}
                 <div className="p-5 bg-slate-50 rounded-[2rem] border border-teal-50 space-y-3">
                   <p className="text-[10px] font-black text-teal-700 uppercase tracking-widest flex items-center gap-2 mb-2">
                     <GraduationCap size={14} /> University Entry
@@ -262,14 +254,30 @@ export default function ClientDashboard() {
                     </select>
                   )}
                   
-                  <input type="text" placeholder="University Name" className="w-full p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" />
+                  <input 
+                    type="text" 
+                    placeholder="University Name" 
+                    value={uniData.name}
+                    onChange={(e)=>setUniData({...uniData, name: e.target.value})}
+                    className="w-full p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" 
+                  />
                   
                   <div className="grid grid-cols-2 gap-2">
-                    <select className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400">
+                    <select 
+                      value={uniData.country}
+                      onChange={(e)=>setUniData({...uniData, country: e.target.value})}
+                      className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400"
+                    >
                       <option>Country</option>
-                      {countries.map(c => <option key={c}>{c}</option>)}
+                      {countries.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input type="text" placeholder="Course" className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Course" 
+                      value={uniData.course}
+                      onChange={(e)=>setUniData({...uniData, course: e.target.value})}
+                      className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" 
+                    />
                   </div>
                   
                   <button onClick={handleSaveUniversity} className="w-full py-3 bg-white text-[#12B2A3] border border-[#12B2A3] rounded-xl font-black text-[10px] hover:bg-teal-50 transition-all uppercase italic tracking-tighter">
@@ -283,7 +291,6 @@ export default function ClientDashboard() {
               </div>
             </div>
 
-            {/* AI ASSISTANT SECTION */}
             <div className="bg-[#12B2A3] p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-3">
@@ -299,6 +306,7 @@ export default function ClientDashboard() {
             </div>
           </div>
         </div>
+
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
@@ -315,20 +323,7 @@ export default function ClientDashboard() {
           ))}
         </div>
 
-        {/* RECENT ACTIVITY */}
-        <div className="bg-white rounded-[3rem] border border-teal-50 shadow-xl overflow-hidden mb-12">
-          <div className="p-8 border-b border-teal-50 bg-teal-50/10 flex items-center justify-between">
-            <h3 className="font-black text-xl italic text-teal-900 uppercase flex items-center gap-2"><Bell className="text-teal-500" size={20} /> Recent Updates</h3>
-          </div>
-          <div className="p-8 space-y-4 text-sm font-bold text-teal-950">
-             <div className="flex items-center justify-between p-5 bg-teal-50/30 rounded-3xl border border-teal-100">
-               <p>New Update: Application for <span className="text-teal-600 font-black italic">Md. Abu Omar</span> received by Compliance.</p>
-               <span className="text-[9px] font-black text-slate-400 uppercase">Just Now</span>
-             </div>
-          </div>
-        </div>
-
-        {/* FEATURES GRID */}
+        {/* B2B SERVICE SUITE */}
         <div className="space-y-10 pb-20">
           <div className="flex items-center gap-4">
             <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
