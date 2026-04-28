@@ -1,19 +1,25 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import Link from 'next/link';
+// Next.js ব্যবহার করলে নিচের লাইনটি রাখুন:
+// import Link from 'next/link'; 
+
+// যদি আপনি Vite বা সাধারণ React ব্যবহার করেন, তবে এটি ব্যবহার করুন:
+import { Link } from 'react-router-dom'; 
 
 const PricingPage = () => {
   const plans = [
     {
       name: "Starter",
+      type: "trial", 
       price: "Free",
       description: "Perfect for small agencies starting out.",
       features: ["5 Students / Month", "Basic CRM", "Standard Assessment", "Email Support"],
-      buttonText: "Get Started",
+      buttonText: "Start Free Trial",
       featured: false
     },
     {
       name: "Professional",
+      type: "monthly", 
       price: "$49",
       description: "Best for growing agencies with team members.",
       features: ["Unlimited Students", "AI Assessment Pro", "Design Studio Access", "Priority Support", "Partner Portal"],
@@ -43,7 +49,9 @@ const PricingPage = () => {
                 </li>
               ))}
             </ul>
-            <Link href="/login">
+
+            {/* গুরুত্বপূর্ণ পরিবর্তন: Next.js হলে href ব্যবহার করুন, React Router হলে to */}
+            <Link to={`/login?package=${plan.name}&type=${plan.type}`}>
               <button className={`w-full py-4 rounded-xl font-bold transition-all ${plan.featured ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'}`}>
                 {plan.buttonText}
               </button>

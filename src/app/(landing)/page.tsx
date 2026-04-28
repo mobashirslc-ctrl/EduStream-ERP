@@ -85,11 +85,11 @@ const LandingPage = () => {
         </div>
         <div className="flex items-center gap-4">
           <Link to="/login" className="hidden md:block text-sm font-bold text-gray-600 hover:text-[#14B8A6]">Login</Link>
-          <Link to="/login?package=Free">
-            <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
-              Start Free Trial
-            </button>
-          </Link>
+          <Link to="/login?package=Starter&type=trial">
+  <button className="bg-[#14B8A6] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#0D9488] transition-all shadow-md shadow-teal-100">
+    Start Free Trial
+  </button>
+</Link>
         </div>
       </nav>
 
