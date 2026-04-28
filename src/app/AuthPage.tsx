@@ -63,12 +63,20 @@ const AuthPage = () => {
 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 const user = userCredential.user;
 
-// URL থেকে নিখুঁতভাবে টাইপ ধরা
-const typeParam = searchParams.get('type');
-// যদি package=Starter হয় এবং type=trial থাকে তবেই trial হবে, নাহলে monthly
-const planType = typeParam ? typeParam.toLowerCase() : 'monthly';
+// URL থেকে প্যারামিটারগুলো ধরুন (একবার ডিক্লেয়ার করুন)
+const packageParam = searchParams.get('package') || 'Starter';
+const typeFromUrl = searchParams.get('type'); // নাম বদলে দিলাম কনফিউশন এড়াতে
 
-// Firestore-এ ডেটা সেভ করা
+// ২. টাইপ নির্ধারণ লজিক
+let planType = 'monthly'; // Default
+
+if (typeFromUrl) {
+  planType = typeFromUrl.toLowerCase();
+} else if (packageParam.toLowerCase() === 'starter') {
+  planType = 'trial'; 
+}
+
+// ৩. Firestore-এ ডেটা সেভ করা
 await setDoc(doc(db, "users", user.uid), {
   uid: user.uid,
   companyName,
@@ -76,13 +84,13 @@ await setDoc(doc(db, "users", user.uid), {
   contactNo,
   address,
   email,
-  package: selectedPackage.toLowerCase(), 
-  
-  // ডাইনামিক ফিল্ডস (টাইমার ফিক্সের জন্য এগুলোই মূল)
+  package: packageParam.toLowerCase(), 
   planType: planType, 
   status: "pending", 
   role: "partner",
-  
+  createdAt: serverTimestamp(), // এটি ব্যবহার করায় টাইমার এখন ১০০% নির্ভুল হবে
+  nidUrl: nidUrl,
+});
   // এটি সরাসরি Firestore-এর সার্ভার টাইম ব্যবহার করবে (ইমপোর্ট করা থাকলে)
   // যদি serverTimestamp ইমপোর্ট করা না থাকে তবে new Date() ই রাখুন
   createdAt: new Date(), 
