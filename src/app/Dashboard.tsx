@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, FileText, CheckCircle, TrendingUp, ArrowLeft, GraduationCap, 
   Plus, Upload, BarChart, Zap, Camera, Bell, ShieldCheck, 
-  Globe, Database, MessageSquare, X, ExternalLink, Lock, Briefcase, LayoutGrid
+  Globe, Database, MessageSquare, X, ExternalLink, Lock, Briefcase, LayoutGrid, Send
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase'; 
 import { doc, getDoc, collection, query, onSnapshot } from 'firebase/firestore';
@@ -59,22 +59,17 @@ export default function ClientDashboard() {
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
-        // ১. টাইমার এবং ইউজার ডাটা লজিক
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
           const plan = userData.package?.toLowerCase().trim() || 'starter';
           setUserPackage(plan);
 
-          const registrationTime = userData.createdAt?.seconds 
-            ? userData.createdAt.toMillis() 
-            : Date.now();
-          
+          const registrationTime = userData.createdAt?.seconds ? userData.createdAt.toMillis() : Date.now();
           const planType = userData.planType || 'monthly';
           let duration = 30 * 24 * 60 * 60 * 1000; 
           if (planType === 'yearly') duration = 365 * 24 * 60 * 60 * 1000;
           if (planType === 'trial') duration = 2 * 60 * 60 * 1000; 
-
           const expiryTime = registrationTime + duration;
 
           interval = setInterval(() => {
@@ -88,72 +83,36 @@ export default function ClientDashboard() {
               const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
               const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
               const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-              
-              if (planType === 'trial') {
-                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-              } else {
-                setTimeLeft(`${days}d ${hours}h`);
-              }
+              setTimeLeft(planType === 'trial' ? `${hours}h ${minutes}m ${seconds}s` : `${days}d ${hours}h`);
             }
           }, 1000);
         }
 
-        // ২. রিয়েল-টাইম ডাটা লজিক
         const qFiles = query(collection(db, "applications")); 
         unsubscribeFiles = onSnapshot(qFiles, (snapshot) => {
           const docs = snapshot.docs.map(doc => doc.data());
           const completed = docs.filter(f => f.status === "completed").length;
           const pending = docs.filter(f => f.status === "pending").length;
           const total = snapshot.size;
-          const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
           setRealtimeStats({
             total: total,
             pending: pending,
             completed: completed,
-            rate: successRate
+            rate: total > 0 ? Math.round((completed / total) * 100) : 0
           });
         });
       }
     };
 
     fetchUserData();
-    return () => { 
-      if (interval) clearInterval(interval); 
-      if (unsubscribeFiles) unsubscribeFiles(); 
-    };
+    return () => { if (interval) clearInterval(interval); if (unsubscribeFiles) unsubscribeFiles(); };
   }, []);
 
-  // ৩. আপডেট করা stats অ্যারে
   const stats = [
-    { 
-      icon: Users, 
-      label: 'Active Students', 
-      value: realtimeStats.total.toString(), 
-      change: 'Live', 
-      color: 'from-teal-500 to-emerald-500' 
-    },
-    { 
-      icon: FileText, 
-      label: 'Files in Process', 
-      value: realtimeStats.pending.toString(), 
-      change: 'Live', 
-      color: 'from-cyan-500 to-blue-500' 
-    },
-    { 
-      icon: CheckCircle, 
-      label: 'Completed', 
-      value: realtimeStats.completed.toString(), 
-      change: 'Live', 
-      color: 'from-teal-500 to-cyan-500' 
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Success Rate', 
-      value: `${realtimeStats.rate}%`, 
-      change: 'Live', 
-      color: 'from-emerald-500 to-teal-500' 
-    }
+    { icon: Users, label: 'Active Students', value: realtimeStats.total.toString(), change: 'Live', color: 'from-teal-500 to-emerald-500' },
+    { icon: FileText, label: 'Files in Process', value: realtimeStats.pending.toString(), change: 'Live', color: 'from-cyan-500 to-blue-500' },
+    { icon: CheckCircle, label: 'Completed', value: realtimeStats.completed.toString(), change: 'Live', color: 'from-teal-500 to-cyan-500' },
+    { icon: TrendingUp, label: 'Success Rate', value: `${realtimeStats.rate}%`, change: 'Live', color: 'from-emerald-500 to-teal-500' }
   ];
 
   const features = [
@@ -234,6 +193,57 @@ export default function ClientDashboard() {
           <h1 className="text-4xl font-black text-teal-950 italic uppercase tracking-tighter underline decoration-teal-100 decoration-8 underline-offset-8">Client Dashboard</h1>
         </div>
 
+        {/* --- SECTION: QUICK ACTIONS & AI COUNSELOR --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <div className="lg:col-span-1 bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl space-y-6">
+            <div>
+              <h3 className="font-black text-lg italic text-teal-900 uppercase mb-4 flex items-center gap-2">
+                <Plus className="text-teal-500" /> Quick Submit
+              </h3>
+              <div className="p-6 border-2 border-dashed border-teal-100 rounded-[2rem] bg-teal-50/30 flex flex-col items-center justify-center group hover:border-teal-400 transition-all cursor-pointer text-center">
+                <Upload className="text-teal-400 group-hover:scale-110 transition-transform mb-2" />
+                <span className="text-[10px] font-black uppercase text-teal-600">Submit Student File</span>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-slate-50">
+              <h3 className="font-black text-lg italic text-teal-900 uppercase mb-4 flex items-center gap-2">
+                <Globe className="text-teal-500" size={18} /> University List
+              </h3>
+              <select className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-600 text-xs focus:ring-2 focus:ring-teal-500 outline-none cursor-pointer">
+                <option>Select Country Wise List...</option>
+                <option>United Kingdom (UK)</option>
+                <option>United States (USA)</option>
+                <option>Canada</option>
+                <option>Australia</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-teal-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col justify-between">
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+                  <MessageSquare className="text-white" />
+                </div>
+                <div>
+                  <h3 className="font-black text-xl italic text-white uppercase leading-none tracking-tighter">AI Business Counselor</h3>
+                  <span className="text-[9px] text-teal-400 font-bold uppercase tracking-[0.2em]">Ready for Student Assessment</span>
+                </div>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md rounded-[2rem] p-6 text-teal-100/90 text-sm font-medium border border-white/10 min-h-[120px]">
+                Hello! You can input student details here for an instant assessment or counseling advice.
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3 relative z-10">
+              <input type="text" placeholder="Type student details for counseling..." className="flex-1 bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white placeholder:text-white/30 outline-none focus:bg-white/20 transition-all text-sm" />
+              <button className="w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full flex items-center justify-center transition-all shadow-lg shadow-teal-500/20 shrink-0">
+                <Send size={20} />
+              </button>
+            </div>
+            <div className="absolute -right-10 -top-10 opacity-10"><Zap size={300} /></div>
+          </div>
+        </div>
+
         {/* STATS SECTION */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
@@ -246,12 +256,39 @@ export default function ClientDashboard() {
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.label}</span>
                   <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">{stat.change}</span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-teal-950 tracking-tighter leading-tight">
-                  {stat.value}
-                </div>
+                <div className="text-2xl sm:text-3xl font-black text-teal-950 tracking-tighter leading-tight">{stat.value}</div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* --- SECTION: RECENT FILE UPDATES --- */}
+        <div className="bg-white rounded-[3rem] border border-teal-50 shadow-xl overflow-hidden mb-12">
+          <div className="p-8 border-b border-teal-50 bg-teal-50/10 flex items-center justify-between">
+            <h3 className="font-black text-xl italic text-teal-900 uppercase flex items-center gap-2">
+              <Bell className="text-teal-500" size={20} /> Recent File Activity
+            </h3>
+          </div>
+          <div className="p-8 space-y-4">
+            <div className="flex items-center justify-between p-5 bg-slate-50 rounded-3xl hover:bg-teal-50/50 transition-colors group border border-transparent hover:border-teal-100">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-teal-600 font-black text-xs uppercase border border-teal-50">MA</div>
+                <div>
+                  <p className="text-sm font-bold text-teal-950">
+                    Md. Abu Omar-er file submit korechen, file ti ekhon <span className="text-teal-600 font-black px-2 bg-teal-50 rounded-lg">COMPLIANCE TEAM</span>-e received hoyeche.
+                  </p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-1">Status: <span className="text-emerald-500 font-black">Received</span></span>
+                    <span className="text-slate-200">|</span>
+                    <button className="text-[10px] font-black uppercase text-teal-500 hover:text-teal-700 transition-all flex items-center gap-1 group/btn">
+                      Details <span className="italic underline decoration-2">"Click Here"</span> <ExternalLink size={10} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden sm:block text-[9px] font-black text-slate-300 uppercase italic tracking-widest">Just Now</div>
+            </div>
+          </div>
         </div>
 
         {/* FEATURES GRID */}
@@ -260,44 +297,18 @@ export default function ClientDashboard() {
             <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
             <h3 className="font-black text-3xl italic text-teal-900 uppercase tracking-tighter">Partner B2B Service Suite</h3>
           </div>
-          
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
             {features.map((f, i) => {
               const isAvailable = hasAccess(userPackage, f.name);
               return (
-                <div 
-                  key={i} 
-                  onClick={() => {
-                    if (isAvailable) {
-                      setActiveFeature(f.name);
-                    } else {
-                      alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. \n\nPlease upgrade to Professional or Enterprise to unlock "${f.name}".`);
-                    }
-                  }} 
-                  className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 transition-all flex flex-col items-center text-center group cursor-pointer relative ${
-                    !isAvailable 
-                      ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50' 
-                      : 'hover:border-teal-300 hover:-translate-y-2 hover:shadow-teal-200/20'
-                  }`}
-                >
-                  {!isAvailable && (
-                    <div className="absolute top-5 right-6 bg-amber-100 p-1.5 rounded-full text-amber-600 shadow-sm">
-                      <Lock size={14} strokeWidth={3} />
-                    </div>
-                  )}
-                  <div className={`mb-6 p-5 rounded-2xl transition-all shadow-sm ${
-                    isAvailable ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' : 'bg-slate-200 text-slate-400'
-                  }`}>
-                    <f.icon size={28} />
-                  </div>
-                  <h3 className={`font-black text-[13px] mb-1 italic uppercase tracking-tight ${isAvailable ? 'text-teal-900' : 'text-slate-500'}`}>
-                    {f.name}
-                  </h3>
+                <div key={i} onClick={() => isAvailable ? setActiveFeature(f.name) : alert(`🔒 Locked in ${userPackage} plan.`)} 
+                  className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl transition-all flex flex-col items-center text-center group cursor-pointer relative ${!isAvailable ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50' : 'hover:border-teal-300 hover:-translate-y-2'}`}>
+                  {!isAvailable && <div className="absolute top-5 right-6 bg-amber-100 p-1.5 rounded-full text-amber-600"><Lock size={14} /></div>}
+                  <div className={`mb-6 p-5 rounded-2xl transition-all ${isAvailable ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' : 'bg-slate-200 text-slate-400'}`}><f.icon size={28} /></div>
+                  <h3 className={`font-black text-[13px] mb-1 italic uppercase tracking-tight ${isAvailable ? 'text-teal-900' : 'text-slate-500'}`}>{f.name}</h3>
                   <div className="flex items-center gap-1.5 justify-center">
                     <div className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-widest italic ${isAvailable ? 'text-teal-400' : 'text-slate-400'}`}>
-                      {isAvailable ? 'Live Sync' : 'Locked'}
-                    </span>
+                    <span className={`text-[9px] font-black uppercase tracking-widest italic ${isAvailable ? 'text-teal-400' : 'text-slate-400'}`}>{isAvailable ? 'Live Sync' : 'Locked'}</span>
                   </div>
                 </div>
               )
