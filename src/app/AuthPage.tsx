@@ -59,12 +59,14 @@ const AuthPage = () => {
           nidUrl = data.secure_url; 
         }
 
-       // --- ৩. Firebase Registration ---
+ // --- ৩. Firebase Registration ---
 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 const user = userCredential.user;
 
-// URL থেকে planType ধরা (যদি না থাকে তবে ডিফল্ট monthly)
-const planTypeFromUrl = searchParams.get('type') || 'monthly';
+// URL থেকে নিখুঁতভাবে টাইপ ধরা
+const typeParam = searchParams.get('type');
+// যদি package=Starter হয় এবং type=trial থাকে তবেই trial হবে, নাহলে monthly
+const planType = typeParam ? typeParam.toLowerCase() : 'monthly';
 
 // Firestore-এ ডেটা সেভ করা
 await setDoc(doc(db, "users", user.uid), {
@@ -76,17 +78,17 @@ await setDoc(doc(db, "users", user.uid), {
   email,
   package: selectedPackage.toLowerCase(), 
   
-  // ডাইনামিক ফিল্ডস
-  planType: planTypeFromUrl.toLowerCase(), 
+  // ডাইনামিক ফিল্ডস (টাইমার ফিক্সের জন্য এগুলোই মূল)
+  planType: planType, 
   status: "pending", 
   role: "partner",
   
-  // সার্ভার টাইমস্ট্যাম্প ব্যবহার করা ভালো (ইমপোর্ট নিশ্চিত করুন)
-  createdAt: new Date(), // অথবা serverTimestamp() যদি ইমপোর্ট করা থাকে
+  // এটি সরাসরি Firestore-এর সার্ভার টাইম ব্যবহার করবে (ইমপোর্ট করা থাকলে)
+  // যদি serverTimestamp ইমপোর্ট করা না থাকে তবে new Date() ই রাখুন
+  createdAt: new Date(), 
   
   nidUrl: nidUrl,
 });
-
         alert("Registration Successful! Admin will review your application soon.");
         await signOut(auth); 
         setIsSignUp(false);

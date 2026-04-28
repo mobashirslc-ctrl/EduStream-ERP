@@ -190,7 +190,7 @@ const LandingPage = () => {
   </button>
 ) : (
                   <Link 
-  to={`/login?package=${p.plan}`}
+  to={`/login?package=${p.plan}&type=${billingCycle}`}
   className={`w-full py-4 rounded-xl font-bold transition-all text-center block ${
     selectedPlan?.plan === p.plan 
       ? 'bg-[#14B8A6] text-white shadow-lg shadow-teal-200' 
