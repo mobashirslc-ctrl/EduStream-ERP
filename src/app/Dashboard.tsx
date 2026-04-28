@@ -208,10 +208,11 @@ const features = [
   )}
   
   <button onClick={() => window.history.back()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-full font-bold text-sm transition-all">
-    <ArrowLeft className="w-4 h-4" /> Back
-  </button>
-</div>
-      </nav>
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
+    </div>
+  </div> {/* <--- এই ক্লোজিং ট্যাগটি মিসিং ছিল */}
+</nav>
 
       <div className="max-w-[1600px] mx-auto p-10 space-y-12">
         {/* HEADER */}
