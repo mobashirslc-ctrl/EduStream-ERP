@@ -74,10 +74,16 @@ useEffect(() => {
     const user = auth.currentUser;
     if (user) {
       const userDoc = await getDoc(doc(db, "users", user.uid));
+      
+      // এই অংশটুকু আপডেট হচ্ছে 👇
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        // ডেটাবেজ থেকে প্যাকেজটি স্টেট-এ সেট করা
-        setUserPackage(userData.package || 'starter'); 
+        
+        // database এ 'Starter' বা 'starter' যেভাবেই থাকুক, এটা ছোট হাতের করে নেবে
+        const userPlan = userData.package?.toLowerCase().trim() || 'starter'; 
+        
+        console.log("Detected Plan:", userPlan); // ব্রাউজার কনসোলে চেক করার জন্য
+        setUserPackage(userPlan); 
       }
     }
   };
