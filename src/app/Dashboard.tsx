@@ -68,26 +68,60 @@ export default function ClientDashboard() {
   
   // Manual package state (Testing-er jonno 'starter', 'pro' ba 'enterprise' likhe check koro)
   const [userPackage, setUserPackage] = useState<string>('starter');
+  const [timeLeft, setTimeLeft] = useState<string>(""); // Countdown er jonno
 
 useEffect(() => {
+  let interval: NodeJS.Timeout;
+
   const fetchUserData = async () => {
     const user = auth.currentUser;
     if (user) {
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      
-      // এই অংশটুকু আপডেট হচ্ছে 👇
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        const plan = userData.package?.toLowerCase().trim() || 'starter';
+        setUserPackage(plan);
+
+        // --- Countdown Logic ---
+        // যদি Firestore-এ createdAt না থাকে তবে বর্তমান সময় ধরে নেবে
+        const registrationTime = userData.createdAt?.seconds 
+          ? userData.createdAt.toMillis() 
+          : Date.now();
         
-        // database এ 'Starter' বা 'starter' যেভাবেই থাকুক, এটা ছোট হাতের করে নেবে
-        const userPlan = userData.package?.toLowerCase().trim() || 'starter'; 
-        
-        console.log("Detected Plan:", userPlan); // ব্রাউজার কনসোলে চেক করার জন্য
-        setUserPackage(userPlan); 
+        const planType = userData.planType || 'monthly'; // 'monthly', 'yearly', 'trial'
+
+        let duration = 30 * 24 * 60 * 60 * 1000; 
+        if (planType === 'yearly') duration = 365 * 24 * 60 * 60 * 1000;
+        if (planType === 'trial') duration = 2 * 60 * 60 * 1000; 
+
+        const expiryTime = registrationTime + duration;
+
+        interval = setInterval(() => {
+          const now = new Date().getTime();
+          const distance = expiryTime - now;
+
+          if (distance < 0) {
+            setTimeLeft("Expired");
+            clearInterval(interval);
+          } else {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            if (planType === 'trial') {
+               setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+            } else {
+               setTimeLeft(`${days}d ${hours}h`);
+            }
+          }
+        }, 1000);
       }
     }
   };
+
   fetchUserData();
+  return () => { if(interval) clearInterval(interval); }; // Cleanup on unmount
 }, []);
   const [submissions] = useState([
     { id: 1, name: "Arif Ahmed", passport: "BE098712", status: "IN REVIEW", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
@@ -163,18 +197,20 @@ const features = [
       <nav className="bg-white/80 backdrop-blur-md border-b border-teal-50 sticky top-0 z-50 p-6">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shrink-0">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <span className="text-2xl font-black italic text-teal-900 uppercase tracking-tighter block leading-none">EduStream</span>
-              <span className="text-[10px] font-bold text-teal-500 uppercase tracking-widest italic">B2B Partner Portal</span>
-            </div>
-          </div>
-          <button onClick={() => window.history.back()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-full font-bold text-sm transition-all">
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
-        </div>
+  {/* Countdown Timer Badge */}
+  {timeLeft && (
+    <div className={`px-4 py-2 rounded-full border flex items-center gap-2 ${timeLeft === "Expired" ? "bg-rose-50 border-rose-200 text-rose-600" : "bg-teal-50 border-teal-100 text-teal-700"}`}>
+      <Zap size={14} className={timeLeft !== "Expired" ? "animate-pulse" : ""} />
+      <span className="text-[10px] font-black uppercase tracking-widest italic">
+        {timeLeft === "Expired" ? "Package Expired" : `${userPackage} ends in: ${timeLeft}`}
+      </span>
+    </div>
+  )}
+  
+  <button onClick={() => window.history.back()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-full font-bold text-sm transition-all">
+    <ArrowLeft className="w-4 h-4" /> Back
+  </button>
+</div>
       </nav>
 
       <div className="max-w-[1600px] mx-auto p-10 space-y-12">
