@@ -193,66 +193,112 @@ export default function ClientDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* LEFT: FORM BOX */}
-          <div className="lg:col-span-1 bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl space-y-8">
-            <div>
-              <h3 className="font-black text-lg italic text-teal-900 uppercase mb-4 flex items-center gap-2"><Plus className="text-teal-500" /> Quick Submit</h3>
-              <div onClick={() => setActiveFeature('Cloud Manager')} className="p-8 border-2 border-dashed border-teal-100 rounded-[2rem] bg-teal-50/30 flex flex-col items-center justify-center group hover:border-teal-400 transition-all cursor-pointer">
-                <Upload className="text-teal-400 group-hover:scale-110 transition-transform mb-2" />
-                <span className="text-[10px] font-black uppercase text-teal-600 italic">Submit Student File</span>
+          {/* --- MAIN SECTION: ACTIVITY & QUICK ACTIONS --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+          
+          {/* LEFT COLUMN: RECENT STATUS UPDATES (এটি ৮ কলাম জায়গা নিবে) */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="bg-white rounded-[3rem] border border-teal-50 shadow-xl overflow-hidden h-full">
+              <div className="p-8 border-b border-teal-50 bg-teal-50/10 flex items-center gap-4">
+                <div className="w-10 h-10 bg-[#12B2A3] rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-100">
+                  <Bell size={20} />
+                </div>
+                <div>
+                  <h3 className="font-black text-xl italic text-teal-900 uppercase">Recent Status Updates</h3>
+                  <p className="text-[10px] text-teal-600 font-bold uppercase tracking-widest">Latest file activities</p>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-6 border-t border-slate-100">
-              <h3 className="font-black text-sm italic text-teal-900 uppercase mb-4 flex items-center gap-2"><Globe className="text-teal-500" size={16} /> Add New University</h3>
-              <div className="space-y-3">
-                {isOwner && (
-                  <select value={selectedClient} onChange={(e) => setSelectedClient(e.target.value)} className="w-full p-3 bg-amber-50 rounded-xl text-[11px] font-black border border-amber-200 outline-none mb-2">
-                    <option value="">-- SELECT CLIENT --</option>
-                    <option value="client_id_1">Md. Abu Omar</option>
-                    <option value="client_id_2">Global Education</option>
-                  </select>
-                )}
-                <input type="text" placeholder="University Name" value={uniData.name} onChange={(e)=>setUniData({...uniData, name: e.target.value})} className="w-full p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400" />
-                <div className="grid grid-cols-2 gap-2">
-                  <select value={uniData.country} onChange={(e)=>setUniData({...uniData, country: e.target.value})} className="p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400">
-                    <option>Country</option>
-                    {countries.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  <input type="text" placeholder="Course" value={uniData.course} onChange={(e)=>setUniData({...uniData, course: e.target.value})} className="p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400" />
+              <div className="p-4 space-y-2">
+                {/* Single Update Item */}
+                <div className="flex items-start justify-between p-6 hover:bg-teal-50/30 transition-all border-b border-slate-50 last:border-0 rounded-[2rem] group">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#12B2A3] border border-teal-100 shadow-sm">
+                      <FileText size={22} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-teal-950">
+                        Md. Abu Omar <span className="font-medium text-slate-500">has submitted their file with</span> 12 documents
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-1">The file is now with the <span className="text-teal-600 font-black">COMPLIANCE TEAM</span> for review</p>
+                      <div className="flex items-center gap-4 mt-4">
+                        <span className="text-[9px] font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase italic">Received</span>
+                        <button className="text-[10px] font-black text-teal-500 hover:text-teal-700 underline underline-offset-4 flex items-center gap-1">
+                          CHECK DETAILS <ExternalLink size={10}/>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-[9px] font-black text-slate-300 uppercase italic tracking-tighter">Just Now</div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="CGPA Req." value={uniData.cgpa} onChange={(e)=>setUniData({...uniData, cgpa: e.target.value})} className="p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400" />
-                  <input type="text" placeholder="IELTS/Language" value={uniData.language} onChange={(e)=>setUniData({...uniData, language: e.target.value})} className="p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400" />
-                </div>
-                <textarea placeholder="Scholarship, Jobs..." value={uniData.details} onChange={(e)=>setUniData({...uniData, details: e.target.value})} className="w-full p-3 bg-slate-50 rounded-xl text-[11px] font-bold outline-none border border-transparent focus:border-teal-400 h-16 resize-none"></textarea>
-                <button onClick={handleSaveUniversity} className="w-full py-3.5 bg-teal-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-teal-600 shadow-lg transition-all">Save University</button>
+                {/* আপনি এখানে আরও আইটেম ম্যাপ করতে পারেন */}
               </div>
             </div>
           </div>
 
-          {/* AI COUNSELOR */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-teal-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col justify-between">
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20"><MessageSquare className="text-white" /></div>
-                  <div>
-                    <h3 className="font-black text-xl italic text-white uppercase leading-none tracking-tighter">AI Business Counselor</h3>
-                    <span className="text-[9px] text-teal-400 font-bold uppercase tracking-[0.2em]">Ready for Assessment</span>
+          {/* RIGHT COLUMN: QUICK ACTIONS & AI ASSISTANT (এটি ৪ কলাম জায়গা নিবে) */}
+          <div className="lg:col-span-4 space-y-6">
+            
+            {/* QUICK ACTIONS SECTION */}
+            <div className="bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl">
+              <h3 className="font-black text-lg italic text-teal-900 uppercase mb-6 flex items-center gap-2">
+                <Zap className="text-teal-500" size={18} /> Quick Actions
+              </h3>
+              <div className="space-y-4">
+                <button className="w-full py-4 bg-[#12B2A3] text-white rounded-2xl font-black italic uppercase text-xs hover:bg-[#0E9488] transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-100 tracking-tighter">
+                  <Plus size={18} /> Add New Student
+                </button>
+
+                {/* University Entry Form */}
+                <div className="p-5 bg-slate-50 rounded-[2rem] border border-teal-50 space-y-3">
+                  <p className="text-[10px] font-black text-teal-700 uppercase tracking-widest flex items-center gap-2 mb-2">
+                    <GraduationCap size={14} /> University Entry
+                  </p>
+                  
+                  {isOwner && (
+                    <select value={selectedClient} onChange={(e)=>setSelectedClient(e.target.value)} className="w-full p-3 bg-white rounded-xl text-[10px] font-bold border border-teal-100 outline-none">
+                      <option value="">-- Assign to Client --</option>
+                      <option value="c1">Md. Abu Omar</option>
+                    </select>
+                  )}
+                  
+                  <input type="text" placeholder="University Name" className="w-full p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" />
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <select className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400">
+                      <option>Country</option>
+                      {countries.map(c => <option key={c}>{c}</option>)}
+                    </select>
+                    <input type="text" placeholder="Course" className="p-3 bg-white rounded-xl text-[10px] font-bold outline-none border border-teal-50 focus:border-teal-400" />
                   </div>
+                  
+                  <button onClick={handleSaveUniversity} className="w-full py-3 bg-white text-[#12B2A3] border border-[#12B2A3] rounded-xl font-black text-[10px] hover:bg-teal-50 transition-all uppercase italic tracking-tighter">
+                    Quick Save
+                  </button>
                 </div>
-                <div className="bg-white/5 backdrop-blur-md rounded-[2rem] p-6 text-teal-100/90 text-sm font-medium border border-white/10 min-h-[120px]">
-                  Hello! You can input student details here for an instant assessment.
+
+                <button onClick={() => setActiveFeature('Cloud Manager')} className="w-full py-4 bg-white text-slate-500 border border-slate-200 rounded-2xl font-black italic uppercase text-xs hover:bg-slate-50 transition-all flex items-center justify-center gap-2 tracking-tighter">
+                  <Upload size={18} /> Documents
+                </button>
+              </div>
+            </div>
+
+            {/* AI ASSISTANT SECTION */}
+            <div className="bg-[#12B2A3] p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                   <div className="p-2 bg-white/20 rounded-lg text-white"><Zap size={16} fill="white" /></div>
+                   <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">AI Assistant</h3>
                 </div>
+                <p className="text-teal-50 text-[11px] mb-6 leading-relaxed font-bold uppercase italic opacity-80">Get instant student assessment help.</p>
+                <button className="w-full py-4 bg-white text-[#12B2A3] rounded-2xl font-black italic uppercase text-xs hover:bg-teal-50 transition-all shadow-md flex items-center justify-center gap-2">
+                  Launch <Send size={16} />
+                </button>
               </div>
-              <div className="mt-6 flex gap-3 relative z-10">
-                <input type="text" placeholder="Type student details..." className="flex-1 bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white text-sm outline-none" />
-                <button className="w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full flex items-center justify-center shadow-lg"><Send size={20} /></button>
-              </div>
-              <div className="absolute -right-10 -top-10 opacity-10"><Zap size={300} /></div>
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
           </div>
         </div>
-
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
