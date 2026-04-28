@@ -51,7 +51,7 @@ const features = [
     { name: 'Ticketing System', icon: Users },
     { name: 'Priority Support', icon: MessageSquare }, // Ekhane comma (,) thakte hobe
     { name: 'Team Hub', icon: Users },
-    { name: 'Agent Network', icon: Users } // Duplicate AI Assessment muche eita rakho
+    { name: 'Agent Network', icon: Users }, // Duplicate AI Assessment muche eita rakho
     
   ];
 
@@ -218,67 +218,66 @@ const features = [
 
         {/* 10 FEATURES GRID */}
         <div className="space-y-10 pb-20">
-            <div className="flex items-center gap-4">
-              <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
-              <h3 className="font-black text-3xl italic text-teal-900 uppercase tracking-tighter">Partner B2B Service Suite</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-              {features.map((f, i) => {
-  // Check if the current user has access to this specific feature
-  const isAvailable = hasAccess(userPackage, f.name);
+          <div className="flex items-center gap-4">
+            <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
+            <h3 className="font-black text-3xl italic text-teal-900 uppercase tracking-tighter">Partner B2B Service Suite</h3>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+            {features.map((f, i) => {
+              const isAvailable = hasAccess(userPackage, f.name);
+              return (
+                <div 
+                  key={i} 
+                  onClick={() => {
+                    if (isAvailable) {
+                      setActiveFeature(f.name);
+                    } else {
+                      alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. \n\nPlease upgrade to Professional or Enterprise to unlock "${f.name}".`);
+                    }
+                  }} 
+                  className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 transition-all flex flex-col items-center text-center group cursor-pointer relative ${
+                    !isAvailable 
+                      ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50' 
+                      : 'hover:border-teal-300 hover:-translate-y-2 hover:shadow-teal-200/20'
+                  }`}
+                >
+                  {!isAvailable && (
+                    <div className="absolute top-5 right-6 bg-amber-100 p-1.5 rounded-full text-amber-600 shadow-sm">
+                      <Lock size={14} strokeWidth={3} />
+                    </div>
+                  )}
 
-  return (
-    <div 
-      key={i} 
-      onClick={() => {
-        if (isAvailable) {
-          setActiveFeature(f.name);
-        } else {
-          // Alert message for locked features
-          alert(`🔒 This feature is locked in the ${userPackage.toUpperCase()} plan. \n\nPlease upgrade to Professional or Enterprise to unlock "${f.name}".`);
-        }
-      }} 
-      className={`bg-white p-8 rounded-[2.5rem] border border-teal-50 shadow-xl shadow-teal-900/5 transition-all flex flex-col items-center text-center group cursor-pointer relative ${
-        !isAvailable 
-          ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50' 
-          : 'hover:border-teal-300 hover:-translate-y-2 hover:shadow-teal-200/20'
-      }`}
-    >
-      {/* Lock Icon Badge for Restricted Features */}
-      {!isAvailable && (
-        <div className="absolute top-5 right-6 bg-amber-100 p-1.5 rounded-full text-amber-600 shadow-sm">
-          <Lock size={14} strokeWidth={3} />
-        </div>
-      )}
+                  <div className={`mb-6 p-5 rounded-2xl transition-all shadow-sm ${
+                    isAvailable 
+                      ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' 
+                      : 'bg-slate-200 text-slate-400'
+                  }`}>
+                    <f.icon size={28} />
+                  </div>
 
-      {/* Feature Icon Container */}
-      <div className={`mb-6 p-5 rounded-2xl transition-all shadow-sm ${
-        isAvailable 
-          ? 'bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white' 
-          : 'bg-slate-200 text-slate-400'
-      }`}>
-        <f.icon size={28} />
-      </div>
-
-      {/* Feature Name */}
-      <h3 className={`font-black text-[13px] mb-1 italic uppercase tracking-tight ${
-        isAvailable ? 'text-teal-900' : 'text-slate-500'
-      }`}>
-        {f.name}
-      </h3>
-      
-      {/* Status Indicator */}
-      <div className="flex items-center gap-1.5 justify-center">
-        <div className={`w-1.5 h-1.5 rounded-full ${
-          isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
-        }`}></div>
-        <span className={`text-[9px] font-black uppercase tracking-widest italic ${
-          isAvailable ? 'text-teal-400' : 'text-slate-400'
-        }`}>
-          {isAvailable ? 'Live Sync' : 'Locked'}
-        </span>
-      </div>
-    </div>
+                  <h3 className={`font-black text-[13px] mb-1 italic uppercase tracking-tight ${
+                    isAvailable ? 'text-teal-900' : 'text-slate-500'
+                  }`}>
+                    {f.name}
+                  </h3>
+                  
+                  <div className="flex items-center gap-1.5 justify-center">
+                    <div className={`w-1.5 h-1.5 rounded-full ${
+                      isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
+                    }`}></div>
+                    <span className={`text-[9px] font-black uppercase tracking-widest italic ${
+                      isAvailable ? 'text-teal-400' : 'text-slate-400'
+                    }`}>
+                      {isAvailable ? 'Live Sync' : 'Locked'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div> {/* Grid container shesh */}
+        </div> {/* Space-y-10 container shesh */}
+      </div> {/* Max-w container shesh */}
+    </div> {/* Outermost min-h-screen container shesh */}
   );
-})}
+}

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<any>(null); 
+  const [selectedPlan, setSelectedPlan] = useState<any>(pricingPlans[1]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('');
 
@@ -176,18 +176,27 @@ const LandingPage = () => {
                 </ul>
                 
                 {p.plan === 'Enterprise' ? (
-                   <button 
-                    onClick={(e) => { e.stopPropagation(); setShowPaymentModal(true); }}
-                    className="w-full py-4 bg-black text-white rounded-xl font-bold"
-                   >
-                     Contact Sales
-                   </button>
-                ) : (
-                  <Link to={`/login?package=${p.plan}`}>
-                    <button className={`w-full py-4 rounded-xl font-bold transition-all ${selectedPlan?.plan === p.plan ? 'bg-[#14B8A6] text-white shadow-lg shadow-teal-200' : 'bg-gray-100 text-gray-400'}`}>
-                      {selectedPlan?.plan === p.plan ? 'Get Started Now' : 'Select Plan'}
-                    </button>
-                  </Link>
+  <button 
+    onClick={(e) => { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+      setShowPaymentModal(true); 
+    }}
+    className="w-full py-4 bg-[#0A192F] text-white rounded-xl font-bold hover:bg-black transition-all"
+  >
+    Contact Sales
+  </button>
+) : (
+                  <Link 
+  to={`/login?package=${p.plan}`}
+  className={`w-full py-4 rounded-xl font-bold transition-all text-center block ${
+    selectedPlan?.plan === p.plan 
+      ? 'bg-[#14B8A6] text-white shadow-lg shadow-teal-200' 
+      : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+  }`}
+>
+  {selectedPlan?.plan === p.plan ? 'Get Started Now' : 'Select Plan'}
+</Link>
                 )}
               </div>
             ))}
