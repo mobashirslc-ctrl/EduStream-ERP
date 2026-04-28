@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 // --- FEATURE IMPORTS ---
-import { hasAccess, PackageTier } from "../config/permissions"; // Path-ta check kore niyo
+import { hasAccess, type PackageTier } from "../config/permissions"; // Path-ta check kore niyo
 import { Lock } from 'lucide-react'; // Lock icon-ta dorkar hobe
 import { AIAssessment } from "../components/dashboard/features/AIAssessment";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
@@ -273,11 +273,11 @@ const features = [
                     </span>
                   </div>
                 </div>
-              );
+              )
             })}
-          </div> {/* Grid container shesh */}
-        </div> {/* Space-y-10 container shesh */}
-      </div> {/* Max-w container shesh */}
-    </div> {/* Outermost min-h-screen container shesh */}
-  );
+          </div> 
+        </div>
+      </div> 
+    </div>
+  )
 }
