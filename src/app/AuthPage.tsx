@@ -59,48 +59,45 @@ const AuthPage = () => {
           nidUrl = data.secure_url; 
         }
 
- // --- ৩. Firebase Registration ---
-const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-const user = userCredential.user;
+// --- ৩. Firebase Registration ---
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-// URL থেকে প্যারামিটারগুলো ধরুন (একবার ডিক্লেয়ার করুন)
-const packageParam = searchParams.get('package') || 'Starter';
-const typeFromUrl = searchParams.get('type'); // নাম বদলে দিলাম কনফিউশন এড়াতে
+    // URL থেকে প্যারামিটার ধরা
+    const packageParam = searchParams.get('package') || 'Starter';
+    const typeFromUrl = searchParams.get('type');
 
-// ২. টাইপ নির্ধারণ লজিক
-let planType = 'monthly'; // Default
+    // টাইপ নির্ধারণ লজিক
+    let planType = 'monthly'; 
+    if (typeFromUrl) {
+      planType = typeFromUrl.toLowerCase();
+    } else if (packageParam.toLowerCase() === 'starter') {
+      planType = 'trial'; 
+    }
 
-if (typeFromUrl) {
-  planType = typeFromUrl.toLowerCase();
-} else if (packageParam.toLowerCase() === 'starter') {
-  planType = 'trial'; 
-}
+    // Firestore-এ ডেটা সেভ করা
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      companyName,
+      authPersonName: authPerson,
+      contactNo,
+      address,
+      email,
+      package: packageParam.toLowerCase(), 
+      planType: planType, 
+      status: "pending", 
+      role: "partner",
+      createdAt: serverTimestamp(), // এটি ব্যবহার করুন (ইমপোর্ট করা আছে আপনার ফাইলে)
+      nidUrl: nidUrl,
+    }); 
 
-// ৩. Firestore-এ ডেটা সেভ করা
-await setDoc(doc(db, "users", user.uid), {
-  uid: user.uid,
-  companyName,
-  authPersonName: authPerson,
-  contactNo,
-  address,
-  email,
-  package: packageParam.toLowerCase(), 
-  planType: planType, 
-  status: "pending", 
-  role: "partner",
-  createdAt: serverTimestamp(), // এটি ব্যবহার করায় টাইমার এখন ১০০% নির্ভুল হবে
-  nidUrl: nidUrl,
-});
-  // এটি সরাসরি Firestore-এর সার্ভার টাইম ব্যবহার করবে (ইমপোর্ট করা থাকলে)
-  // যদি serverTimestamp ইমপোর্ট করা না থাকে তবে new Date() ই রাখুন
-  createdAt: new Date(), 
-  
-  nidUrl: nidUrl,
-});
-        alert("Registration Successful! Admin will review your application soon.");
-        await signOut(auth); 
-        setIsSignUp(false);
-        resetForm();
+    // সাকসেস মেসেজ ও ক্লিনআপ
+    alert("Registration Successful! Admin will review your application soon.");
+    await signOut(auth); 
+    setIsSignUp(false);
+    resetForm();
+    
+    
       } else {
         // --- ৪. Login Logic ---
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
