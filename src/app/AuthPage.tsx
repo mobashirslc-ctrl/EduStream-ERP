@@ -5,7 +5,7 @@ import { Building2, User, Mail, Phone, Lock, ArrowLeft, X, MapPin, Loader2, Uplo
 // Firebase imports
 import { auth, db } from '../lib/firebase'; 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -59,22 +59,32 @@ const AuthPage = () => {
           nidUrl = data.secure_url; 
         }
 
-        // --- ৩. Firebase Registration ---
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+       // --- ৩. Firebase Registration ---
+const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+const user = userCredential.user;
 
-        await setDoc(doc(db, "users", user.uid), {
+// URL থেকে planType ধরা (যদি না থাকে তবে ডিফল্ট monthly)
+const planTypeFromUrl = searchParams.get('type') || 'monthly';
+
+// Firestore-এ ডেটা সেভ করা
+await setDoc(doc(db, "users", user.uid), {
   uid: user.uid,
   companyName,
   authPersonName: authPerson,
   contactNo,
   address,
   email,
-  package: selectedPackage.toLowerCase(), // 'Professional' কে 'professional' করে সেভ করবে
-  nidUrl: nidUrl,
-  status: "pending", // অ্যাডমিন এপ্রুভ না করা পর্যন্ত সে লগইন করতে পারবে না
+  package: selectedPackage.toLowerCase(), 
+  
+  // ডাইনামিক ফিল্ডস
+  planType: planTypeFromUrl.toLowerCase(), 
+  status: "pending", 
   role: "partner",
-  createdAt: new Date().toISOString()
+  
+  // সার্ভার টাইমস্ট্যাম্প ব্যবহার করা ভালো (ইমপোর্ট নিশ্চিত করুন)
+  createdAt: new Date(), // অথবা serverTimestamp() যদি ইমপোর্ট করা থাকে
+  
+  nidUrl: nidUrl,
 });
 
         alert("Registration Successful! Admin will review your application soon.");
