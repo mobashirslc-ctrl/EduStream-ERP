@@ -6,7 +6,7 @@ import {
   Globe, Database, MessageSquare, X, ExternalLink, Lock, Briefcase, LayoutGrid
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase'; 
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, onSnapshot } from 'firebase/firestore';
 
 // --- FEATURE COMPONENTS ---
 import { AIAssessment } from "../components/dashboard/features/AIAssessment";
@@ -45,13 +45,21 @@ export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [userPackage, setUserPackage] = useState<string>('starter');
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const [realtimeStats, setRealtimeStats] = useState({
+    total: 0,
+    pending: 0,
+    completed: 0,
+    rate: 0
+  });
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let unsubscribeFiles: () => void;
 
     const fetchUserData = async () => {
       const user = auth.currentUser;
       if (user) {
+        // ১. টাইমার এবং ইউজার ডাটা লজিক
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -72,7 +80,6 @@ export default function ClientDashboard() {
           interval = setInterval(() => {
             const now = new Date().getTime();
             const distance = expiryTime - now;
-
             if (distance <= 0) {
               setTimeLeft("Expired");
               clearInterval(interval);
@@ -83,25 +90,70 @@ export default function ClientDashboard() {
               const seconds = Math.floor((distance % (1000 * 60)) / 1000);
               
               if (planType === 'trial') {
-                 setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
               } else {
-                 setTimeLeft(`${days}d ${hours}h`);
+                setTimeLeft(`${days}d ${hours}h`);
               }
             }
           }, 1000);
         }
+
+        // ২. রিয়েল-টাইম ডাটা লজিক
+        const qFiles = query(collection(db, "applications")); 
+        unsubscribeFiles = onSnapshot(qFiles, (snapshot) => {
+          const docs = snapshot.docs.map(doc => doc.data());
+          const completed = docs.filter(f => f.status === "completed").length;
+          const pending = docs.filter(f => f.status === "pending").length;
+          const total = snapshot.size;
+          const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+          setRealtimeStats({
+            total: total,
+            pending: pending,
+            completed: completed,
+            rate: successRate
+          });
+        });
       }
     };
 
     fetchUserData();
-    return () => { if(interval) clearInterval(interval); };
+    return () => { 
+      if (interval) clearInterval(interval); 
+      if (unsubscribeFiles) unsubscribeFiles(); 
+    };
   }, []);
 
+  // ৩. আপডেট করা stats অ্যারে
   const stats = [
-    { icon: Users, label: 'Active Students', value: '245', change: '+12%', color: 'from-teal-500 to-emerald-500' },
-    { icon: FileText, label: 'Files in Process', value: '89', change: '+5%', color: 'from-cyan-500 to-blue-500' },
-    { icon: CheckCircle, label: 'Completed', value: '156', change: '+18%', color: 'from-teal-500 to-cyan-500' },
-    { icon: TrendingUp, label: 'Success Rate', value: '94%', change: '+3%', color: 'from-emerald-500 to-teal-500' }
+    { 
+      icon: Users, 
+      label: 'Active Students', 
+      value: realtimeStats.total.toString(), 
+      change: 'Live', 
+      color: 'from-teal-500 to-emerald-500' 
+    },
+    { 
+      icon: FileText, 
+      label: 'Files in Process', 
+      value: realtimeStats.pending.toString(), 
+      change: 'Live', 
+      color: 'from-cyan-500 to-blue-500' 
+    },
+    { 
+      icon: CheckCircle, 
+      label: 'Completed', 
+      value: realtimeStats.completed.toString(), 
+      change: 'Live', 
+      color: 'from-teal-500 to-cyan-500' 
+    },
+    { 
+      icon: TrendingUp, 
+      label: 'Success Rate', 
+      value: `${realtimeStats.rate}%`, 
+      change: 'Live', 
+      color: 'from-emerald-500 to-teal-500' 
+    }
   ];
 
   const features = [
