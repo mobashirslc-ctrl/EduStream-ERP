@@ -5,9 +5,50 @@ import {
   Plus, Upload, BarChart, Zap, Camera, Bell, ShieldCheck, 
   Globe, Database, MessageSquare, X, ExternalLink 
 } from 'lucide-react';
+import { useEffect } from 'react'; // 'useState' এর পাশে যোগ করুন
+import { auth, db } from '../lib/firebase'; // আপনার firebase config পাথ অনুযায়ী
+import { doc, getDoc } from 'firebase/firestore';
+const PLAN_FEATURES: Record<string, string[]> = {
+  starter: [
+    "AI Assessment",      // ইমেজের 'AI Assessment Hub'
+    "20-Step Track",      // ইমেজের '20-Step File Tracking'
+    "Cloud Manager",      // ইমেজের 'Cloud Manager'
+    "Mail Alerts"         // ইমেজের 'Auto Email Notifications'
+  ],
+  professional: [
+    "AI Assessment", 
+    "20-Step Track", 
+    "Cloud Manager", 
+    "Mail Alerts",
+    "Agent Network",      // ইমেজের 'Agent Network Hub'
+    "Team Hub",           // ইমেজের 'Team Hub & Task Scoring'
+    "Compliance Hub",     // ইমেজের 'Compliance Hub & Audit'
+    "Marketing Studio",   // ইমেজের 'Marketing Studio'
+    "Smart Invoice",      // ইমেজের 'Smart Invoice'
+    "QR Tracking"         // ইমেজের 'QR Code Tracking System'
+  ],
+  enterprise: [
+    "AI Assessment", 
+    "20-Step Track", 
+    "Cloud Manager", 
+    "Mail Alerts",
+    "Agent Network", 
+    "Team Hub", 
+    "Compliance Hub", 
+    "Marketing Studio", 
+    "Smart Invoice", 
+    "QR Tracking",
+    "Ticketing System",   // এন্টারপ্রাইজ বোনাস
+    "Priority Support"    // ইমেজের 'Dedicated Support'
+  ]
+};
 
+const hasAccess = (plan: string, featureName: string) => {
+  const currentPlan = plan?.toLowerCase() || 'starter';
+  return PLAN_FEATURES[currentPlan]?.includes(featureName) || false;
+};
 // --- FEATURE IMPORTS ---
-import { hasAccess, type PackageTier } from "../config/permissions"; // Path-ta check kore niyo
+
 import { Lock } from 'lucide-react'; // Lock icon-ta dorkar hobe
 import { AIAssessment } from "../components/dashboard/features/AIAssessment";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
@@ -26,7 +67,22 @@ export default function ClientDashboard() {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   
   // Manual package state (Testing-er jonno 'starter', 'pro' ba 'enterprise' likhe check koro)
-  const [userPackage, setUserPackage] = useState<PackageTier>('starter');
+  const [userPackage, setUserPackage] = useState<string>('starter');
+
+useEffect(() => {
+  const fetchUserData = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // ডেটাবেজ থেকে প্যাকেজটি স্টেট-এ সেট করা
+        setUserPackage(userData.package || 'starter'); 
+      }
+    }
+  };
+  fetchUserData();
+}, []);
   const [submissions] = useState([
     { id: 1, name: "Arif Ahmed", passport: "BE098712", status: "IN REVIEW", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
     { id: 2, name: "Sumaiya Khan", passport: "BW002145", status: "PROCESSING", url: "https://res.cloudinary.com/demo/image/upload/v1/samples/sample.pdf" },
@@ -42,18 +98,17 @@ export default function ClientDashboard() {
 const features = [
     { name: 'AI Assessment', icon: Zap },
     { name: 'Cloud Manager', icon: Camera },
-    { name: '20-Step Track', icon: BarChart },
+    { name: '20-Step Track', icon: BarChart }, // Sync with PLAN_FEATURES
     { name: 'Mail Alerts', icon: Bell },
     { name: 'Smart Invoice', icon: FileText },
     { name: 'Compliance Hub', icon: ShieldCheck },
     { name: 'Marketing Studio', icon: Globe },
     { name: 'QR Tracking', icon: Database },
     { name: 'Ticketing System', icon: Users },
-    { name: 'Priority Support', icon: MessageSquare }, // Ekhane comma (,) thakte hobe
+    { name: 'Priority Support', icon: MessageSquare },
     { name: 'Team Hub', icon: Users },
-    { name: 'Agent Network', icon: Users }, // Duplicate AI Assessment muche eita rakho
-    
-  ];
+    { name: 'Agent Network', icon: Users },
+];
 
   // Helper function to open Cloudinary PDF
   const openPdf = (url: string) => {

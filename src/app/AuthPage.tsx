@@ -64,18 +64,18 @@ const AuthPage = () => {
         const user = userCredential.user;
 
         await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          companyName,
-          authPersonName: authPerson,
-          contactNo,
-          address,
-          email,
-          package: selectedPackage,
-          nidUrl: nidUrl,
-          status: "pending",
-          role: "partner",
-          createdAt: new Date().toISOString()
-        });
+  uid: user.uid,
+  companyName,
+  authPersonName: authPerson,
+  contactNo,
+  address,
+  email,
+  package: selectedPackage.toLowerCase(), // 'Professional' কে 'professional' করে সেভ করবে
+  nidUrl: nidUrl,
+  status: "pending", // অ্যাডমিন এপ্রুভ না করা পর্যন্ত সে লগইন করতে পারবে না
+  role: "partner",
+  createdAt: new Date().toISOString()
+});
 
         alert("Registration Successful! Admin will review your application soon.");
         await signOut(auth); 
