@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Bot, Sparkles, Send } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { db, auth } from '../../../lib/firebase'; 
+import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// ১. ডাইনামিক কি লোডার (Vite এর জন্য import.meta.env ই ব্যবহার করতে হবে)
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(apiKey);
+// এখান থেকে পুরনো ৮ ও ৯ নম্বর লাইন মুছে ফেলে সরাসরি এক্সপোর্টে যান
 
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
@@ -16,18 +14,27 @@ export const AIAssessment = () => {
   const handleAssess = async () => {
     if (!studentProfile.trim()) return alert("Please type something first!");
 
-    // ১. কি-টি ফাংশনের ভেতরে নিয়ে আসুন
+    // ১. কি-টি সরাসরি ফাংশনের ভেতরে কল করুন
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    const genAI = new GoogleGenerativeAI(apiKey);
-
+    
     console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
 
     if (!apiKey) {
-      setResult("Error: API Key is missing. Please check your .env.local file and restart the server.");
+      setResult("Error: API Key is missing. Please ensure it is set in Vercel Settings and Redeployed.");
       return;
     }
 
+    // ২. জেনারেটিভ এআই অবজেক্ট এখানে তৈরি করুন
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
     setLoading(true);
+    try {
+       // আপনার বাকি লজিক এখানে থাকবে...
+    } catch (error) {
+       console.error(error);
+       setResult("An error occurred during assessment.");
+    } finally {
+       setLoading(false);
     try {
       // ২. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
