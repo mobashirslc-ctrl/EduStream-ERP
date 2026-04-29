@@ -10,48 +10,51 @@ export const AIAssessment = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-  if (!studentProfile.trim()) return;
+    if (!studentProfile.trim()) return;
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  setLoading(true);
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    setLoading(true);
 
-  try {
-    const uniSnapshot = await getDocs(collection(db, "universities"));
-    const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
+    try {
+      // ১. ইউনিভার্সিটি ডাটা ফেচ করা
+      const uniSnapshot = await getDocs(collection(db, "universities"));
+      const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-    // v1beta এন্ডপয়েন্ট ব্যবহার করা হচ্ছে যা বেশি স্ট্যাবল
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // ২. সরাসরি API রিকোয়েস্ট - এন্ডপয়েন্টটি খেয়াল করুন
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    const response = await axios.post(apiUrl, {
-      contents: [{
-        parts: [{
-          text: `You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student message: ${studentProfile}`
+      const response = await axios.post(apiUrl, {
+        contents: [{
+          role: "user", // রোলটি এখানে ডিফাইন করে দেওয়া ভালো
+          parts: [{
+            text: `System: You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student says: ${studentProfile}`
+          }]
         }]
-      }]
-    });
+      });
 
-    // রেসপন্স চেক করা
-    if (response.data && response.data.candidates) {
-      const aiText = response.data.candidates[0].content.parts[0].text;
-      setResult(aiText);
+      // ৩. ডাটা এক্সট্রাক্ট করা
+      if (response.data && response.data.candidates && response.data.candidates[0].content) {
+        const aiText = response.data.candidates[0].content.parts[0].text;
+        setResult(aiText);
 
-      if (auth.currentUser) {
-        await addDoc(collection(db, "assessments"), {
-          userId: auth.currentUser.uid,
-          input: studentProfile,
-          output: aiText,
-          timestamp: serverTimestamp()
-        });
+        // ৪. ফায়ারবেসে সেভ করা
+        if (auth.currentUser) {
+          await addDoc(collection(db, "assessments"), {
+            userId: auth.currentUser.uid,
+            input: studentProfile,
+            output: aiText,
+            timestamp: serverTimestamp()
+          });
+        }
       }
+    } catch (error) {
+      // ডিবাগ করার জন্য পুরো এররটি দেখা জরুরি
+      console.error("Detailed Error:", error.response?.data || error.message);
+      setResult("The counselor is taking a short break. Please try again in a few seconds.");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    // এরর ডিবাগিং এর জন্য এটি গুরুত্বপূর্ণ
-    console.error("Full Error Response:", error.response?.data); 
-    setResult("The counselor is taking a short break. Please try again in a few seconds.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   return (
     <div className="space-y-8">
       {/* Header Section */}
