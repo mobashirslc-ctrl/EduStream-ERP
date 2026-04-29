@@ -28,13 +28,14 @@ export const AIAssessment = () => {
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
       const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
-    systemInstruction: `You are 'EduStream Counselor'. Partner unis: [${ourUnis}].`
-}, { apiVersion: 'v1' });
+        model: "gemini-1.5-flash",
+      }, { apiVersion: 'v1' });
 
-      const chat = model.startChat();
-      const responseResult = await chat.sendMessage(studentProfile);
-      const responseText = responseResult.response.text();
+      // ৩. কন্টেন্ট জেনারেট করা (সিস্টেম ইনস্ট্রাকশন এখানে প্রম্পট হিসেবে পাঠানোই সবচেয়ে নিরাপদ)
+      const prompt = `System: You are 'EduStream Counselor'. Partner unis: [${ourUnis}].\nUser: ${studentProfile}`;
+      
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
 
       setResult(responseText);
 
