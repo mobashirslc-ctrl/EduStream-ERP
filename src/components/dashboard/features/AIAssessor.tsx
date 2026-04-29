@@ -3,7 +3,7 @@ import { Bot, Sparkles, Send } from 'lucide-react';
 
 export const AIAssessor = () => {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<null | string>(null); // Type safety added
+  const [result, setResult] = useState<null | string>(null);
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
@@ -12,16 +12,16 @@ export const AIAssessor = () => {
     setResult(null);
 
     try {
-      const cleanKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-      // v1 Stable URL ব্যবহার করা হয়েছে
-      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+      // এপিআই কী-এর আশেপাশে কোনো স্পেস নেই তো? সেটি নিশ্চিত করুন।
+      const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ 
-            parts: [{ text: `You are 'EduStream Counselor'. Analyze this student inquiry and provide professional guidance: ${studentProfile}` }] 
+          contents: [{
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze this: ${studentProfile}` }]
           }]
         })
       });
@@ -31,12 +31,13 @@ export const AIAssessor = () => {
       if (response.ok && data.candidates && data.candidates[0].content) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        console.error("API Detail Error:", data);
-        setResult("Counselor is currently busy. Please try again in a moment.");
+        // কনসোলে এরর ডিটেইল দেখার জন্য
+        console.error("Gemini API Error Detail:", data);
+        setResult("Counselor is configuring. Please check your internet or try later.");
       }
     } catch (error) {
       console.error("Network Error:", error);
-      setResult("Unable to connect. Please check your internet.");
+      setResult("Connection issue. Please refresh the page.");
     } finally {
       setLoading(false);
     }
@@ -44,7 +45,6 @@ export const AIAssessor = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
       <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
@@ -56,10 +56,9 @@ export const AIAssessor = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Input Card */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Type 'Hello' to start or share student details..."
+            placeholder="Describe the student profile..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
@@ -73,20 +72,18 @@ export const AIAssessor = () => {
           </button>
         </div>
 
-        {/* Output Card */}
         <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Counselor Assessment:</p>
+               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Assessment Result:</p>
                <div className="prose prose-invert max-w-none">
-                  {/* whitespace-pre-wrap ensures paragraphs are displayed correctly */}
                   <p className="text-lg font-medium leading-relaxed italic text-slate-200 whitespace-pre-wrap">{result}</p>
                </div>
             </div>
           ) : (
             <div className="m-auto text-center opacity-30">
                <Bot size={48} className="mx-auto mb-4" />
-               <p className="text-sm font-bold uppercase tracking-widest italic">Waiting for student profile...</p>
+               <p className="text-sm font-bold uppercase tracking-widest italic">Waiting for your message...</p>
             </div>
           )}
         </div>
