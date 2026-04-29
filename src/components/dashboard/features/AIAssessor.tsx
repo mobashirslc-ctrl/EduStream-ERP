@@ -1,44 +1,42 @@
 import React, { useState } from 'react';
 import { Bot, Sparkles, Send } from 'lucide-react';
-// axios দরকার নেই কারণ আপনি fetch ব্যবহার করছেন, তাই এটি রিমুভ করাই ভালো
-import { db, auth } from '../../../lib/firebase';
-import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// ১. এখানে অবশ্যই AIAssessor নাম ব্যবহার করুন (ফাইলের নামের সাথে মিল রেখে)
 export const AIAssessor = () => {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<null | string>(null);
+  const [result, setResult] = useState<null | string>(null); // Type safety added
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
     if (!studentProfile.trim()) return;
     setLoading(true);
+    setResult(null);
 
     try {
       const cleanKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}&cb=${Date.now()}`;
+      // v1 Stable URL ব্যবহার করা হয়েছে
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{ text: `You are 'EduStream Counselor'. Analyze: ${studentProfile}` }]
+          contents: [{ 
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze this student inquiry and provide professional guidance: ${studentProfile}` }] 
           }]
         })
       });
 
       const data = await response.json();
 
-      if (data.candidates && data.candidates[0].content) {
+      if (response.ok && data.candidates && data.candidates[0].content) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        console.error("Debug API Response:", data);
-        setResult("Counselor is updating. Please try one last time.");
+        console.error("API Detail Error:", data);
+        setResult("Counselor is currently busy. Please try again in a moment.");
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
-      setResult("Connection issue. Please refresh and try again.");
+      console.error("Network Error:", error);
+      setResult("Unable to connect. Please check your internet.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +59,7 @@ export const AIAssessor = () => {
         {/* Input Card */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Type 'Hello' to start..."
+            placeholder="Type 'Hello' to start or share student details..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
@@ -69,7 +67,7 @@ export const AIAssessor = () => {
           <button 
             onClick={handleAssess} 
             disabled={loading} 
-            className="w-full py-5 bg-[#12B2A3] text-white rounded-2xl font-black uppercase italic tracking-tighter hover:bg-teal-700 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95"
+            className="w-full py-5 bg-[#12B2A3] text-white rounded-2xl font-black uppercase italic tracking-tighter hover:bg-teal-700 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 disabled:opacity-50"
           >
             {loading ? "Counselor is thinking..." : <>Ask Counselor <Send size={18}/></>}
           </button>
@@ -79,20 +77,20 @@ export const AIAssessor = () => {
         <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Response:</p>
+               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Counselor Assessment:</p>
                <div className="prose prose-invert max-w-none">
-                  <p className="text-lg font-medium leading-relaxed italic text-slate-200">{result}</p>
+                  {/* whitespace-pre-wrap ensures paragraphs are displayed correctly */}
+                  <p className="text-lg font-medium leading-relaxed italic text-slate-200 whitespace-pre-wrap">{result}</p>
                </div>
             </div>
           ) : (
             <div className="m-auto text-center opacity-30">
                <Bot size={48} className="mx-auto mb-4" />
-               <p className="text-sm font-bold uppercase tracking-widest italic">Waiting for your message...</p>
+               <p className="text-sm font-bold uppercase tracking-widest italic">Waiting for student profile...</p>
             </div>
           )}
         </div>
       </div>
     </div>
   );
-}; 
-
+};
