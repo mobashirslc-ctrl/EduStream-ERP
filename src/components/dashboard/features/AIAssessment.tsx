@@ -24,15 +24,24 @@ export const AIAssessment = () => {
     const genAI = new GoogleGenerativeAI(apiKey);
     setLoading(true);
 
-    try {
+   try {
       // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-     // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
+      // ২. মডেল সেটআপ (এটি যোগ করতে হবে, না হলে ৩ নম্বর ধাপে এরর আসবে)
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: `You are 'EduStream Counselor'. 
+          - Greetings: Respond friendly as a human counselor.
+          - Context: Use partner universities: [${ourUnis}].
+          - Style: Professional yet warm.`
+      });
+
+      // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
       const chat = model.startChat();
       const responseResult = await chat.sendMessage(studentProfile);
-      const responseText = responseResult.response.text(); // সরাসরি টেক্সট নিন
+      const responseText = responseResult.response.text();
 
       setResult(responseText);
 
@@ -48,12 +57,10 @@ export const AIAssessment = () => {
 
     } catch (error) {
       console.error("AI Error:", error);
-      setResult("I'm having a bit of trouble connecting. Please ensure your API key is correct and restart the server.");
+      setResult("I'm having a bit of trouble connecting. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
-
   return (
     <div className="space-y-8">
       {/* Header Branding */}
