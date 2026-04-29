@@ -1,6 +1,8 @@
-/* ১. Tailwind-এর ডিরেক্টিভগুলো যোগ করুন (এটিই ডিজাইন ঠিক করবে) */
-@import "tailwindcss";
-/* আপনার আগের কোডগুলো নিচে দেওয়া হলো */
+/* ১. পুরনো সিনট্যাক্স ব্যবহার করুন যা Vercel-এ এরর দেবে না */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -26,8 +28,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
+/* মিডিয়া কোয়েরিটি :root-এর বাইরে রাখুন পরিষ্কার রাখার জন্য */
+@media (max-width: 1024px) {
+  :root {
     font-size: 16px;
   }
 }
