@@ -9,7 +9,7 @@ import { auth, db } from '../lib/firebase';
 import { doc, getDoc, collection, query, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // --- FEATURE COMPONENTS ---
-import { AIAssessment } from "../components/dashboard/features/AIAssessment";
+import AIAssessor from "../components/dashboard/features/AIAssessor";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
 import { Compliance } from "../components/dashboard/features/Compliance"; 
 import { MailAlerts } from "../components/dashboard/features/MailAlerts";
@@ -153,7 +153,7 @@ export default function ClientDashboard() {
               <button onClick={() => setActiveFeature(null)} className="p-3 hover:bg-white rounded-full text-slate-400 hover:text-rose-500 transition-colors"><X size={24} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-10 bg-slate-50/50">
-                {activeFeature === 'AI Assessment' && <AIAssessment />}
+                {activeFeature === 'AI Assessment' && <AIAssessor />}
                 {activeFeature === 'Cloud Manager' && <CloudManager />}
                 {activeFeature === '20-Step Track' && <TrackingSystem />}
                 {activeFeature === 'Mail Alerts' && <MailAlerts />}
