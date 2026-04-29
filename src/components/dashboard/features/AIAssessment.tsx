@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Send } from 'lucide-react'; // সঠিক প্যাকেজ
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Bot, Sparkles, Send } from 'lucide-react';
+import axios from 'axios'; // এটি ইন্সটল করতে হবে: npm install axios
 import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
@@ -10,47 +10,47 @@ export const AIAssessment = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return alert("Please type something first!");
+    if (!studentProfile.trim()) return;
 
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      setResult("Error: API Key is missing. Please check Vercel settings.");
-      return;
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
     setLoading(true);
 
     try {
+      // ১. ইউনিভার্সিটি ডাটা ফেচ করা
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // v1 ভার্সন ব্যবহার করা সবচেয়ে নিরাপদ
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // ২. সরাসরি API রিকোয়েস্ট (এটি SDK এর এররগুলো বাইপাস করবে)
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          contents: [{
+            parts: [{
+              text: `You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student says: ${studentProfile}`
+            }]
+          }]
+        }
+      );
 
-// প্রম্পটটিকে এভাবে সাজান
-const prompt = `System: You are 'EduStream Counselor'. Partner unis: [${ourUnis}]. Student: ${studentProfile}`;
+      const aiText = response.data.candidates[0].content.parts[0].text;
+      setResult(aiText);
 
-const result = await model.generateContent(prompt);
-const response = await result.response;
-const text = response.text();
-setResult(text);
+      // ৩. ফায়ারবেসে সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
           input: studentProfile,
-          output: responseText,
+          output: aiText,
           timestamp: serverTimestamp()
         });
       }
     } catch (error) {
-      console.error("AI Error:", error);
-      setResult("I'm having a bit of trouble connecting. Please try again.");
+      console.error("API Error:", error);
+      setResult("Counselor is busy right now. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="space-y-8">
       {/* Header Section */}
