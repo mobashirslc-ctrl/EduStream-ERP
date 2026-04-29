@@ -5,50 +5,51 @@ import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
 // Environment variable থেকে কী নেওয়া হচ্ছে
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
+               (import.meta as any).env?.VITE_GEMINI_API_KEY || 
+               "";
 
+const genAI = new GoogleGenerativeAI(apiKey);
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
   const [studentProfile, setStudentProfile] = useState("");
 
-  const handleAssess = async () => {
-    if (!studentProfile.trim()) return alert("Please type something first!");
-    setLoading(true);
+  // handleAssess ফাংশনটির ভেতর এইভাবে সাজান:
 
-    try {
-      // ১. ফায়ারস্টোর থেকে ইউনিভার্সিটি ডাটা ফেচ করা
-      const uniSnapshot = await getDocs(collection(db, "universities"));
-      const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
+const handleAssess = async () => {
+  if (!studentProfile.trim()) return alert("Please type something first!");
+  setLoading(true);
 
-      // ২. মডেল কনফিগারেশন (EduStream Counselor ব্যক্তিত্ব সেট করা)
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: "You are 'EduStream Counselor', a friendly and professional expert from EduStream. Your job is to help partners and students with university admissions. If the user says 'hello' or greets you, respond warmly in a conversational style like: 'Hello! I am your EduStream Counselor. How can I help you today regarding your higher education plans?'. If they provide student details, first check if they fit these partner universities: [" + ourUnis + "]. If not, provide general expert advice from your own knowledge. Always stay in character as EduStream Counselor."
-      });
+  try {
+    // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
+    const uniSnapshot = await getDocs(collection(db, "universities"));
+    const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      const chat = model.startChat();
-      const responseResult = await chat.sendMessage(studentProfile);
-      const response = await responseResult.response;
-      const text = response.text();
+    // ২. মডেল সেটআপ (এখনেই আপনার কোডটি বসবে)
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      systemInstruction: `You are 'EduStream Counselor'. 
+        - If the user says "hello" or greets you, respond as a friendly human counselor: "Hello! I am your EduStream Counselor. How are you today? I'm here to help with your university admission plans."
+        - If they provide student details, try to match with our partner universities: [${ourUnis}].
+        - If no match is found, act as a general AI counselor and give your best advice based on your own knowledge. 
+        - Always maintain a professional yet warm tone.`
+    });
 
-      // ৩. ডাটাবেসে সেভ (অপশনাল, কিন্তু ট্র্যাকিংয়ের জন্য ভালো)
-      await addDoc(collection(db, "assessments"), {
-        userId: auth.currentUser?.uid,
-        userInput: studentProfile,
-        aiResponse: text,
-        createdAt: serverTimestamp(),
-      });
+    // ৩. মেসেজ পাঠানো
+    const chat = model.startChat();
+    const responseResult = await chat.sendMessage(studentProfile);
+    const response = await responseResult.response;
+    const text = response.text();
 
-      setResult(text);
-    } catch (error) {
-      console.error("AI Error:", error);
-      setResult("I'm having a bit of trouble connecting. Please ensure your API Key is set correctly in .env.local and restart your server.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    setResult(text);
+  } catch (error) {
+    console.error("AI Error:", error);
+    setResult("I'm having a bit of trouble connecting. Please check your API key and restart the server.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="space-y-8">
       {/* Updated Header Branding */}
