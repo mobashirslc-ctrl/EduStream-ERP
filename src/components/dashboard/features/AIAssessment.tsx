@@ -4,11 +4,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase'; 
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// ১. ডাইনামিক কি লোডার (Vite এবং Next.js দুটোর জন্যই নিরাপদ)
-const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
-               (process.env.NEXT_PUBLIC_GEMINI_API_KEY) || 
-               "";
-
+// ১. ডাইনামিক কি লোডার (Vite এর জন্য import.meta.env ই ব্যবহার করতে হবে)
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export const AIAssessment = () => {
@@ -22,6 +19,11 @@ export const AIAssessment = () => {
     // কনসোল চেক: কি লোড হয়েছে কি না দেখার জন্য
     console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
     
+    if (!apiKey) {
+      setResult("Error: API Key is missing. Please check your .env.local file and restart the server.");
+      return;
+    }
+
     setLoading(true);
 
     try {
