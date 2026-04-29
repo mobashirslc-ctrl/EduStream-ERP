@@ -15,17 +15,19 @@ export const AIAssessment = () => {
 
   const handleAssess = async () => {
     if (!studentProfile.trim()) return alert("Please type something first!");
-    
-    // কনসোল চেক: কি লোড হয়েছে কি না দেখার জন্য
+
+    // ১. কি-টি ফাংশনের ভেতরে নিয়ে আসুন
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const genAI = new GoogleGenerativeAI(apiKey);
+
     console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
-    
+
     if (!apiKey) {
       setResult("Error: API Key is missing. Please check your .env.local file and restart the server.");
       return;
     }
 
     setLoading(true);
-
     try {
       // ২. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
