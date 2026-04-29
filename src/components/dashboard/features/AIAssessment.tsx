@@ -1,61 +1,73 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Send, CheckCircle2 } from 'lucide-react';
+import { Bot, Sparkles, Send } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase'; 
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// ডাইনামিক কি লোডার
+// ১. ডাইনামিক কি লোডার (Vite এবং Next.js দুটোর জন্যই নিরাপদ)
 const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
-               process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
+               (process.env.NEXT_PUBLIC_GEMINI_API_KEY) || 
                "";
 
 const genAI = new GoogleGenerativeAI(apiKey);
+
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
   const [studentProfile, setStudentProfile] = useState("");
 
-  // handleAssess ফাংশনটির ভেতর এইভাবে সাজান:
+  const handleAssess = async () => {
+    if (!studentProfile.trim()) return alert("Please type something first!");
+    
+    // কনসোল চেক: কি লোড হয়েছে কি না দেখার জন্য
+    console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
+    
+    setLoading(true);
 
-const handleAssess = async () => {
-  if (!studentProfile.trim()) return alert("Please type something!");
-  console.log("Checking API Key:", apiKey ? "Loaded ✅" : "Missing ❌"); // এটি যোগ করুন
-  setLoading(true);
+    try {
+      // ২. ফায়ারস্টোর থেকে ডাটা নেওয়া
+      const uniSnapshot = await getDocs(collection(db, "universities"));
+      const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-  try {
-    // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
-    const uniSnapshot = await getDocs(collection(db, "universities"));
-    const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
+      // ৩. মডেল সেটআপ ও সিস্টেম ইনস্ট্রাকশন
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: `You are 'EduStream Counselor'. 
+          - If the user says "hello" or greets you, respond as a friendly human counselor: "Hello! I am your EduStream Counselor. How are you today? I'm here to help with your university admission plans."
+          - If they provide student details, try to match with our partner universities: [${ourUnis}].
+          - If no match is found, act as a general AI counselor and give your best advice based on your own knowledge. 
+          - Always maintain a professional yet warm tone.`
+      });
 
-    // ২. মডেল সেটআপ (এখনেই আপনার কোডটি বসবে)
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      systemInstruction: `You are 'EduStream Counselor'. 
-        - If the user says "hello" or greets you, respond as a friendly human counselor: "Hello! I am your EduStream Counselor. How are you today? I'm here to help with your university admission plans."
-        - If they provide student details, try to match with our partner universities: [${ourUnis}].
-        - If no match is found, act as a general AI counselor and give your best advice based on your own knowledge. 
-        - Always maintain a professional yet warm tone.`
-    });
+      // ৪. মেসেজ পাঠানো
+      const chat = model.startChat();
+      const responseResult = await chat.sendMessage(studentProfile);
+      const response = await responseResult.response;
+      const text = response.text();
 
-    // ৩. মেসেজ পাঠানো
-    const chat = model.startChat();
-    const responseResult = await chat.sendMessage(studentProfile);
-    const response = await responseResult.response;
-    const text = response.text();
+      setResult(text);
 
-    setResult(text);
-  } catch (error) {
-    console.error("AI Error:", error);
-    setResult("I'm having a bit of trouble connecting. Please check your API key and restart the server.");
-  } finally {
-    setLoading(false);
-  }
-};
+      // ৫. অপশনাল: হিস্ট্রি সেভ করা
+      if (auth.currentUser) {
+        await addDoc(collection(db, "assessments"), {
+          userId: auth.currentUser.uid,
+          input: studentProfile,
+          output: text,
+          timestamp: serverTimestamp()
+        });
+      }
+
+    } catch (error) {
+      console.error("AI Error:", error);
+      setResult("I'm having a bit of trouble connecting. Please ensure your API key is correct and restart the server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Updated Header Branding */}
+      {/* Header Branding */}
       <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
@@ -67,10 +79,10 @@ const handleAssess = async () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Input area */}
+        {/* Input Area */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Type 'Hello' or share student details (CGPA, IELTS, Country)..."
+            placeholder="Type 'Hello' or share student details..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
