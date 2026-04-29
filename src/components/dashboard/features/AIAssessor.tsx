@@ -96,5 +96,3 @@ export const AIAssessor = () => {
   );
 }; 
 
-// ২. এখানেও নাম নিশ্চিত করুন
-export { AIAssessor };
