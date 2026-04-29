@@ -24,21 +24,32 @@ export const AIAssessment = () => {
     setLoading(true);
 
     try {
+      // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
+      // ২. মডেল সেটআপ (সরাসরি ভার্সন সহ)
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemini-1.5-flash" 
       }, { apiVersion: 'v1' });
 
-      // ৩. কন্টেন্ট জেনারেট করা (সিস্টেম ইনস্ট্রাকশন এখানে প্রম্পট হিসেবে পাঠানোই সবচেয়ে নিরাপদ)
-      const prompt = `System: You are 'EduStream Counselor'. Partner unis: [${ourUnis}].\nUser: ${studentProfile}`;
-      
-      const result = await model.generateContent(prompt);
+      // ৩. সিস্টেম ইনস্ট্রাকশনকে প্রম্পটের সাথে যুক্ত করা (এটিই সমাধান)
+      const finalPrompt = `
+        System Instruction: You are 'EduStream Counselor'. 
+        You help students with admission information. 
+        Our partner universities are: [${ourUnis}].
+        Always be professional and helpful.
+
+        User Message: ${studentProfile}
+      `;
+
+      // ৪. কন্টেন্ট জেনারেট করা
+      const result = await model.generateContent(finalPrompt);
       const responseText = result.response.text();
 
       setResult(responseText);
 
+      // ৫. হিস্ট্রি সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
@@ -47,13 +58,13 @@ export const AIAssessment = () => {
           timestamp: serverTimestamp()
         });
       }
+
     } catch (error) {
       console.error("AI Error:", error);
       setResult("I'm having a bit of trouble connecting. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
 
   return (
     <div className="space-y-8">
