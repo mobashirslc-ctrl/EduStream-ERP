@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Send } from 'lucide-react';
+import { Bot, Sparkles, Send } from 'lucide-react'; // সঠিক প্যাকেজ
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -13,10 +13,8 @@ export const AIAssessment = () => {
     if (!studentProfile.trim()) return alert("Please type something first!");
 
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
-
     if (!apiKey) {
-      setResult("Error: API Key is missing. Please ensure it is set in Vercel Settings.");
+      setResult("Error: API Key is missing. Please check Vercel settings.");
       return;
     }
 
@@ -27,20 +25,16 @@ export const AIAssessment = () => {
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // সরাসরি v1 ভার্সন কল করা এবং সিস্টেম ইনস্ট্রাকশন ছাড়া মডেল তৈরি
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash" 
-      }, { apiVersion: 'v1' });
+      // v1 ভার্সন ব্যবহার করা সবচেয়ে নিরাপদ
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
 
-      // ইনস্ট্রাকশনটি সরাসরি প্রম্পটের সাথে মিশিয়ে দেওয়া (সবচেয়ে নিরাপদ পদ্ধতি)
-      const finalPrompt = `
-        System Instruction: You are 'EduStream Counselor'. 
-        Respond friendly. Our partner universities are: [${ourUnis}].
-        
-        User Message: ${studentProfile}
+      const prompt = `
+        System: You are 'EduStream Counselor'. Always be professional.
+        Context: Our partner universities are [${ourUnis}].
+        Student Message: ${studentProfile}
       `;
 
-      const result = await model.generateContent(finalPrompt);
+      const result = await model.generateContent(prompt);
       const responseText = result.response.text();
 
       setResult(responseText);
@@ -53,7 +47,6 @@ export const AIAssessment = () => {
           timestamp: serverTimestamp()
         });
       }
-
     } catch (error) {
       console.error("AI Error:", error);
       setResult("I'm having a bit of trouble connecting. Please try again.");
@@ -64,20 +57,22 @@ export const AIAssessment = () => {
 
   return (
     <div className="space-y-8">
+      {/* Header Section */}
       <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
             <Sparkles className="text-teal-400" /> EduStream Counselor
           </h2>
-          <p className="text-teal-100/70 text-xs font-bold uppercase tracking-[0.3em]">Your AI-Powered Admission Partner</p>
+          <p className="text-teal-100/70 text-xs font-bold uppercase tracking-[0.3em]">AI-Powered Admission Partner</p>
         </div>
         <Bot className="absolute right-[-20px] bottom-[-20px] text-teal-800/30 rotate-12" size={180} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Input Card */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Type 'Hello'..."
+            placeholder="Type 'Hello' to start..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
@@ -91,10 +86,11 @@ export const AIAssessment = () => {
           </button>
         </div>
 
+        {/* Output Card */}
         <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Counselor Response:</p>
+               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Response:</p>
                <div className="prose prose-invert max-w-none">
                   <p className="text-lg font-medium leading-relaxed italic text-slate-200">{result}</p>
                </div>
