@@ -14,24 +14,28 @@ export const AIAssessment = () => {
     setLoading(true);
 
     try {
-      // এটি ভার্সেল ক্যাশকে বাইপাস করতে সাহায্য করবে
-      const cacheBuster = new Date().getTime();
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg&cb=${cacheBuster}`;
+      // আপনার নতুন কাজ করা এপিআই কী
+      const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await axios.post(apiUrl, {
         contents: [{
+          role: "user", // এটি যোগ করা অনেক সময় জরুরি হয়
           parts: [{
-            text: `You are 'EduStream Counselor'. Student says: ${studentProfile}`
+            text: `You are 'EduStream Counselor'. Evaluate this student profile: ${studentProfile}`
           }]
         }]
+      }, {
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
         setResult(response.data.candidates[0].content.parts[0].text);
       }
     } catch (error) {
-      console.error("Final Error Trace:", error.response?.data || error.message);
-      setResult("Almost there! Please try one last time.");
+      // ৪০০ এরর হলে এখানে বিস্তারিত দেখা যাবে
+      console.error("Payload Error:", error.response?.data);
+      setResult("I'm fine-tuning my response. Please try one more time!");
     } finally {
       setLoading(false);
     }
