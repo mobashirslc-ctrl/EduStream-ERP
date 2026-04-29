@@ -28,9 +28,9 @@ export const AIAssessment = () => {
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: `You are 'EduStream Counselor'. Partner unis: [${ourUnis}].`
-      });
+    model: "gemini-1.5-flash",
+    systemInstruction: `You are 'EduStream Counselor'. Partner unis: [${ourUnis}].`
+}, { apiVersion: 'v1' });
 
       const chat = model.startChat();
       const responseResult = await chat.sendMessage(studentProfile);
