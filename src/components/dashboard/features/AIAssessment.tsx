@@ -29,30 +29,19 @@ export const AIAssessment = () => {
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. মডেল সেটআপ
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: `You are 'EduStream Counselor'. 
-          - If the user says "hello" or greets you, respond as a friendly human counselor: "Hello! I am your EduStream Counselor. How are you today? I'm here to help with your university admission plans."
-          - If they provide student details, try to match with our partner universities: [${ourUnis}].
-          - If no match is found, act as a general AI counselor and give your best advice based on your own knowledge. 
-          - Always maintain a professional yet warm tone.`
-      });
-
-      // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
+     // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
       const chat = model.startChat();
       const responseResult = await chat.sendMessage(studentProfile);
-      const response = await responseResult.response;
-      const text = response.text();
+      const responseText = responseResult.response.text(); // সরাসরি টেক্সট নিন
 
-      setResult(text);
+      setResult(responseText);
 
       // ৪. হিস্ট্রি সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
           input: studentProfile,
-          output: text,
+          output: responseText,
           timestamp: serverTimestamp()
         });
       }
