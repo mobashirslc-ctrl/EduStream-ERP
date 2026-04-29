@@ -95,3 +95,4 @@ export const AIAssessment = () => {
     </div>
   );
 };
+export default AIAssessor;
