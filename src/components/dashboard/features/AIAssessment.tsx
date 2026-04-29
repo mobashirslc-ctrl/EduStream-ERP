@@ -5,11 +5,15 @@ import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
 // Environment variable থেকে কী নেওয়া হচ্ছে
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
-               (import.meta as any).env?.VITE_GEMINI_API_KEY || 
-               "";
+const getApiKey = () => {
+  // Next.js এর জন্য
+  if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) return process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  // Vite এর জন্য
+  if ((import.meta as any).env?.VITE_GEMINI_API_KEY) return (import.meta as any).env.VITE_GEMINI_API_KEY;
+  return "";
+};
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = new GoogleGenerativeAI(getApiKey());
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
