@@ -14,16 +14,14 @@ export const AIAssessment = () => {
     setLoading(true);
 
     try {
-      const uniSnapshot = await getDocs(collection(db, "universities"));
-      const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
-
-      // সরাসরি আপনার নতুন কী এবং সঠিক ইউআরএল ব্যবহার করা হচ্ছে
-      const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+      // এটি ভার্সেল ক্যাশকে বাইপাস করতে সাহায্য করবে
+      const cacheBuster = new Date().getTime();
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg&cb=${cacheBuster}`;
 
       const response = await axios.post(apiUrl, {
         contents: [{
           parts: [{
-            text: `You are 'EduStream Counselor'. Partner universities: [${ourUnis}]. Student inquiry: ${studentProfile}`
+            text: `You are 'EduStream Counselor'. Student says: ${studentProfile}`
           }]
         }]
       });
@@ -33,7 +31,7 @@ export const AIAssessment = () => {
       }
     } catch (error) {
       console.error("Final Error Trace:", error.response?.data || error.message);
-      setResult("Counselor is slightly delayed. Please click Ask again.");
+      setResult("Almost there! Please try one last time.");
     } finally {
       setLoading(false);
     }
