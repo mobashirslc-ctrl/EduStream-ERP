@@ -12,36 +12,35 @@ export const AIAssessor = () => {
     setResult(null);
 
     try {
-      // আপনার দেওয়া নতুন এপিআই কী এখানে বসানো হয়েছে
-      const apiKey = "AIzaSyATmFPGWYTdwgE3m4hE3eAqfnBatpZEBAM";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      const apiKey = "AIzaSyATmFPGWYTdwgE3m4hE3eAqfnBatpZEBAM"; 
+      
+      // পরিবর্তন এখানে: v1beta এর বদলে v1 ব্যবহার করা হয়েছে
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{
-            parts: [{ text: `You are 'EduStream Counselor'. Analyze this and give a professional assessment: ${studentProfile}` }]
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze this: ${studentProfile}` }]
           }]
         })
       });
 
       const data = await response.json();
 
-      if (response.ok && data.candidates && data.candidates[0].content) {
+      if (response.ok && data.candidates) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        console.error("API Error Detail:", data);
-        setResult("Counselor is updating. Please try again or check your API key status.");
+        console.error("Gemini Error Detail:", data);
+        setResult("Counselor is busy. Please try again in a moment.");
       }
     } catch (error) {
-      console.error("Network Error:", error);
-      setResult("Connection issue. Please refresh the page.");
+      setResult("Network error. Please refresh.");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="space-y-8">
       {/* Header Section */}
