@@ -26,19 +26,19 @@ export const AIAssessment = () => {
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
       // v1 ভার্সন ব্যবহার করা সবচেয়ে নিরাপদ
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
 
-      const prompt = `
-        System: You are 'EduStream Counselor'. Always be professional.
-        Context: Our partner universities are [${ourUnis}].
-        Student Message: ${studentProfile}
-      `;
+      // ২. প্রম্পট তৈরি
+      const prompt = `System: You are 'EduStream Counselor'. Context: Our partner universities are [${ourUnis}]. Student says: ${studentProfile}`;
 
+      // ৩. কন্টেন্ট জেনারেট করা
       const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
+      
+      // গুরুত্বপূর্ণ: responseText নেওয়ার আগে response চেক করা
+      const response = await result.response;
+      const text = response.text();
 
-      setResult(responseText);
-
+      setResult(text);
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
