@@ -1,49 +1,49 @@
 import React, { useState } from 'react';
 import { Bot, Sparkles, Send } from 'lucide-react';
-import axios from 'axios'; // এটি ইন্সটল করতে হবে: npm install axios
+// axios দরকার নেই কারণ আপনি fetch ব্যবহার করছেন, তাই এটি রিমুভ করাই ভালো
 import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-export const AIAssessment = () => {
+// ১. এখানে অবশ্যই AIAssessor নাম ব্যবহার করুন (ফাইলের নামের সাথে মিল রেখে)
+export const AIAssessor = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-  if (!studentProfile.trim()) return;
-  setLoading(true);
+    if (!studentProfile.trim()) return;
+    setLoading(true);
 
-  try {
-    // সরাসরি ফ্রেশ এপিআই কী
-    const cleanKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-    // টাইমস্ট্যাম্প যোগ করা হয়েছে ক্যাশ বাইপাস করতে
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}&cb=${Date.now()}`;
+    try {
+      const cleanKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}&cb=${Date.now()}`;
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: `You are 'EduStream Counselor'. Analyze: ${studentProfile}` }]
-        }]
-      })
-    });
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze: ${studentProfile}` }]
+          }]
+        })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.candidates && data.candidates[0].content) {
-      setResult(data.candidates[0].content.parts[0].text);
-    } else {
-      console.error("Debug API Response:", data);
-      setResult("Counselor is updating. Please try one last time.");
+      if (data.candidates && data.candidates[0].content) {
+        setResult(data.candidates[0].content.parts[0].text);
+      } else {
+        console.error("Debug API Response:", data);
+        setResult("Counselor is updating. Please try one last time.");
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      setResult("Connection issue. Please refresh and try again.");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Fetch Error:", error);
-    setResult("Connection issue. Please refresh and try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -94,5 +94,7 @@ export const AIAssessment = () => {
       </div>
     </div>
   );
-};
-export default AIAssessor;
+}; 
+
+// ২. এখানেও নাম নিশ্চিত করুন
+export { AIAssessor };
