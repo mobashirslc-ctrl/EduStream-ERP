@@ -12,31 +12,31 @@ export const AIAssessor = () => {
     setResult(null);
 
     try {
-      // এই কী-টি একদম নির্ভুলভাবে কপি হয়েছে কিনা নিশ্চিত করুন
-      const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-      
-      // আমরা মডেলের নাম সরাসরি বলে দিচ্ছি
+      // আপনার দেওয়া নতুন এপিআই কী এখানে বসানো হয়েছে
+      const apiKey = "AIzaSyATmFPGWYTdwgE3m4hE3eAqfnBatpZEBAM";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: studentProfile }] }]
+          contents: [{
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze this and give a professional assessment: ${studentProfile}` }]
+          }]
         })
       });
 
       const data = await response.json();
 
-      if (response.ok && data.candidates) {
+      if (response.ok && data.candidates && data.candidates[0].content) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        console.error("DEBUG ERROR:", data);
-        // যদি এখনো ৪০৪ আসে, তবে বুঝতে হবে এপিআই কী পাল্টাতে হবে
-        setResult(`Error ${response.status}: Please verify your API Key in Google AI Studio.`);
+        console.error("API Error Detail:", data);
+        setResult("Counselor is updating. Please try again or check your API key status.");
       }
     } catch (error) {
-      setResult("Connection lost. Check your wifi.");
+      console.error("Network Error:", error);
+      setResult("Connection issue. Please refresh the page.");
     } finally {
       setLoading(false);
     }
@@ -44,6 +44,7 @@ export const AIAssessor = () => {
 
   return (
     <div className="space-y-8">
+      {/* Header Section */}
       <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
@@ -55,9 +56,10 @@ export const AIAssessor = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Input Card */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Describe the student profile..."
+            placeholder="Type 'Hello' to start or share student details..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
@@ -71,10 +73,11 @@ export const AIAssessor = () => {
           </button>
         </div>
 
+        {/* Output Card */}
         <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Assessment Result:</p>
+               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Response:</p>
                <div className="prose prose-invert max-w-none">
                   <p className="text-lg font-medium leading-relaxed italic text-slate-200 whitespace-pre-wrap">{result}</p>
                </div>
