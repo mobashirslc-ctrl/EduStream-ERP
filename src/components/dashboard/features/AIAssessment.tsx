@@ -22,7 +22,6 @@ export const AIAssessment = () => {
 
       // ২. সরাসরি API রিকোয়েস্ট - এন্ডপয়েন্টটি খেয়াল করুন
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
       const response = await axios.post(apiUrl, {
         contents: [{
           role: "user", // রোলটি এখানে ডিফাইন করে দেওয়া ভালো
