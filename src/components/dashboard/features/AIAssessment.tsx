@@ -10,32 +10,31 @@ export const AIAssessment = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return;
+  if (!studentProfile.trim()) return;
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    setLoading(true);
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  setLoading(true);
 
-    try {
-      // ১. ইউনিভার্সিটি ডাটা ফেচ করা
-      const uniSnapshot = await getDocs(collection(db, "universities"));
-      const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
+  try {
+    const uniSnapshot = await getDocs(collection(db, "universities"));
+    const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. সরাসরি API রিকোয়েস্ট (এটি SDK এর এররগুলো বাইপাস করবে)
-      const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          contents: [{
-            parts: [{
-              text: `You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student says: ${studentProfile}`
-            }]
-          }]
-        }
-      );
+    // v1beta এন্ডপয়েন্ট ব্যবহার করা হচ্ছে যা বেশি স্ট্যাবল
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
+    const response = await axios.post(apiUrl, {
+      contents: [{
+        parts: [{
+          text: `You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student message: ${studentProfile}`
+        }]
+      }]
+    });
+
+    // রেসপন্স চেক করা
+    if (response.data && response.data.candidates) {
       const aiText = response.data.candidates[0].content.parts[0].text;
       setResult(aiText);
 
-      // ৩. ফায়ারবেসে সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
@@ -44,13 +43,15 @@ export const AIAssessment = () => {
           timestamp: serverTimestamp()
         });
       }
-    } catch (error) {
-      console.error("API Error:", error);
-      setResult("Counselor is busy right now. Please try again in a moment.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    // এরর ডিবাগিং এর জন্য এটি গুরুত্বপূর্ণ
+    console.error("Full Error Response:", error.response?.data); 
+    setResult("The counselor is taking a short break. Please try again in a few seconds.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="space-y-8">
       {/* Header Section */}
