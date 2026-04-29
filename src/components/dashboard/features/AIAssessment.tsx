@@ -4,52 +4,46 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase'; 
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// আপনার দেওয়া API Key
+// Environment variable থেকে কী নেওয়া হচ্ছে
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return alert("Please enter student details!");
+    if (!studentProfile.trim()) return alert("Please type something first!");
     setLoading(true);
 
     try {
-      // ১. ফায়ারস্টোর থেকে আমাদের ইউনিভার্সিটি ডাটা নেওয়া
+      // ১. ফায়ারস্টোর থেকে ইউনিভার্সিটি ডাটা ফেচ করা
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. Gemini-র জন্য প্রম্পট তৈরি করা
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `
-        You are an expert student counselor. 
-        Student Profile: ${studentProfile}
-        Our Partner Universities: ${ourUnis || "Not specified in local database"}
-        
-        Task: 
-        1. If any university from "Our Partner Universities" matches the student profile, suggest them first.
-        2. If no match is found in our list, use your own knowledge to suggest best global universities.
-        3. Provide scholarship probability and key advice.
-        Keep the tone professional and encouraging.
-      `;
+      // ২. মডেল কনফিগারেশন (EduStream Counselor ব্যক্তিত্ব সেট করা)
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are 'EduStream Counselor', a friendly and professional expert from EduStream. Your job is to help partners and students with university admissions. If the user says 'hello' or greets you, respond warmly in a conversational style like: 'Hello! I am your EduStream Counselor. How can I help you today regarding your higher education plans?'. If they provide student details, first check if they fit these partner universities: [" + ourUnis + "]. If not, provide general expert advice from your own knowledge. Always stay in character as EduStream Counselor."
+      });
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
+      const chat = model.startChat();
+      const responseResult = await chat.sendMessage(studentProfile);
+      const response = await responseResult.response;
       const text = response.text();
 
-      // ৩. ডাটাবেসে সেভ করা
+      // ৩. ডাটাবেসে সেভ (অপশনাল, কিন্তু ট্র্যাকিংয়ের জন্য ভালো)
       await addDoc(collection(db, "assessments"), {
         userId: auth.currentUser?.uid,
-        profileDetails: studentProfile,
-        aiFeedback: text,
+        userInput: studentProfile,
+        aiResponse: text,
         createdAt: serverTimestamp(),
       });
 
       setResult(text);
     } catch (error) {
       console.error("AI Error:", error);
-      setResult("AI logic connected, but please check your internet or API limits.");
+      setResult("I'm having a bit of trouble connecting. Please ensure your API Key is set correctly in .env.local and restart your server.");
     } finally {
       setLoading(false);
     }
@@ -57,33 +51,51 @@ export const AIAssessment = () => {
 
   return (
     <div className="space-y-8">
-      {/* UI Code (আগের মতোই থাকবে, শুধু লোডিং স্টেট এবং রেজাল্ট পার্টটি আপডেট হবে) */}
-      <div className="bg-teal-900 rounded-[2rem] p-8 text-white relative overflow-hidden">
-        <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
-          <Bot className="text-teal-400" /> Live Gemini AI
-        </h2>
+      {/* Updated Header Branding */}
+      <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
+        <div className="relative z-10">
+          <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
+            <Sparkles className="text-teal-400" /> EduStream Counselor
+          </h2>
+          <p className="text-teal-100/70 text-xs font-bold uppercase tracking-[0.3em]">Your AI-Powered Admission Partner</p>
+        </div>
+        <Bot className="absolute right-[-20px] bottom-[-20px] text-teal-800/30 rotate-12" size={180} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Input area */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Describe student's profile (e.g. CGPA 3.5, IELTS 6.5, interested in UK)..."
+            placeholder="Type 'Hello' or share student details (CGPA, IELTS, Country)..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
-            className="w-full h-44 p-5 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
           />
-          <button onClick={handleAssess} disabled={loading} className="w-full py-5 bg-[#12B2A3] text-white rounded-2xl font-black uppercase italic tracking-tighter shadow-lg">
-            {loading ? "Gemini is thinking..." : "Get Live Assessment"}
+          <button 
+            onClick={handleAssess} 
+            disabled={loading} 
+            className="w-full py-5 bg-[#12B2A3] text-white rounded-2xl font-black uppercase italic tracking-tighter hover:bg-teal-700 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95"
+          >
+            {loading ? "Counselor is thinking..." : <>Ask Counselor <Send size={18}/></>}
           </button>
         </div>
 
-        <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl overflow-y-auto">
+        {/* AI Result Area */}
+        <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
-            <div className="prose prose-invert">
-              <p className="whitespace-pre-wrap italic leading-relaxed text-slate-100">{result}</p>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Counselor Response:</p>
+               <div className="prose prose-invert max-w-none">
+                  <p className="text-lg font-medium leading-relaxed italic text-slate-200">
+                    {result}
+                  </p>
+               </div>
             </div>
           ) : (
-            <p className="m-auto text-center text-slate-500 italic">Waiting for profile analysis...</p>
+            <div className="m-auto text-center opacity-30">
+               <Bot size={48} className="mx-auto mb-4" />
+               <p className="text-sm font-bold uppercase tracking-widest italic">Waiting for your message...</p>
+            </div>
           )}
         </div>
       </div>
