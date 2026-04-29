@@ -4,16 +4,14 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase'; 
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// Environment variable থেকে কী নেওয়া হচ্ছে
-const getApiKey = () => {
-  // Next.js এর জন্য
-  if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) return process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  // Vite এর জন্য
-  if ((import.meta as any).env?.VITE_GEMINI_API_KEY) return (import.meta as any).env.VITE_GEMINI_API_KEY;
-  return "";
-};
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(getApiKey());
+// ডাইনামিক কি লোডার
+const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
+               process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
+               "";
+
+const genAI = new GoogleGenerativeAI(apiKey);
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
@@ -22,7 +20,8 @@ export const AIAssessment = () => {
   // handleAssess ফাংশনটির ভেতর এইভাবে সাজান:
 
 const handleAssess = async () => {
-  if (!studentProfile.trim()) return alert("Please type something first!");
+  if (!studentProfile.trim()) return alert("Please type something!");
+  console.log("Checking API Key:", apiKey ? "Loaded ✅" : "Missing ❌"); // এটি যোগ করুন
   setLoading(true);
 
   try {
