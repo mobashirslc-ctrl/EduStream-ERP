@@ -12,32 +12,31 @@ export const AIAssessor = () => {
     setResult(null);
 
     try {
-      // এপিআই কী-এর আশেপাশে কোনো স্পেস নেই তো? সেটি নিশ্চিত করুন।
+      // এই কী-টি একদম নির্ভুলভাবে কপি হয়েছে কিনা নিশ্চিত করুন
       const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      
+      // আমরা মডেলের নাম সরাসরি বলে দিচ্ছি
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{ text: `You are 'EduStream Counselor'. Analyze this: ${studentProfile}` }]
-          }]
+          contents: [{ parts: [{ text: studentProfile }] }]
         })
       });
 
       const data = await response.json();
 
-      if (response.ok && data.candidates && data.candidates[0].content) {
+      if (response.ok && data.candidates) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        // কনসোলে এরর ডিটেইল দেখার জন্য
-        console.error("Gemini API Error Detail:", data);
-        setResult("Counselor is configuring. Please check your internet or try later.");
+        console.error("DEBUG ERROR:", data);
+        // যদি এখনো ৪০৪ আসে, তবে বুঝতে হবে এপিআই কী পাল্টাতে হবে
+        setResult(`Error ${response.status}: Please verify your API Key in Google AI Studio.`);
       }
     } catch (error) {
-      console.error("Network Error:", error);
-      setResult("Connection issue. Please refresh the page.");
+      setResult("Connection lost. Check your wifi.");
     } finally {
       setLoading(false);
     }
