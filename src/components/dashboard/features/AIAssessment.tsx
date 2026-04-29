@@ -24,32 +24,27 @@ export const AIAssessment = () => {
     setLoading(true);
 
     try {
-      // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. মডেল সেটআপ (সরাসরি ভার্সন সহ)
+      // সরাসরি v1 ভার্সন কল করা এবং সিস্টেম ইনস্ট্রাকশন ছাড়া মডেল তৈরি
       const model = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash" 
       }, { apiVersion: 'v1' });
 
-      // ৩. সিস্টেম ইনস্ট্রাকশনকে প্রম্পটের সাথে যুক্ত করা (এটিই সমাধান)
+      // ইনস্ট্রাকশনটি সরাসরি প্রম্পটের সাথে মিশিয়ে দেওয়া (সবচেয়ে নিরাপদ পদ্ধতি)
       const finalPrompt = `
         System Instruction: You are 'EduStream Counselor'. 
-        You help students with admission information. 
-        Our partner universities are: [${ourUnis}].
-        Always be professional and helpful.
-
+        Respond friendly. Our partner universities are: [${ourUnis}].
+        
         User Message: ${studentProfile}
       `;
 
-      // ৪. কন্টেন্ট জেনারেট করা
       const result = await model.generateContent(finalPrompt);
       const responseText = result.response.text();
 
       setResult(responseText);
 
-      // ৫. হিস্ট্রি সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
@@ -65,6 +60,7 @@ export const AIAssessment = () => {
     } finally {
       setLoading(false);
     }
+  };
 
   return (
     <div className="space-y-8">
