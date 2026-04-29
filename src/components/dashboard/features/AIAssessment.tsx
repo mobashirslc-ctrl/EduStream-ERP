@@ -20,8 +20,7 @@ export const AIAssessment = () => {
     const response = await axios.post(apiUrl, {
       contents: [{
         parts: [{
-          text: `You are 'EduStream Counselor', an expert in student admissions. 
-          Analyze this profile and give a professional assessment: ${studentProfile}`
+          text: `Final Update: You are 'EduStream Counselor'. Evaluate: ${studentProfile}`
         }]
       }]
     }, {
