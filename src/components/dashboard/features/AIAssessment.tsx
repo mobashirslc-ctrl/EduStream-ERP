@@ -13,39 +13,31 @@ export const AIAssessment = () => {
     if (!studentProfile.trim()) return alert("Please type something first!");
 
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
     console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
 
     if (!apiKey) {
-      setResult("Error: API Key is missing. Please ensure it is set in Vercel Settings and Redeployed.");
+      setResult("Error: API Key is missing. Please ensure it is set in Vercel Settings.");
       return;
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
     setLoading(true);
 
-   try {
-      // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
+    try {
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. মডেল সেটআপ (এটি যোগ করতে হবে, না হলে ৩ নম্বর ধাপে এরর আসবে)
       const model = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash",
-        systemInstruction: `You are 'EduStream Counselor'. 
-          - Greetings: Respond friendly as a human counselor.
-          - Context: Use partner universities: [${ourUnis}].
-          - Style: Professional yet warm.`
+        systemInstruction: `You are 'EduStream Counselor'. Partner unis: [${ourUnis}].`
       });
 
-      // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
       const chat = model.startChat();
       const responseResult = await chat.sendMessage(studentProfile);
       const responseText = responseResult.response.text();
 
       setResult(responseText);
 
-      // ৪. হিস্ট্রি সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
@@ -54,16 +46,16 @@ export const AIAssessment = () => {
           timestamp: serverTimestamp()
         });
       }
-
     } catch (error) {
       console.error("AI Error:", error);
       setResult("I'm having a bit of trouble connecting. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Header Branding */}
       <div className="bg-[#0f4c45] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
         <div className="relative z-10">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 flex items-center gap-3">
@@ -75,10 +67,9 @@ export const AIAssessment = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Input Area */}
         <div className="space-y-4 bg-white p-8 rounded-[2rem] border border-teal-50 shadow-xl">
           <textarea 
-            placeholder="Type 'Hello' or share student details..."
+            placeholder="Type 'Hello'..."
             value={studentProfile}
             onChange={(e) => setStudentProfile(e.target.value)}
             className="w-full h-44 p-6 rounded-3xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-teal-500 text-sm font-medium transition-all shadow-inner resize-none"
@@ -92,15 +83,12 @@ export const AIAssessment = () => {
           </button>
         </div>
 
-        {/* AI Result Area */}
         <div className="bg-slate-950 rounded-[2rem] p-8 text-white min-h-[300px] border border-slate-800 shadow-2xl flex flex-col">
           {result ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                <p className="text-[10px] font-black uppercase text-teal-500 tracking-widest mb-4">Counselor Response:</p>
                <div className="prose prose-invert max-w-none">
-                  <p className="text-lg font-medium leading-relaxed italic text-slate-200">
-                    {result}
-                  </p>
+                  <p className="text-lg font-medium leading-relaxed italic text-slate-200">{result}</p>
                </div>
             </div>
           ) : (
