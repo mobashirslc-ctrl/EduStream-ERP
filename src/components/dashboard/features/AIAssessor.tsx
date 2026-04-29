@@ -14,32 +14,32 @@ export const AIAssessment = () => {
   setLoading(true);
 
   try {
-    const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // সরাসরি ফ্রেশ এপিআই কী
+    const cleanKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+    // টাইমস্ট্যাম্প যোগ করা হয়েছে ক্যাশ বাইপাস করতে
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}&cb=${Date.now()}`;
 
-    const response = await axios.post(apiUrl, {
-      contents: [{
-        parts: [{
-          text: `Final Update: You are 'EduStream Counselor'. Evaluate: ${studentProfile}`
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: `You are 'EduStream Counselor'. Analyze: ${studentProfile}` }]
         }]
-      }]
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      })
     });
 
-    // রেসপন্স চেক করার সঠিক পদ্ধতি
-    if (response.data && response.data.candidates && response.data.candidates[0].content) {
-      setResult(response.data.candidates[0].content.parts[0].text);
-    } else {
-      setResult("Counselor is thinking. Please try asking again.");
-    }
+    const data = await response.json();
 
+    if (data.candidates && data.candidates[0].content) {
+      setResult(data.candidates[0].content.parts[0].text);
+    } else {
+      console.error("Debug API Response:", data);
+      setResult("Counselor is updating. Please try one last time.");
+    }
   } catch (error) {
-    // এরর ডিবাগিংয়ের জন্য এটি কনসোলে প্রিন্ট করুন
-    console.error("Payload Details:", error.response?.data || error.message);
-    setResult("Almost there! A small adjustment is needed. Try again.");
+    console.error("Fetch Error:", error);
+    setResult("Connection issue. Please refresh and try again.");
   } finally {
     setLoading(false);
   }
