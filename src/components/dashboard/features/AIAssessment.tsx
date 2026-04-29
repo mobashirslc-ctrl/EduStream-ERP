@@ -11,45 +11,29 @@ export const AIAssessment = () => {
 
   const handleAssess = async () => {
     if (!studentProfile.trim()) return;
-
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     setLoading(true);
 
     try {
-      // ১. ইউনিভার্সিটি ডাটা ফেচ করা
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ২. সরাসরি API রিকোয়েস্ট - এন্ডপয়েন্টটি খেয়াল করুন
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // সরাসরি আপনার নতুন কী এবং সঠিক ইউআরএল ব্যবহার করা হচ্ছে
+      const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+
       const response = await axios.post(apiUrl, {
         contents: [{
-          role: "user", // রোলটি এখানে ডিফাইন করে দেওয়া ভালো
           parts: [{
-            text: `System: You are 'EduStream Counselor'. Our partner universities: [${ourUnis}]. Student says: ${studentProfile}`
+            text: `You are 'EduStream Counselor'. Partner universities: [${ourUnis}]. Student inquiry: ${studentProfile}`
           }]
         }]
       });
 
-      // ৩. ডাটা এক্সট্রাক্ট করা
-      if (response.data && response.data.candidates && response.data.candidates[0].content) {
-        const aiText = response.data.candidates[0].content.parts[0].text;
-        setResult(aiText);
-
-        // ৪. ফায়ারবেসে সেভ করা
-        if (auth.currentUser) {
-          await addDoc(collection(db, "assessments"), {
-            userId: auth.currentUser.uid,
-            input: studentProfile,
-            output: aiText,
-            timestamp: serverTimestamp()
-          });
-        }
+      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        setResult(response.data.candidates[0].content.parts[0].text);
       }
     } catch (error) {
-      // ডিবাগ করার জন্য পুরো এররটি দেখা জরুরি
-      console.error("Detailed Error:", error.response?.data || error.message);
-      setResult("The counselor is taking a short break. Please try again in a few seconds.");
+      console.error("Final Error Trace:", error.response?.data || error.message);
+      setResult("Counselor is slightly delayed. Please click Ask again.");
     } finally {
       setLoading(false);
     }
