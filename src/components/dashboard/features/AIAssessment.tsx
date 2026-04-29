@@ -4,8 +4,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db, auth } from '../../../lib/firebase';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 
-// এখান থেকে পুরনো ৮ ও ৯ নম্বর লাইন মুছে ফেলে সরাসরি এক্সপোর্টে যান
-
 export const AIAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | string>(null);
@@ -14,7 +12,6 @@ export const AIAssessment = () => {
   const handleAssess = async () => {
     if (!studentProfile.trim()) return alert("Please type something first!");
 
-    // ১. কি-টি সরাসরি ফাংশনের ভেতরে কল করুন
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     
     console.log("Checking API Key Status:", apiKey ? "Loaded ✅" : "Missing ❌");
@@ -24,23 +21,15 @@ export const AIAssessment = () => {
       return;
     }
 
-    // ২. জেনারেটিভ এআই অবজেক্ট এখানে তৈরি করুন
     const genAI = new GoogleGenerativeAI(apiKey);
-    
     setLoading(true);
+
     try {
-       // আপনার বাকি লজিক এখানে থাকবে...
-    } catch (error) {
-       console.error(error);
-       setResult("An error occurred during assessment.");
-    } finally {
-       setLoading(false);
-    try {
-      // ২. ফায়ারস্টোর থেকে ডাটা নেওয়া
+      // ১. ফায়ারস্টোর থেকে ডাটা নেওয়া
       const uniSnapshot = await getDocs(collection(db, "universities"));
       const ourUnis = uniSnapshot.docs.map(doc => doc.data().name).join(", ");
 
-      // ৩. মডেল সেটআপ ও সিস্টেম ইনস্ট্রাকশন
+      // ২. মডেল সেটআপ
       const model = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash",
         systemInstruction: `You are 'EduStream Counselor'. 
@@ -50,7 +39,7 @@ export const AIAssessment = () => {
           - Always maintain a professional yet warm tone.`
       });
 
-      // ৪. মেসেজ পাঠানো
+      // ৩. চ্যাট শুরু ও মেসেজ পাঠানো
       const chat = model.startChat();
       const responseResult = await chat.sendMessage(studentProfile);
       const response = await responseResult.response;
@@ -58,7 +47,7 @@ export const AIAssessment = () => {
 
       setResult(text);
 
-      // ৫. অপশনাল: হিস্ট্রি সেভ করা
+      // ৪. হিস্ট্রি সেভ করা
       if (auth.currentUser) {
         await addDoc(collection(db, "assessments"), {
           userId: auth.currentUser.uid,
