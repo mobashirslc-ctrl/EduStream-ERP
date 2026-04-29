@@ -10,36 +10,41 @@ export const AIAssessment = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return;
-    setLoading(true);
+  if (!studentProfile.trim()) return;
+  setLoading(true);
 
-    try {
-      // আপনার নতুন কাজ করা এপিআই কী
-      const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  try {
+    const apiKey = "AIzaSyBHW2CEK1Z_NBmWvNEZF4OY0VFdPbsVvMg";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-      const response = await axios.post(apiUrl, {
-        contents: [{
-          role: "user", // এটি যোগ করা অনেক সময় জরুরি হয়
-          parts: [{
-            text: `You are 'EduStream Counselor'. Evaluate this student profile: ${studentProfile}`
-          }]
+    const response = await axios.post(apiUrl, {
+      contents: [{
+        parts: [{
+          text: `You are 'EduStream Counselor', an expert in student admissions. 
+          Analyze this profile and give a professional assessment: ${studentProfile}`
         }]
-      }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        setResult(response.data.candidates[0].content.parts[0].text);
+      }]
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    } catch (error) {
-      // ৪০০ এরর হলে এখানে বিস্তারিত দেখা যাবে
-      console.error("Payload Error:", error.response?.data);
-      setResult("I'm fine-tuning my response. Please try one more time!");
-    } finally {
-      setLoading(false);
+    });
+
+    // রেসপন্স চেক করার সঠিক পদ্ধতি
+    if (response.data && response.data.candidates && response.data.candidates[0].content) {
+      setResult(response.data.candidates[0].content.parts[0].text);
+    } else {
+      setResult("Counselor is thinking. Please try asking again.");
     }
-  };
+
+  } catch (error) {
+    // এরর ডিবাগিংয়ের জন্য এটি কনসোলে প্রিন্ট করুন
+    console.error("Payload Details:", error.response?.data || error.message);
+    setResult("Almost there! A small adjustment is needed. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="space-y-8">
       {/* Header Section */}
