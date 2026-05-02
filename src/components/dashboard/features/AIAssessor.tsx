@@ -13,14 +13,17 @@ export const AIAssessor = () => {
     setResult(null);
 
     try {
+      // আপনার নতুন এপিআই কী
       const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
       
-      // পরিবর্তন: আমরা সরাসরি একদম লেটেস্ট এন্ডপয়েন্ট ব্যবহার করছি
+      // আমরা সরাসরি গুগল এন্ডপয়েন্ট হিট করছি কিন্তু এবার একদম লেটেস্ট ভার্সনে
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           contents: [{
             parts: [{ text: `You are 'EduStream Counselor'. Analyze these student details: ${studentProfile}` }]
@@ -33,9 +36,9 @@ export const AIAssessor = () => {
       if (response.ok && data.candidates) {
         setResult(data.candidates[0].content.parts[0].text);
       } else {
-        console.error("Gemini Error:", data);
-        // যদি এরর আসে তবে এটি কনসোলে অবজেক্ট আকারে দেখাবে
-        setResult("Counselor is connecting to server. Please try once more.");
+        console.error("Gemini Error Detail:", data);
+        // যদি এখনও ৪0৪ আসে তবে বুঝতে হবে এই কী-টি আপনার রিজিয়নে এখনো কার্যকর হয়নি
+        setResult("Counselor is connecting to server. Please try once more after 30 seconds.");
       }
     } catch (error) {
       setResult("Network error. Please hard refresh (Ctrl+F5).");
