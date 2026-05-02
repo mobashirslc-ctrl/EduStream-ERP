@@ -42,10 +42,13 @@ const AIAssessor = () => {
 
         try {
             const response = await fetch('/api/counselor', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: currentInput, context: newExtracted }),
-            });
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json' // এটি যুক্ত করুন
+    },
+    body: JSON.stringify({ message: currentInput, context: newExtracted }),
+});
             const data = await response.json();
             setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
             if (data.suggestedUni) setLastMatchedUni(data.suggestedUni);
