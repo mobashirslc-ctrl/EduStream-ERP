@@ -41,11 +41,10 @@ const AIAssessor = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/counselor', {
+            const response = await fetch(`${window.location.origin}/api/counselor`, { 
     method: 'POST',
     headers: { 
         'Content-Type': 'application/json',
-        'Accept': 'application/json' // এটি যুক্ত করুন
     },
     body: JSON.stringify({ message: currentInput, context: newExtracted }),
 });
