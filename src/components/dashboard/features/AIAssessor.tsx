@@ -8,38 +8,38 @@ export const AIAssessor = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return;
-    setLoading(true);
-    setResult(null);
+  if (!studentProfile.trim()) return;
+  setLoading(true);
+  setResult(null);
 
-    try {
-      // আপনার নতুন এপিআই কী এখানে বসানো হয়েছে
-      const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU";
-      const genAI = new GoogleGenerativeAI(apiKey);
-      
-      // আমরা স্টেবল ভার্সন ব্যবহার করার জন্য মডেল গেট করছি
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  try {
+    const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU";
+    
+    // v1beta এর বদলে সরাসরি v1 এবং models এর বদলে model ব্যবহার করে দেখুন
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
-      const prompt = `You are 'EduStream Counselor'. Analyze this: ${studentProfile}`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: studentProfile }] }]
+      })
+    });
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+    const data = await response.json();
 
-      if (text) {
-        setResult(text);
-      } else {
-        setResult("Counselor is thinking. Please try again.");
-      }
-    } catch (error: any) {
-      console.error("Gemini SDK Error:", error);
-      // ৪0৪ এরর বা অন্য কোনো সমস্যা হলে এখানে মেসেজ দেখাবে
-      setResult("Counselor is busy updating. Please check your API permissions or try again in a moment.");
-    } finally {
-      setLoading(false);
+    if (response.ok && data.candidates) {
+      setResult(data.candidates[0].content.parts[0].text);
+    } else {
+      console.error("New API Error:", data);
+      setResult("Counselor is connecting. Please wait a few seconds.");
     }
-  };
-
+  } catch (error) {
+    setResult("Connection issue. Please refresh.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="space-y-8">
       {/* Header Section */}
