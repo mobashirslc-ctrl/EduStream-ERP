@@ -1,10 +1,6 @@
 import React from 'react';
-import { Check } from 'lucide-react';
-// Next.js ব্যবহার করলে নিচের লাইনটি রাখুন:
-// import Link from 'next/link'; 
-
-// যদি আপনি Vite বা সাধারণ React ব্যবহার করেন, তবে এটি ব্যবহার করুন:
-import { Link } from 'react-router-dom'; 
+import { Check, Cloud } from 'lucide-react'; // CloudUpload এর বদলে Cloud বা Upload ব্যবহার করুন
+import Link from 'next/link'; // Next.js এর জন্য এটিই সঠিক
 
 const PricingPage = () => {
   const plans = [
@@ -50,8 +46,8 @@ const PricingPage = () => {
               ))}
             </ul>
 
-            {/* গুরুত্বপূর্ণ পরিবর্তন: Next.js হলে href ব্যবহার করুন, React Router হলে to */}
-            <Link to={`/login?package=${plan.name}&type=${plan.type}`}>
+            {/* Next.js এ 'to' এর বদলে 'href' ব্যবহার করতে হয় */}
+            <Link href={`/login?package=${plan.name}&type=${plan.type}`}>
               <button className={`w-full py-4 rounded-xl font-bold transition-all ${plan.featured ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'}`}>
                 {plan.buttonText}
               </button>
