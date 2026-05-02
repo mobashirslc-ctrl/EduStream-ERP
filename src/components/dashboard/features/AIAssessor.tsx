@@ -41,12 +41,13 @@ const AIAssessor = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${window.location.origin}/api/counselor`, { 
+            const response = await fetch('/api/counselor', { // পাথটি নিশ্চিত করুন
     method: 'POST',
-    headers: { 
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message: currentInput, context: newExtracted }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+        message: userRawText, 
+        context: { gpa: extractedGPA, ielts: extractedIELTS } 
+    }),
 });
             const data = await response.json();
             setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
