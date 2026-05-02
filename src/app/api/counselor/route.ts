@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI("AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU");
 
+// ফাংশনের নাম অবশ্যই বড় হাতের অক্ষরে হতে হবে
 export async function POST(req: Request) {
   try {
     const body = await req.json();
