@@ -8,37 +8,41 @@ export const AIAssessor = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-  if (!studentProfile.trim()) return;
-  setLoading(true);
-  
-  try {
-    const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
-    
-    // v1beta এর বদলে সরাসরি v1 ব্যবহার করুন এবং মডেলের নাম ঠিক করুন
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    if (!studentProfile.trim()) return;
+    setLoading(true);
+    setResult(null);
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: studentProfile }] }]
-      })
-    });
+    try {
+      const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
+      
+      // পরিবর্তন: আমরা সরাসরি একদম লেটেস্ট এন্ডপয়েন্ট ব্যবহার করছি
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
-    const data = await response.json();
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: `You are 'EduStream Counselor'. Analyze these student details: ${studentProfile}` }]
+          }]
+        })
+      });
 
-    if (response.ok && data.candidates) {
-      setResult(data.candidates[0].content.parts[0].text);
-    } else {
-      console.error("API Response Error:", data); // এটি কনসোলে আসল কারণ বলবে
-      setResult("Counselor is updating. Please try again in 30 seconds.");
+      const data = await response.json();
+
+      if (response.ok && data.candidates) {
+        setResult(data.candidates[0].content.parts[0].text);
+      } else {
+        console.error("Gemini Error:", data);
+        // যদি এরর আসে তবে এটি কনসোলে অবজেক্ট আকারে দেখাবে
+        setResult("Counselor is connecting to server. Please try once more.");
+      }
+    } catch (error) {
+      setResult("Network error. Please hard refresh (Ctrl+F5).");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    setResult("Connection error. Please refresh.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   return (
     <div className="space-y-8">
       {/* Header Section */}
