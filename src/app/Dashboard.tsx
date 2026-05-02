@@ -9,7 +9,7 @@ import { auth, db } from '../lib/firebase';
 import { doc, getDoc, collection, query, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // --- FEATURE COMPONENTS ---
-import { AIAssessor } from "../components/dashboard/features/AIAssessor";
+import AIAssessor from "../components/dashboard/features/AIAssessor";
 import { CloudManager } from "../components/dashboard/features/CloudManager";
 import { Compliance } from "../components/dashboard/features/Compliance"; 
 import { MailAlerts } from "../components/dashboard/features/MailAlerts";

@@ -153,4 +153,4 @@ const AIAssessor = () => {
     );
 };
 
-export default AIAssessor;
+export { AIAssessor };
