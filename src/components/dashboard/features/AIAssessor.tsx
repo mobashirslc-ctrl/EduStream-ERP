@@ -10,13 +10,12 @@ export const AIAssessor = () => {
   const handleAssess = async () => {
   if (!studentProfile.trim()) return;
   setLoading(true);
-  setResult(null);
-
+  
   try {
-    const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU";
+    const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
     
-    // v1beta এর বদলে সরাসরি v1 এবং models এর বদলে model ব্যবহার করে দেখুন
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // v1beta এর বদলে সরাসরি v1 ব্যবহার করুন এবং মডেলের নাম ঠিক করুন
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -31,11 +30,11 @@ export const AIAssessor = () => {
     if (response.ok && data.candidates) {
       setResult(data.candidates[0].content.parts[0].text);
     } else {
-      console.error("New API Error:", data);
-      setResult("Counselor is connecting. Please wait a few seconds.");
+      console.error("API Response Error:", data); // এটি কনসোলে আসল কারণ বলবে
+      setResult("Counselor is updating. Please try again in 30 seconds.");
     }
   } catch (error) {
-    setResult("Connection issue. Please refresh.");
+    setResult("Connection error. Please refresh.");
   } finally {
     setLoading(false);
   }
