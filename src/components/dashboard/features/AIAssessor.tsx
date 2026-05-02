@@ -8,44 +8,37 @@ export const AIAssessor = () => {
   const [studentProfile, setStudentProfile] = useState("");
 
   const handleAssess = async () => {
-    if (!studentProfile.trim()) return;
-    setLoading(true);
-    setResult(null);
+  if (!studentProfile.trim()) return;
+  setLoading(true);
+  setResult(null);
 
-    try {
-      // আপনার নতুন এপিআই কী
-      const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
-      
-      // আমরা সরাসরি গুগল এন্ডপয়েন্ট হিট করছি কিন্তু এবার একদম লেটেস্ট ভার্সনে
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  try {
+    // আপনার অ্যাক্টিভ এপিআই কী
+    const apiKey = "AIzaSyD5_Evr9ttRECyLVCL_UT1fZV2M8crifcU"; 
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // gemini-1.5-flash মডেলটি কল করা হচ্ছে
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: `You are 'EduStream Counselor'. Analyze these student details: ${studentProfile}` }]
-          }]
-        })
-      });
+    const prompt = `You are 'EduStream Counselor'. Analyze these student details and provide professional advice: ${studentProfile}`;
 
-      const data = await response.json();
+    // SDK ব্যবহার করে কন্টেন্ট জেনারেট
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-      if (response.ok && data.candidates) {
-        setResult(data.candidates[0].content.parts[0].text);
-      } else {
-        console.error("Gemini Error Detail:", data);
-        // যদি এখনও ৪0৪ আসে তবে বুঝতে হবে এই কী-টি আপনার রিজিয়নে এখনো কার্যকর হয়নি
-        setResult("Counselor is connecting to server. Please try once more after 30 seconds.");
-      }
-    } catch (error) {
-      setResult("Network error. Please hard refresh (Ctrl+F5).");
-    } finally {
-      setLoading(false);
+    if (text) {
+      setResult(text);
+    } else {
+      setResult("Counselor is thinking. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Gemini SDK Error:", error);
+    setResult("Counselor is busy. Please try again after a few seconds.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="space-y-8">
       {/* Header Section */}
